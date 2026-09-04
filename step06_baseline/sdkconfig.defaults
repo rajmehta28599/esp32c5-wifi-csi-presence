@@ -1,0 +1,27 @@
+# ---- Step 06: empty-room baseline calibration ----
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=6144
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
+
+# *** THE SWITCH THAT MAKES CSI EXIST ***
+# Without this, esp_wifi_set_csi() returns ESP_ERR_NOT_SUPPORTED at runtime.
+# It defaults to 'n' in ESP-IDF, which is why so many people get stuck here.
+CONFIG_ESP_WIFI_CSI_ENABLED=y
+
+# NOTE: there is no Kconfig symbol for WiFi power save in ESP-IDF - it is a
+# runtime setting only. The firmware calls esp_wifi_set_ps(WIFI_PS_NONE)
+# right after esp_wifi_start(). That matters for CSI: with power save on the
+# radio sleeps between beacons, frames are missed and RX timestamps drift.
+
+# WiFi + CSI needs more RX buffers than the default.
+CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=16
+CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=32
+
+# 2 MB app partition - the default 1 MB gets tight once CSI + the
+# detector + the web UI are all in the image.
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+
+# Faster console so high-rate CSI logging does not stall the app.
+CONFIG_ESP_CONSOLE_UART_BAUDRATE=921600

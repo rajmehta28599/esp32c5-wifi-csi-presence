@@ -1,0 +1,68 @@
+menu "ESP32-C5 CSI Project Configuration"
+
+    config CSI_WIFI_SSID
+        string "WiFi SSID"
+        default "MyRouter"
+
+    config CSI_WIFI_PASSWORD
+        string "WiFi Password"
+        default "mypassword"
+
+    config CSI_WIFI_MAX_RETRY
+        int "Maximum connection retries"
+        default 10
+
+    config CSI_PING_INTERVAL_MS
+        int "Ping interval in milliseconds"
+        default 20
+        range 5 1000
+
+    config CSI_LLTF_ONLY
+        bool "Capture L-LTF only (one fixed CSI shape)"
+        default n
+        help
+            Turn ON if Step 04's histogram fragmented across three or more
+            shapes. Leave OFF if one shape held more than ~90%.
+
+    config CSI_LOCK_PACKETS
+        int "Packets to observe before locking the CSI shape"
+        default 200
+        range 20 2000
+
+    config CSI_CAL_WARMUP_S
+        int "Calibration warm-up seconds"
+        default 5
+        range 2 60
+        help
+            Time to let the slow/fast averages settle before measuring
+            anything. Nothing is recorded during warm-up.
+
+    config CSI_CAL_PHASE_A_S
+        int "Calibration phase A seconds (per-subcarrier noise)"
+        default 15
+        range 5 120
+        help
+            Phase A measures how noisy each individual subcarrier is when
+            the room is empty. That noise level is what every later
+            measurement gets divided by.
+
+    config CSI_CAL_PHASE_B_S
+        int "Calibration phase B seconds (metric noise floor)"
+        default 15
+        range 5 120
+        help
+            Phase B measures how much the two detector metrics wobble in an
+            empty room. The detection thresholds are set from this, so the
+            system tunes itself to YOUR room instead of a magic number.
+
+    config CSI_SELECT_MIN_AMP
+        int "Subcarrier selection: minimum mean amplitude (x100 of median)"
+        default 20
+        range 1 100
+        help
+            Null and guard subcarriers sit near zero and carry no
+            information - including them only adds noise. Any subcarrier
+            whose mean normalised amplitude is below this (as a percentage
+            of the packet median, so 20 = 0.20) is discarded.
+
+endmenu

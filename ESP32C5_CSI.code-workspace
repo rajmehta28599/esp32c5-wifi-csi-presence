@@ -1,0 +1,56 @@
+{
+  "folders": [
+    {
+      "name": "step01_hello",
+      "path": "step01_hello"
+    },
+    {
+      "name": "step02_wifi_sta",
+      "path": "step02_wifi_sta"
+    },
+    {
+      "name": "step03_csi_hello",
+      "path": "step03_csi_hello"
+    },
+    {
+      "name": "step04_csi_geometry",
+      "path": "step04_csi_geometry"
+    },
+    {
+      "name": "step05_amplitude",
+      "path": "step05_amplitude"
+    },
+    {
+      "name": "step06_baseline",
+      "path": "step06_baseline"
+    },
+    {
+      "name": "step07_presence",
+      "path": "step07_presence"
+    },
+    {
+      "name": "step08_final_human_detector",
+      "path": "step08_final_human_detector"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/build": true,
+      "**/managed_components": true
+    },
+    "search.exclude": {
+      "**/build": true,
+      "**/sdkconfig": true,
+      "**/sdkconfig.old": true
+    },
+    "idf.port": "COM37",
+    "idf.portWin": "COM37"
+  },
+  "extensions": {
+    "recommendations": [
+      "espressif.esp-idf-extension",
+      "llvm-vs-code-extensions.vscode-clangd",
+      "ms-python.python"
+    ]
+  }
+}

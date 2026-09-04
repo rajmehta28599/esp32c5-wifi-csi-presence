@@ -1,0 +1,214 @@
+{
+  // ===================================================================
+  //  ESP32-C5 CSI project - one-click tasks for Antigravity / VS Code
+  // ===================================================================
+  //
+  //  Ctrl+Shift+B            = Build
+  //  Ctrl+Shift+P -> "Tasks: Run Task"  = everything else
+  //
+  //  START HERE IF SOMETHING FAILS:  run "ESP-IDF: Doctor".
+  //  It checks the toolchain, the RISC-V compiler, whether a board is
+  //  actually connected, and which steps are built.
+  //
+  //  PORT: leave the port prompt on "auto" and the board is found for
+  //  you. Only type a COM number if you have several boards plugged in.
+  //
+  //  WHICH ESP-IDF THIS PROJECT USES
+  //    ESP-IDF v6.0.2 at C:\esp\v6.0.2\esp-idf - deliberately the SAME
+  //    install the Antigravity extension's EIM registry selects
+  //    (C:\Espressif\tools\eim_idf.json), so the IDE and the command line
+  //    can never disagree about sdkconfig format or the Wi-Fi API.
+  //
+  //    Do NOT switch to v6.0.1: it is EIM-registered but its
+  //    riscv32-esp-elf toolchain is not installed, so "set-target esp32c5"
+  //    fails and the build silently falls back to the xtensa esp32 target.
+  //
+  //  WHY THESE TASKS EXIST (rather than the extension's own buttons)
+  //    They call export.ps1 directly, so they work regardless of extension
+  //    config, and without touching the global EIM registry that your
+  //    other ESP-IDF projects depend on.
+  //
+  //    "type": "process" is used deliberately - it hands the argument
+  //    list straight to the executable, so nothing gets mangled by a
+  //    second round of shell quoting.
+  // ===================================================================
+  "version": "2.0.0",
+
+  "inputs": [
+    {
+      "id": "step",
+      "type": "pickString",
+      "description": "Which step?",
+      "default": "step08_final_human_detector",
+      "options": [
+        "step01_hello",
+        "step02_wifi_sta",
+        "step03_csi_hello",
+        "step04_csi_geometry",
+        "step05_amplitude",
+        "step06_baseline",
+        "step07_presence",
+        "step08_final_human_detector"
+      ]
+    },
+    {
+      "id": "port",
+      "type": "promptString",
+      "description": "COM port - leave as 'auto' to detect the board automatically.",
+      "default": "auto"
+    }
+  ],
+
+  "tasks": [
+    {
+      "label": "ESP-IDF: Doctor (run this first if anything fails)",
+      "detail": "Checks ESP-IDF, the RISC-V toolchain, connected boards, and which steps are built. Flashes nothing.",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-Command",
+        "& '${workspaceFolder}\\build.ps1' -Doctor"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+
+    {
+      "label": "ESP-IDF: Build",
+      "detail": "Configure for esp32c5 (first time) and build. No board needed.",
+      "type": "process",
+      "group": { "kind": "build", "isDefault": true },
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-Command",
+        "& '${workspaceFolder}\\build.ps1' '${input:step}'"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": ["$gcc"],
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+
+    {
+      "label": "ESP-IDF: Build + Flash + Monitor",
+      "detail": "The everyday one. Needs a board connected. Checks the port BEFORE building, so you find out immediately.",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-Command",
+        "& '${workspaceFolder}\\build.ps1' '${input:step}' -Flash -Port '${input:port}'"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": ["$gcc"],
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+
+    {
+      "label": "ESP-IDF: Monitor only",
+      "detail": "Open the serial monitor without reflashing. Ctrl+] to quit.",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-Command",
+        "& '${workspaceFolder}\\build.ps1' '${input:step}' -Monitor -Port '${input:port}'"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+
+    {
+      "label": "ESP-IDF: menuconfig (set WiFi SSID / password)",
+      "detail": "The ESP-IDF configuration UI. This is where you set WiFi credentials and detection thresholds. No board needed.",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-Command",
+        "& 'C:\\esp\\v6.0.2\\esp-idf\\export.ps1' *> $null; Set-Location '${workspaceFolder}\\${input:step}'; if (-not (Test-Path sdkconfig)) { idf.py set-target esp32c5 }; idf.py menuconfig"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+
+    {
+      "label": "ESP-IDF: Clean rebuild",
+      "detail": "Deletes build/ and sdkconfig, then rebuilds. Use after editing sdkconfig.defaults.",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-Command",
+        "& '${workspaceFolder}\\build.ps1' '${input:step}' -Clean"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": ["$gcc"],
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+
+    {
+      "label": "ESP-IDF: Erase flash (wipes the saved calibration)",
+      "detail": "Full chip erase. DELETES the NVS baseline from Step 06 - you will have to recalibrate.",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-Command",
+        "& 'C:\\esp\\v6.0.2\\esp-idf\\export.ps1' *> $null; Set-Location '${workspaceFolder}\\${input:step}'; idf.py -p '${input:port}' erase-flash"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+
+    {
+      "label": "Tools: CSI waterfall plot (Step 05)",
+      "detail": "Live plot of the CSI amplitude stream. Close the serial monitor first - only one program can own the port.",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-Command",
+        "python '${workspaceFolder}\\tools\\csi_monitor.py' --port '${input:port}'"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+
+    {
+      "label": "Tools: Presence monitor + plot (Step 08)",
+      "detail": "Reads the JSON stream and plots the motion score against the trigger threshold. Best tool for tuning.",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-Command",
+        "python '${workspaceFolder}\\tools\\presence_monitor.py' --port '${input:port}' --plot"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+
+    {
+      "label": "Tools: Install Python plotting deps",
+      "detail": "pip install pyserial matplotlib numpy - needed once for the two Tools tasks above.",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-Command",
+        "python -m pip install pyserial matplotlib numpy"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    }
+  ]
+}

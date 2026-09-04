@@ -1,0 +1,7 @@
+# ---- Step 01: minimal sanity project for ESP32-C5 ----
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=4096
+# Console over the built-in USB-Serial-JTAG works on most C5 devkits.
+# If your board only exposes a UART bridge (CP210x/CH340), comment the next
+# two lines out and use the default UART console instead.
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y

@@ -1,0 +1,93 @@
+menu "ESP32-C5 CSI Project Configuration"
+
+    config CSI_WIFI_SSID
+        string "WiFi SSID"
+        default "MyRouter"
+
+    config CSI_WIFI_PASSWORD
+        string "WiFi Password"
+        default "mypassword"
+
+    config CSI_WIFI_MAX_RETRY
+        int "Maximum connection retries"
+        default 10
+
+    config CSI_PING_INTERVAL_MS
+        int "Ping interval in milliseconds"
+        default 20
+        range 5 1000
+
+    config CSI_LLTF_ONLY
+        bool "Capture L-LTF only (one fixed CSI shape)"
+        default n
+        help
+            MUST match whatever you used in Step 06. If it does not, the
+            CSI shape will differ from the stored baseline and the firmware
+            will tell you to recalibrate.
+
+    config CSI_LOCK_PACKETS
+        int "Packets to observe before locking the CSI shape"
+        default 200
+        range 20 2000
+
+    menu "Detection tuning"
+
+        config CSI_MOTION_SIGMA_X100
+            int "Motion trigger, in hundredths of a standard deviation"
+            default 500
+            range 100 5000
+            help
+                500 means "fire when the motion metric M is 5.00 standard
+                deviations above its empty-room mean". Raise it if you get
+                false alarms, lower it if walking is missed.
+                This is the PRIMARY detector.
+
+        config CSI_MOTION_RELEASE_X100
+            int "Motion release threshold, hundredths of a std dev"
+            default 250
+            range 50 5000
+            help
+                Hysteresis. Once triggered, motion stays flagged until M
+                falls below this LOWER threshold. Prevents the output
+                chattering on and off around a single threshold.
+
+        config CSI_STATIC_SIGMA_X100
+            int "Static-presence trigger, hundredths of a std dev"
+            default 500
+            range 100 5000
+            help
+                Applies to the deviation metric D - "the room has settled
+                into a different state". Someone standing still.
+
+        config CSI_STATIC_SUSTAIN_MS
+            int "Static presence must persist for this long (ms)"
+            default 4000
+            range 500 60000
+            help
+                D alone is not trustworthy - it also rises for slow
+                environmental drift. Requiring several seconds of sustained
+                deviation before asserting presence removes most of that.
+
+        config CSI_PRESENCE_HOLD_MS
+            int "Keep reporting PRESENT for this long after the last trigger"
+            default 5000
+            range 500 120000
+            help
+                A person who pauses between steps would otherwise flicker
+                the output. This holds the PRESENT state open.
+
+    endmenu
+
+    config CSI_LED_GPIO
+        int "GPIO for a presence LED (-1 to disable)"
+        default -1
+        range -1 48
+        help
+            Optional. Set to the GPIO number of a plain LED on your board to
+            get a physical presence indicator. Left at -1 (disabled) because
+            devkit LED pins differ between boards - check your board's
+            schematic before setting it. Note that boards whose only LED is
+            an addressable RGB (WS2812) type will NOT work with this simple
+            on/off drive.
+
+endmenu

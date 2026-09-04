@@ -1,0 +1,16 @@
+# IntelliSense for this step.
+# idf.py writes build/compile_commands.json on every build, so clangd gets
+# the exact include paths and defines the compiler actually used - including
+# the esp32c5-specific ones that decide which CSI struct you see.
+# If symbols look unresolved, just build the step once.
+CompileFlags:
+  CompilationDatabase: build
+  Remove:
+    # clang does not understand these GCC/RISC-V flags; drop them so the
+    # whole command line is not rejected.
+    - -fno-tree-switch-conversion
+    - -fstrict-volatile-bitfields
+    - -fno-shrink-wrap
+    - -mno-*
+    - -march=*
+    - -mabi=*

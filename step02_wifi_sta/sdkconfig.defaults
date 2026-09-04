@@ -1,0 +1,9 @@
+# ---- Step 02: WiFi station ----
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=4096
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
+
+# NOTE: there is no Kconfig symbol for WiFi power save in ESP-IDF - it is a
+# runtime setting only. The firmware calls esp_wifi_set_ps(WIFI_PS_NONE)
+# right after esp_wifi_start(). That matters for CSI: with power save on the
+# radio sleeps between beacons, frames are missed and RX timestamps drift.

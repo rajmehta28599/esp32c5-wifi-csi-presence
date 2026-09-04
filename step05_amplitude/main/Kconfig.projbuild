@@ -1,0 +1,62 @@
+menu "ESP32-C5 CSI Project Configuration"
+
+    config CSI_WIFI_SSID
+        string "WiFi SSID"
+        default "MyRouter"
+        help
+            Name of your 2.4 GHz WiFi network.
+
+    config CSI_WIFI_PASSWORD
+        string "WiFi Password"
+        default "mypassword"
+        help
+            WPA2 password of your WiFi network. Leave empty for an open network.
+
+    config CSI_WIFI_MAX_RETRY
+        int "Maximum connection retries"
+        default 10
+
+    config CSI_PING_INTERVAL_MS
+        int "Ping interval in milliseconds"
+        default 20
+        range 5 1000
+        help
+            20 ms = 50 CSI packets/second.
+
+    config CSI_LLTF_ONLY
+        bool "Capture L-LTF only (one fixed CSI shape)"
+        default n
+        help
+            Decision rule - use the output of Step 04:
+
+              * If Step 04's histogram showed ONE shape with more than ~90%
+                of the packets, leave this OFF. The auto-lock picks that
+                dominant shape and you get the richest CSI available.
+
+              * If Step 04's histogram FRAGMENTED across three or more shapes
+                (mixed 11g / HT / HE traffic from your router), turn this ON.
+                Only the legacy long training field is captured, which is
+                present in every single packet regardless of PHY, so every
+                packet then yields exactly the same number of subcarriers.
+                You lose some resolution but gain a rock-steady stream.
+
+    config CSI_CSV_DECIMATE
+        int "Print 1 CSV line out of every N packets"
+        default 5
+        range 1 100
+        help
+            At 50 packets/s a full CSV dump of 64 subcarriers can swamp the
+            serial console. 5 means ~10 lines/s, which plots nicely and still
+            leaves the console readable.
+
+    config CSI_LOCK_PACKETS
+        int "Packets to observe before locking the CSI shape"
+        default 200
+        range 20 2000
+        help
+            The firmware watches this many packets, finds the most common
+            CSI length, then accepts only that length from then on. Mixing
+            lengths in one statistic is the classic way to get a detector
+            that never triggers.
+
+endmenu

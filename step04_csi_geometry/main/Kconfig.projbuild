@@ -1,0 +1,33 @@
+menu "ESP32-C5 CSI Project Configuration"
+
+    config CSI_WIFI_SSID
+        string "WiFi SSID"
+        default "MyRouter"
+        help
+            Name of your 2.4 GHz WiFi network. The ESP32-C5 must join a
+            2.4 GHz network for this project - CSI geometry is kept stable
+            by locking the radio to 2.4 GHz / 20 MHz.
+
+    config CSI_WIFI_PASSWORD
+        string "WiFi Password"
+        default "mypassword"
+        help
+            WPA2 password of your WiFi network. Leave empty for an open network.
+
+    config CSI_WIFI_MAX_RETRY
+        int "Maximum connection retries"
+        default 10
+        help
+            How many times to retry association before giving up and rebooting.
+
+    config CSI_PING_INTERVAL_MS
+        int "Ping interval in milliseconds"
+        default 20
+        range 5 1000
+        help
+            The ESP32-C5 only gets CSI from packets it RECEIVES. To keep a
+            steady stream of receptions we ping the router continuously.
+            20 ms = 50 packets/second, which is plenty for detecting a human
+            walking. Lower = more responsive but more airtime.
+
+endmenu

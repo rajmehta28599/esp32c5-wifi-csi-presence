@@ -1,0 +1,161 @@
+menu "ESP32-C5 CSI Human Detector"
+
+    menu "WiFi"
+
+        config CSI_WIFI_SSID
+            string "WiFi SSID (2.4 GHz)"
+            default "MyRouter"
+
+        config CSI_WIFI_PASSWORD
+            string "WiFi Password"
+            default "mypassword"
+
+        config CSI_WIFI_MAX_RETRY
+            int "Maximum connection retries"
+            default 10
+
+        config CSI_PING_INTERVAL_MS
+            int "Ping interval in milliseconds"
+            default 20
+            range 5 1000
+            help
+                Sets the CSI sample rate. 20 ms = 50 Hz.
+
+    endmenu
+
+    menu "CSI capture"
+
+        config CSI_LLTF_ONLY
+            bool "Capture L-LTF only (one fixed CSI shape)"
+            default n
+            help
+                Turn ON if Step 04's histogram fragmented across three or
+                more shapes. Changing this INVALIDATES a stored baseline -
+                the firmware will detect that and recalibrate itself.
+
+        config CSI_LOCK_PACKETS
+            int "Packets to observe before locking the CSI shape"
+            default 200
+            range 20 2000
+
+    endmenu
+
+    menu "Calibration"
+
+        config CSI_FORCE_RECALIBRATE
+            bool "Force recalibration on next boot"
+            default n
+            help
+                The board-independent way to recalibrate. Turn this ON,
+                flash, leave the room while it calibrates, then turn it OFF
+                and flash again so it does not recalibrate on every reboot.
+
+                (The firmware also calibrates automatically whenever no
+                valid baseline is stored, so a brand-new board just works.)
+
+        config CSI_CAL_WARMUP_S
+            int "Calibration warm-up seconds"
+            default 5
+            range 2 60
+
+        config CSI_CAL_PHASE_A_S
+            int "Phase A seconds (per-subcarrier noise)"
+            default 15
+            range 5 120
+
+        config CSI_CAL_PHASE_B_S
+            int "Phase B seconds (metric noise floor)"
+            default 15
+            range 5 120
+
+        config CSI_CAL_LEAVE_ROOM_S
+            int "Grace period before calibration starts (seconds)"
+            default 10
+            range 0 120
+            help
+                Countdown after boot so you have time to walk out of the
+                room before measurement begins.
+
+        config CSI_SELECT_MIN_AMP
+            int "Subcarrier selection: minimum mean amplitude (x100)"
+            default 20
+            range 1 100
+
+    endmenu
+
+    menu "Detection tuning"
+
+        config CSI_MOTION_SIGMA_X100
+            int "Motion trigger, hundredths of a standard deviation"
+            default 500
+            range 100 5000
+            help
+                Raise for fewer false alarms, lower for more sensitivity.
+                This is the primary detector.
+
+        config CSI_MOTION_RELEASE_X100
+            int "Motion release threshold, hundredths of a std dev"
+            default 250
+            range 50 5000
+
+        config CSI_STATIC_SIGMA_X100
+            int "Static-presence trigger, hundredths of a std dev"
+            default 500
+            range 100 5000
+
+        config CSI_STATIC_SUSTAIN_MS
+            int "Static presence must persist this long (ms)"
+            default 4000
+            range 500 60000
+
+        config CSI_PRESENCE_HOLD_MS
+            int "Hold PRESENT this long after the last trigger (ms)"
+            default 5000
+            range 500 120000
+
+    endmenu
+
+    menu "Outputs"
+
+        config CSI_LED_GPIO
+            int "GPIO for a presence LED (-1 to disable)"
+            default -1
+            range -1 48
+            help
+                Plain on/off LED. Left disabled by default because devkit
+                LED pins differ - check YOUR board's schematic first. Boards
+                whose only LED is an addressable RGB (WS2812) type will not
+                work with this simple drive.
+
+        config CSI_LED_ACTIVE_LOW
+            bool "Presence LED is active low"
+            default n
+            depends on CSI_LED_GPIO >= 0
+
+        config CSI_BUTTON_GPIO
+            int "GPIO for a recalibrate button (-1 to disable)"
+            default -1
+            range -1 48
+            help
+                Hold for 2 seconds to recalibrate. Assumed active-low with
+                an internal pull-up, which is how a BOOT-style button is
+                normally wired. Check your board's schematic for the pin
+                number - it is not the same across devkits, which is why
+                there is no default here.
+
+        config CSI_JSON_PERIOD_MS
+            int "Emit a JSON status line every N ms (0 to disable)"
+            default 500
+            range 0 60000
+            help
+                Machine-readable output for a host script, Home Assistant,
+                an MQTT bridge, and so on. Lines start with 'JSON ' so they
+                are easy to grep out of the log stream.
+
+        config CSI_HUMAN_READABLE
+            bool "Also print the human-readable bar graph"
+            default y
+
+    endmenu
+
+endmenu
