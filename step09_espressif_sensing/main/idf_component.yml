@@ -1,0 +1,5 @@
+dependencies:
+  idf:
+    version: ">=5.4"
+  espressif/esp_wifi_sensing:
+    version: "^0.1.1"

@@ -17,8 +17,15 @@ sdkconfig.old
 # ---------------------------------------------------------------------------
 #  ESP-IDF component manager
 # ---------------------------------------------------------------------------
+#  managed_components/ is downloaded output - never tracked.
 managed_components/
-dependencies.lock
+
+#  dependencies.lock IS tracked, deliberately. It was ignored here until
+#  2026-09-07, which was harmless while the repo had no external components -
+#  Step 09 added the first one. The lock file is what pins esp_wifi_sensing
+#  0.1.1~2 / esp-radar 0.3.4 exactly; without it a later 0.4.x resolves
+#  silently and the benchmark stops being a benchmark.
+!dependencies.lock
 
 # ---------------------------------------------------------------------------
 #  clangd / IDE caches  (the .clangd config files themselves are tracked)

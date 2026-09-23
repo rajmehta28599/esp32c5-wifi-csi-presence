@@ -1,0 +1,22 @@
+menu "ESP32-C5 CSI Project Configuration"
+
+    config CSI_WIFI_SSID
+        string "WiFi SSID"
+        default "MyRouter"
+        help
+            The 2.4 GHz network to associate with. Must be the same network
+            you used for Steps 02-08, or the comparison is meaningless.
+
+    config CSI_WIFI_PASSWORD
+        string "WiFi Password"
+        default "mypassword"
+        help
+            Password for the network above.
+
+    config CSI_WIFI_MAX_RETRY
+        int "Maximum connection retries"
+        default 10
+        help
+            Give up and report failure after this many association attempts.
+
+endmenu

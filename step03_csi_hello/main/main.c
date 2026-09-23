@@ -249,9 +249,14 @@ void app_main(void)
         wifi_ap_record_t ap;
         int ch = (esp_wifi_sta_get_ap_info(&ap) == ESP_OK) ? ap.primary : -1;
 
+        /* Free heap is printed alongside the rate on purpose: it is the
+         * number you spend when raising CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM
+         * / _DYNAMIC_RX_BUFFER_NUM. Read it under load before raising them -
+         * see the note at the end of sdkconfig.defaults. */
         ESP_LOGI(TAG,
-                 "CSI packets: %6" PRIu32 " total | %5.1f /s | last len %u B | rssi %d dBm | ch %d",
-                 now, delta / seconds, s_last_len, s_last_rssi, ch);
+                 "CSI packets: %6" PRIu32 " total | %5.1f /s | last len %u B | rssi %d dBm | ch %d | heap %" PRIu32 " B",
+                 now, delta / seconds, s_last_len, s_last_rssi, ch,
+                 esp_get_free_heap_size());
 
         if (now == 0) {
             ESP_LOGE(TAG, "NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,");

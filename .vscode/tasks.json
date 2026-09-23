@@ -48,7 +48,8 @@
         "step05_amplitude",
         "step06_baseline",
         "step07_presence",
-        "step08_final_human_detector"
+        "step08_final_human_detector",
+        "step09_espressif_sensing"
       ]
     },
     {

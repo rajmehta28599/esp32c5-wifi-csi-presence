@@ -961,6 +961,9 @@ D:\ESP32C5_CSI\
 ├── step06_baseline\                 empty-room calibration -> NVS
 ├── step07_presence\                 detection logic
 ├── step08_final_human_detector\  ⭐  the finished system
+├── step09_espressif_sensing\        benchmark: Espressif's own stack
+├── docs\
+│   └── REFERENCES.md                annotated reference list
 └── tools\
     ├── csi_monitor.py               live waterfall plot (Step 05)
     └── presence_monitor.py          JSON reader / plotter / logger (Step 08)
@@ -970,11 +973,59 @@ Shared calibration record: `main/csi_baseline.h` (Steps 06–08) — a ~2 KB str
 holding `sigma[k]`, the selected-subcarrier mask, and the empty-room metric
 statistics, stored as one NVS blob.
 
+### Step 09 — the benchmark (optional, but do it before tuning)
+
+`step09_espressif_sensing/` contains **none of this project's detection code**.
+It runs Espressif's own `esp_wifi_sensing` FSM — the same router-ping, baseline,
+hysteresis architecture, written by the people who wrote the radio — so that
+Step 08's numbers have something honest to be compared against. It is the only
+external component this repo pulls in:
+
+```yaml
+# step09_espressif_sensing/main/idf_component.yml
+dependencies:
+  espressif/esp_wifi_sensing: "^0.1.1"     # -> pulls esp-radar 0.3.4
+```
+
+Flash Step 08 and Step 09 alternately in the same room and compare:
+Step 08's motion score against `jitter_value`, its presence branch against
+`wander_value`, and its single threshold against Step 09's *two*
+(`enter_level` / `exit_level`).
+
+> ⚠️ **Check they are reading the same frames first.** esp-radar picks its own
+> CSI acquire configuration, which need not match the one in Step 03/04
+> (`acquire_csi_legacy` / `_ht20` / `_su` / `_mu`, `he_stbc_mode = 2`). If one
+> side is scoring HE frames and the other L-LTF, the two numbers are not
+> comparable and the benchmark is silently meaningless. Run Step 04's histogram
+> and confirm both see the same `csi_data_len` before you trust any comparison.
+
+> **It is a separate project on purpose.** `esp_wifi_set_csi_rx_cb()` has one
+> callback slot, last writer wins, and `esp_wifi_sensing` registers its own.
+> Linking it into Step 08 would silently disable whichever registered first —
+> a failure that looks like "the detector stopped working" and has no visible
+> cause.
+>
+> Its `CMakeLists.txt` also carries a two-line `-fno-strict-aliasing` fix:
+> **esp-radar 0.3.4 does not compile at -O2.** See
+> [`docs/REFERENCES.md`](docs/REFERENCES.md) §2.1 for why, and why the warning
+> must be fixed rather than silenced.
+
+### Build settings — this repo builds at -O2
+
+All nine projects set `CONFIG_COMPILER_OPTIMIZATION_PERF` (-O2),
+`CONFIG_FREERTOS_HZ=1000` and `CONFIG_ESPTOOLPY_FLASHMODE_QIO` in their
+`sdkconfig.defaults`, with the reasoning written inline in those files.
+Assertions are deliberately left **on** until something has actually run on
+hardware. Full rationale, including two settings that were tried and reverted,
+is in [`docs/REFERENCES.md`](docs/REFERENCES.md) §7.
+
 ## Where to go next
 
 * **Two boards** — a second ESP32 as a dedicated CSI sender (ESP-NOW at a fixed
   rate) removes the dependency on router behaviour entirely and gives a much
   cleaner signal. The cleanest upgrade available.
+  *(Instrument the received CSI rate from day one — see
+  [`docs/REFERENCES.md`](docs/REFERENCES.md) §1.5.)*
 * **Breathing detection** — band-pass the per-subcarrier amplitude around
   0.15–0.5 Hz. Works in ideal conditions; unreliable in general.
 * **Direction of movement** — correlate which subcarriers change first.
@@ -983,16 +1034,37 @@ statistics, stored as one NVS blob.
 
 ## References
 
-* ESP-IDF Wi-Fi CSI guide — `docs/en/api-guides/wifi.rst`, *Wi-Fi Channel State
-  Information*. Note that its subcarrier table is written for **classic ESP32**
-  (it references `sig_mode`, `cwb`, `stbc`, which do not exist on C5) — which
-  is exactly why Step 04 measures instead of assuming.
+**→ [`docs/REFERENCES.md`](docs/REFERENCES.md) is the full annotated list** —
+papers, Espressif components, third-party implementations, datasets and video,
+each tagged *C5-ready* / *C5-measured* / *algorithm-only* / *background*, plus a
+ranked list of what to change in this repo first. Last swept **2026-09-07**.
+
+The essentials, inline:
+
+* **ESP-IDF Wi-Fi CSI guide — read the `esp32c5` page, not the generic one:**
+  [`.../esp32c5/api-guides/wifi-driver/wifi-vendor-features.html`](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c5/api-guides/wifi-driver/wifi-vendor-features.html)
+  → *Wi-Fi Channel State Information*. The per-target page **does** carry a
+  C5 sub-carrier/byte-count table (106–490 bytes); its column *labels* still use
+  the classic vocabulary (`sig_mode`, `cwb`, `stbc`) that does not exist on C5.
+  `docs/REFERENCES.md` §1.1 turns it into the six `csi_data_len` values Step 04
+  should actually print.
 * C5 CSI structs — `components/esp_wifi/include/esp_wifi_he_types.h`
   (`CONFIG_SOC_WIFI_MAC_VERSION_NUM == 3` branch)
 * `components/esp_wifi/include/local/esp_wifi_types_native.h`
 * `components/soc/esp32c5/include/soc/soc_caps.h` — `SOC_WIFI_CSI_SUPPORT`
-* Espressif's [esp-csi](https://github.com/espressif/esp-csi) reference project
-  (targets older chips; useful for algorithm ideas, **not** for C5 API calls)
+* Espressif's [esp-csi](https://github.com/espressif/esp-csi) — **this now
+  targets the C5 directly**, not just older chips. Its README, the
+  `get-started/csi_recv_router` example (router-ping, the design this repo
+  mirrors) and the newer `esp-radar/wifi_sensing_demo` all list ESP32-C5. The
+  one example that still fails to build on C5 is `esp-radar/console_test` —
+  [esp-csi #241](https://github.com/espressif/esp-csi/issues/241), open, and its
+  error list is field-for-field the incompatibility table above.
+* Espressif's own C5-capable sensing components —
+  [`esp_wifi_sensing`](https://components.espressif.com/components/espressif/esp_wifi_sensing)
+  (router ping, dynamic baseline, hysteresis, on-site training) on top of
+  [`esp-radar`](https://components.espressif.com/components/espressif/esp-radar).
+  Both list `esp32c5` and require ESP-IDF ≥ 5.4. The nearest thing to a
+  reference implementation of this project — see `docs/REFERENCES.md` §2.
 
 ---
 

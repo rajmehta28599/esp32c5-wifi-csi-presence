@@ -31,6 +31,10 @@
     {
       "name": "step08_final_human_detector",
       "path": "step08_final_human_detector"
+    },
+    {
+      "name": "step09_espressif_sensing",
+      "path": "step09_espressif_sensing"
     }
   ],
   "settings": {
