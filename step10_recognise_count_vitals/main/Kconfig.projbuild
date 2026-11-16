@@ -1,0 +1,638 @@
+menu "ESP32-C5 CSI Human Detector"
+
+    menu "WiFi"
+
+        config CSI_WIFI_SSID
+            string "WiFi SSID (2.4 GHz)"
+            default "MyRouter"
+
+        config CSI_WIFI_PASSWORD
+            string "WiFi Password"
+            default "mypassword"
+
+        config CSI_WIFI_MAX_RETRY
+            int "Maximum connection retries"
+            default 10
+
+        config CSI_PING_INTERVAL_MS
+            int "Ping interval in milliseconds"
+            default 20
+            range 5 1000
+            help
+                Sets the CSI sample rate. 20 ms = 50 Hz.
+
+                For Step 10 RECOGNITION, 10 ms (100 Hz) is recommended:
+                the gait features look at body motion up to 16 Hz and
+                beyond, which needs at least 100 Hz sampling - at 50 Hz
+                everything above 25 Hz is simply lost. Only lower it to
+                10 ms after Step 03 has shown enough free heap and that
+                your router actually answers that fast (the measured rate
+                is printed at calibration and as rate_hz in the JSON; the
+                console's 'status' also shows the live rate).
+
+                Enrolment and recognition must run at the SAME ping rate.
+                A template enrolled at 50 Hz does not match windows
+                measured at 100 Hz: after changing this, recalibrate (so
+                the measured rate is updated), then re-enrol everyone
+                ('forget all', 'enroll ...') and redo 'count-train'.
+                Breathing and heart rate work at either rate.
+
+    endmenu
+
+    menu "CSI capture"
+
+        config CSI_LLTF_ONLY
+            bool "Capture L-LTF only (one fixed CSI shape)"
+            default n
+            help
+                Turn ON if Step 04's histogram fragmented across three or
+                more shapes. Changing this INVALIDATES a stored baseline -
+                the firmware will detect that and recalibrate itself.
+
+        config CSI_LOCK_PACKETS
+            int "Packets to observe before locking the CSI shape"
+            default 200
+            range 20 2000
+
+        config CSI_GAIN_LOG
+            bool "Log the receiver gain on each detect JSON line (agc, fft, gain_chg)"
+            default y
+            help
+                Reads two bytes of each packet's rx_ctrl header that
+                Espressif's esp_csi_gain_ctrl library treats as the AGC and
+                FFT gain (csi_gain.h), and adds to every detect-state JSON
+                line the last packet's agc and fft and gain_chg, the number
+                of packets since the previous detect line whose gain
+                differed from the packet before. The calibration and no_csi
+                JSON lines carry no gain keys. The count restarts when
+                detection starts, so the first detect line after boot or
+                'recal' covers detection packets only; the calibration's
+                packets are summarised once in a "gain before detection"
+                log line. LOGGING ONLY:
+                nothing the detector decides depends on it. A gain step
+                changes all amplitudes at once, so a false PRESENT that
+                lines up with gain_chg > 0 points at the receiver, not a
+                person.
+                The bytes are not a documented ESP-IDF field and have not
+                been seen on silicon yet: check the first capture (agc
+                should move with distance or RSSI). Off: the three keys
+                are written as null, so the key set does not change.
+
+    endmenu
+
+    menu "Calibration"
+
+        config CSI_FORCE_RECALIBRATE
+            bool "Force recalibration on next boot"
+            default n
+            help
+                The board-independent way to recalibrate. Turn this ON,
+                flash, leave the room while it calibrates, then turn it OFF
+                and flash again so it does not recalibrate on every reboot.
+
+                (The firmware also calibrates automatically whenever no
+                valid baseline is stored, so a brand-new board just works.)
+
+        config CSI_CAL_WARMUP_S
+            int "Calibration warm-up seconds"
+            default 5
+            range 2 60
+
+        config CSI_CAL_PHASE_A_S
+            int "Phase A seconds (per-subcarrier noise)"
+            default 15
+            range 5 120
+
+        config CSI_CAL_PHASE_B_S
+            int "Phase B seconds (metric noise floor)"
+            default 15
+            range 5 120
+
+        config CSI_CAL_LEAVE_ROOM_S
+            int "Grace period before calibration starts (seconds)"
+            default 10
+            range 0 120
+            help
+                Countdown after boot so you have time to walk out of the
+                room before measurement begins.
+
+        config CSI_SELECT_MIN_AMP
+            int "Subcarrier selection: minimum mean amplitude (x100)"
+            default 20
+            range 1 100
+
+    endmenu
+
+    menu "Detection tuning"
+
+        config CSI_MOTION_SIGMA_X100
+            int "Motion trigger, hundredths of a standard deviation"
+            default 500
+            range 100 5000
+            help
+                Raise for fewer false alarms, lower for more sensitivity.
+                This is the primary detector.
+
+        config CSI_MOTION_RELEASE_X100
+            int "Motion release threshold, hundredths of a std dev"
+            default 250
+            range 50 5000
+
+        config CSI_STATIC_SIGMA_X100
+            int "Static-presence trigger, hundredths of a std dev"
+            default 500
+            range 100 5000
+
+        config CSI_STATIC_SUSTAIN_MS
+            int "Static presence must persist this long (ms)"
+            default 4000
+            range 500 60000
+
+        config CSI_PRESENCE_HOLD_MS
+            int "Hold PRESENT this long after the last trigger (ms)"
+            default 5000
+            range 500 120000
+
+        config CSI_SLOW_FREEZE_MAX_S
+            int "Freeze the empty-room reference for at most this long (s)"
+            default 600
+            range 0 7200
+            help
+                While PRESENT, the slow reference that the static branch
+                compares against stops adapting - otherwise it absorbs the
+                person within about a minute, then reports them again as a
+                "change" for a minute or two after they leave. The freeze
+                is capped so that a real change made while someone is in
+                the room (furniture moved, a door left open) cannot hold
+                PRESENT forever: after this many seconds of continuous
+                presence the reference adapts again. 0 = no cap (not
+                recommended).
+
+        config CSI_NO_CSI_TIMEOUT_MS
+            int "Report 'no_csi' after this long without a usable packet (ms)"
+            default 5000
+            range 1000 60000
+            help
+                If the link drops or the CSI shape changes, the detector
+                would otherwise freeze on its last decision - possibly
+                PRESENT with the LED on. After this timeout it clears
+                PRESENT, turns the LED off and emits state "no_csi" until
+                packets flow again.
+
+    endmenu
+
+    menu "Outputs"
+
+        config CSI_LED_GPIO
+            int "GPIO for a presence LED (-1 to disable)"
+            default -1
+            range -1 48
+            help
+                Plain on/off LED. Left disabled by default because devkit
+                LED pins differ - check YOUR board's schematic first. Boards
+                whose only LED is an addressable RGB (WS2812) type will not
+                work with this simple drive.
+
+        config CSI_LED_ACTIVE_LOW
+            bool "Presence LED is active low"
+            default n
+            depends on CSI_LED_GPIO >= 0
+
+        config CSI_BUTTON_GPIO
+            int "GPIO for a recalibrate button (-1 to disable)"
+            default -1
+            range -1 48
+            help
+                Hold for 2 seconds to recalibrate. Assumed active-low with
+                an internal pull-up, which is how a BOOT-style button is
+                normally wired. Check your board's schematic for the pin
+                number - it is not the same across devkits, which is why
+                there is no default here.
+
+        config CSI_JSON_PERIOD_MS
+            int "Emit a JSON status line every N ms (0 to disable)"
+            default 500
+            range 0 60000
+            help
+                Machine-readable output for a host script, Home Assistant,
+                an MQTT bridge, and so on. Lines start with 'JSON ' so they
+                are easy to grep out of the log stream.
+
+        config CSI_HUMAN_READABLE
+            bool "Also print the human-readable bar graph"
+            default y
+
+    endmenu
+
+    # ------------------------------------------------------------------
+    #  Step 10. Every feature here is EXPERIMENTAL and unvalidated on
+    #  hardware. The int settings deliberately have no 'depends on': they
+    #  stay defined when their feature is switched off, so the firmware
+    #  compiles the same way whichever switches are set.
+    #  One exception: CSI_VITALS_MOTION_RATIO_X100 depends on
+    #  CSI_VITALS_ENABLE, and main.c uses a fixed 4.0 (CSI_GATE_RATIO)
+    #  when vitals is off.
+    # ------------------------------------------------------------------
+    menu "Recognise / count / vitals"
+
+        config CSI_VITALS_ENABLE
+            bool "Breathing rate + EXPERIMENTAL heart rate of a still person"
+            default y
+            help
+                Estimates the breathing rate of a person who sits or lies
+                still, and an EXPERIMENTAL heart rate on top of it, from
+                the same CSI stream.
+
+                Breathing needs CSI_VITALS_MIN_S seconds of stillness
+                before the first number, and any motion restarts it. The
+                heart rate is unvalidated: it is reported only with a
+                clear spectral peak, only while breathing is detected, and
+                under the JSON key hr_bpm_exp to say so. Compare it with
+                a pulse oximeter or chest strap (README, Step 10;
+                tools/vitals_validate.py) before believing a number.
+
+                Cost: ~30 KB of static RAM, and one 512-point soft-float
+                FFT per packet while an analysis runs (12 packets every
+                2 s, roughly 6-10 ms each - an estimate, not measured on
+                the C5).
+
+        config CSI_VITALS_WINDOW_S
+            int "Vitals analysis window (seconds)"
+            default 30
+            range 16 51
+            help
+                Seconds of still data each breathing / heart analysis
+                looks at. Longer = finer frequency resolution and more
+                breaths averaged, so steadier numbers, but a slower
+                response to a change of rate. 51 s is the size of the
+                ring buffer. Only used with CSI_VITALS_ENABLE.
+
+        config CSI_VITALS_MIN_S
+            int "Still data needed before the first estimate (seconds)"
+            default 20
+            range 10 51
+            help
+                Seconds of continuous stillness before the first estimate
+                (the first analysis then covers only this much data).
+                Lower = a number sooner, but from fewer breaths and less
+                reliable. Values above CSI_VITALS_WINDOW_S act as
+                CSI_VITALS_WINDOW_S. Only used with CSI_VITALS_ENABLE.
+
+        config CSI_VITALS_BR_CONF_X100
+            int "Breathing confidence to report: peak/median, hundredths"
+            default 400
+            range 100 5000
+            help
+                Breathing is reported only when the peak of the combined
+                0.1-0.5 Hz spectrum is at least this many hundredths times
+                the median of that band (400 = 4.0x) and does not sit on
+                the band's edge - so only about 7.6-28.7 breaths/min can
+                be reported. JSON br_conf shows the ratio even when no
+                rate is reported: below this value the peak was too weak,
+                at or above it the peak was on the band edge.
+
+                Lower = a rate more often, but also false rates from an
+                empty or disturbed room. Higher = fewer, more trustworthy
+                readings. This threshold also gates the heart rate and
+                CSI_VITALS_HOLDS_PRESENCE, so lowering it also makes a
+                false "still person" more likely.
+
+        config CSI_VITALS_HR_CONF_X100
+            int "Heart-rate confidence to report: peak/median, hundredths"
+            default 500
+            range 100 5000
+            help
+                The heart rate is reported only when the peak of the
+                0.8-2.0 Hz spectrum (breathing harmonics removed) is at
+                least this many hundredths times that band's median.
+
+                A heartbeat moves the chest 10-50x less than breathing,
+                so this peak is weak even when it is real. Lowering the
+                threshold mostly adds wrong numbers; raising it reports
+                less often. EXPERIMENTAL either way.
+
+        config CSI_VITALS_HOLDS_PRESENCE
+            bool "Confident breathing keeps a still person PRESENT"
+            default y
+            depends on CSI_VITALS_ENABLE
+            help
+                Step 08 loses a person who sits perfectly still: nothing
+                triggers, and PRESENT lapses after the hold time. With
+                this ON, confident breathing keeps PRESENT - or brings it
+                back after it lapsed - but ONLY during a still period that
+                began while PRESENT was already true (someone walked in
+                and sat down). It can never create presence from a still
+                period that began with the room empty.
+
+                Trade-off: if something fluctuates at 6-30 cycles per
+                minute right after a person walks out (a slowly swinging
+                fan, a curtain in a draught), it can pass for breathing
+                and hold PRESENT in an empty room until the next motion,
+                a CSI gap or a recalibration. OFF gives Step 08's
+                behaviour: vitals are still reported, presence is not
+                touched.
+
+        config CSI_VITALS_MOTION_RATIO_X100
+            int "Motion gate: 'hf' at or above this counts as moving (hundredths)"
+            default 400
+            range 150 5000
+            depends on CSI_VITALS_ENABLE
+            help
+                Vitals analyse only while nobody moves. Step 08's motion
+                flag cannot tell them: its 0.5 s filter lets breathing
+                through, so a person breathing strongly holds the flag on
+                and vitals would never run. This gate looks only at
+                fluctuations faster than ~1.6 Hz - walking, gestures and
+                fidgeting are there, breathing (0.1-0.5 Hz) is not - and
+                compares their energy with the level measured while the
+                room was empty (until the room has been seen empty: the
+                quietest recent second). That ratio is the JSON field
+                "hf". Moving = hf at or above this value for 0.3 s; still
+                again = below it for 1 s. The same gate also keeps a
+                still, breathing person out of recognition and counting.
+
+                How to tune it, from the JSON (tools/presence_monitor.py):
+                  - empty room: hf should sit near 1;
+                  - sit still, breathing normally: hf should stay near 1
+                    (well below this threshold);
+                  - walk around: hf should jump far above this threshold.
+                Set it comfortably between the two. Lower it if slow
+                walking or fidgeting stays below it (vitals would then
+                analyse motion and report nonsense). Raise it if hf of a
+                person sitting still reaches it ("vitals" keeps showing
+                "moving"/"settling" and never gets to "ok").
+
+                400 = 4.0x. The host test (test/test_gate.c) shows this
+                needs synthetic walking of about 2x the group noise; how
+                strong real walking is on your link is exactly what hf
+                shows - nothing here has been measured on hardware.
+                With vitals disabled, recognition and counting use the
+                gate at a fixed 4.0.
+
+        config CSI_ID_ENABLE
+            bool "Recognise enrolled people by their gait (EXPERIMENTAL)"
+            default y
+            help
+                Recognises which of up to 4 people enrolled with the
+                console command 'enroll' is walking in the room.
+
+                Realistic only for 2-3 people, ONE AT A TIME, WALKING, in
+                the room and with the board where they enrolled, at the
+                same ping rate. A published ESP32 result is ~95% for 2
+                people and ~74% for 3 (Gaiba 2024, controlled room;
+                abstract only, setup unverified - docs/REFERENCES.md).
+                A still person cannot be recognised, a stranger is at
+                best "unknown", and with 2+ people moving it reports
+                "multiple" instead of guessing - which needs a trained
+                counter (CSI_COUNT_ENABLE + 'count-train').
+
+                Cost: ~11 KB of static RAM, and per gait window (one
+                every 128 packets) roughly 12-32 ms of soft-float CPU.
+                That is an ESTIMATE - host operation counts (~58k at
+                100 Hz, ~73k at 50 Hz) times an assumed 50-100 cycles
+                each at 240 MHz - never measured on the C5 (see JSON
+                proc_ms_max).
+
+        config CSI_ID_ENROLL_WINDOWS
+            int "Gait windows collected per enrolment"
+            default 30
+            range 10 200
+            help
+                A window is 256 packets (5.1 s at 50 Hz), a new one every
+                128 packets, and only windows in which the person was
+                moving (Step 08's motion flag AND the motion gate) for at
+                least 80% of the packets are kept. More windows = a
+                template that covers more of the person's walking (better
+                recognition) but a longer enrolment.
+
+                30 windows need 256 + 29 x 128 = 3968 packets of walking
+                in which EVERY window qualifies: 79 s at 50 Hz, 40 s at
+                100 Hz. They do not all qualify - on the synthetic device
+                path of the host test only ~60% did, which makes it about
+                130 s at 50 Hz or 65 s at 100 Hz. The rate for real
+                walking has never been measured.
+
+        config CSI_ID_MIN_WINDOWS
+            int "Windows a slot needs before it is used for recognition"
+            default 10
+            range 5 200
+            help
+                Slots with fewer windows than this - for example a
+                template enrolled with a smaller CSI_ID_ENROLL_WINDOWS -
+                are ignored. Values above CSI_ID_ENROLL_WINDOWS act as
+                CSI_ID_ENROLL_WINDOWS, otherwise a fresh enrolment could
+                never be used.
+
+        config CSI_ID_REJECT_X100
+            int "Reject as 'unknown' above this distance (hundredths)"
+            default 250
+            range 50 1000
+            help
+                Distances are measured in units of the enrolled people's
+                own window-to-window spread (RMS over the features): a
+                window from an enrolled person typically lands near 1.0
+                from their template. A window farther than this from
+                every template (250 = 2.5) votes "unknown".
+
+                Lower = fewer wrong names, but more "unknown" for enrolled
+                people. Higher = fewer "unknown", but a stranger is more
+                likely to be given an enrolled person's name.
+
+        config CSI_ID_MARGIN_X100
+            int "Runner-up must be this much farther (hundredths)"
+            default 115
+            range 100 300
+            help
+                With 2+ people enrolled, a window votes for the nearest
+                person only if the runner-up is at least this much
+                farther (115 = 15% farther); otherwise it votes "unknown".
+                Higher = fewer confusions between enrolled people, more
+                "unknown". 100 disables the check.
+
+        config CSI_VITALS_LOG_SAVE_S
+            int "Min seconds between per-person vitals log flash writes"
+            default 300
+            range 60 86400
+            help
+                With both CSI_ID_ENABLE and CSI_VITALS_ENABLE, breathing
+                (and the EXPERIMENTAL heart rate) is attributed to the
+                last person recognised walking in ALONE during the visit
+                (JSON "vitals_of"), and each enrolled person gets a small
+                vitals log: a mean breathing rate over their still
+                episodes, and a heart-rate mean that is as unvalidated as
+                the heart rate itself. The console's 'people' prints it;
+                'vitals-reset' and 'forget' delete it. Unused otherwise.
+
+                The log (~170 bytes) is kept in NVS under the key
+                "vit_log", and written only when it has changed, at most
+                once per this many seconds. Worst case at the default:
+                86400 / 300 = 288 small blob writes a day, about 2,300 NVS
+                entries a day spread over the 24 KB nvs partition's six
+                4 KB sectors - roughly 3 erases per sector per day, against
+                the ~100,000 erase cycles flash is typically rated for:
+                decades (an estimate, not measured). At the minimum, 60 s,
+                five times that wear. 'forget' and 'vitals-reset' save at
+                once.
+
+                The cost of a longer interval: up to this many seconds of
+                log is lost on a power cut or reset. "Last seen" is uptime
+                in RAM and is never saved - there is no wall clock.
+
+        config CSI_COUNT_ENABLE
+            bool "Tell one moving person from two or more (EXPERIMENTAL)"
+            default y
+            help
+                After a per-room training session (console: 'count-train
+                1' with one person moving, then 'count-train 2' with two
+                or more), estimates whether ONE or TWO OR MORE people are
+                moving. Until trained, 'count' is just presence (0 or 1).
+
+                One link cannot really count people: the output is
+                0 / 1 / 2+ at best, and people sitting still are not
+                counted. Real counting (0-5 people) took four crossing
+                ESP32 links (Wi-CaL, docs/REFERENCES.md).
+
+                Cost: <1 KB of RAM; per packet 8 adds and 36 multiply-
+                adds into running sums; per 256-packet block the exact
+                participation ratio plus two power iterations with a
+                2x2 Rayleigh-Ritz step for the top two eigenvalues (no
+                full eigen-decomposition) - ~6-12k soft-float operations
+                by host count, roughly 1.5-5 ms by estimate, not
+                measured on the C5.
+
+        config CSI_COUNT_TRAIN_WINDOWS
+            int "Blocks collected per count-training class"
+            default 20
+            range 10 200
+            help
+                A block is 256 packets (5.1 s at 50 Hz), blocks do not
+                overlap, and only blocks in which someone was moving
+                (Step 08's motion flag AND the motion gate) for at least
+                30% of the packets are kept. More blocks = a model that
+                has seen more of each case, but a longer session: 20
+                blocks take at least 102 s per class at 50 Hz (51 s at
+                100 Hz), more when blocks are skipped. The model is used
+                only when both classes have this many blocks.
+
+        config CSI_ACTIVITY_ENABLE
+            bool "Activity state: empty / still / restless / moving (EXPERIMENTAL)"
+            default y
+            depends on CSI_VITALS_ENABLE || CSI_ID_ENABLE || CSI_COUNT_ENABLE
+            help
+                A coarse state of the room, from decisions the detector
+                already makes: Step 08's presence (with the breathing
+                hold) and the motion gate (JSON "hf"). Every second gets
+                a moving fraction and a mean hf; the state is decided
+                over the last 5-10 seconds and must hold for 2 seconds
+                before it changes:
+                  empty     nobody PRESENT for 5 s
+                  moving    the gate saw motion in 2 of the last 5 s
+                  restless  hf at or above CSI_ACTIVITY_RESTLESS_X100
+                            in 2 of the last 10 s (a second of motion
+                            counts for 5 s only), but not moving
+                  still     PRESENT, and none of that for 10 s
+                It also counts presence episodes (JSON "episode_s",
+                console 'stats'): a lapse that the breathing hold undoes
+                does not split one.
+
+                It cannot tell sitting from standing or lying. "still"
+                lasts only while PRESENT does: for a motionless person
+                that normally means CSI_VITALS_HOLDS_PRESENCE holding it.
+                Nothing here has been measured on hardware.
+
+                Needs the motion gate, so recognition, counting or vitals
+                must be on. Cost: a few integer operations per packet,
+                one loop over 10 bytes per second, ~220 bytes of RAM.
+                OFF: the JSON keys activity, activity_s and episode_s
+                stay, as null.
+
+        config CSI_ACTIVITY_RESTLESS_X100
+            int "Activity: a second with mean 'hf' at or above this is fidgeting (hundredths)"
+            default 250
+            range 100 5000
+            help
+                A second whose mean hf is at least this, but below the
+                motion gate's threshold (CSI_VITALS_MOTION_RATIO_X100, or
+                4.0 with vitals off), counts towards "restless"; two such
+                seconds in ten make it restless. 250 = 2.5x the empty
+                room's high-frequency energy.
+
+                Synthetic only: a seated, breathing chest reached hf 2.33
+                in a host test (DECISIONS D-83), so a value much below 250 calls
+                breathing "restless". At or above the gate's threshold
+                nothing is ever restless. Only used with
+                CSI_ACTIVITY_ENABLE.
+
+        config CSI_CONSOLE_ENABLE
+            bool "Serial command console (enrol / train / forget)"
+            default y
+            help
+                A line-based console on the USB-Serial-JTAG port: type
+                commands into idf.py monitor (characters are not echoed;
+                press Enter and a line starting 'CMD ' answers). Commands:
+                help, status, people, explain, stats, enroll, forget,
+                vitals-reset, count-train, count-reset, stop, recal.
+
+                Needs the console output channel to be USB Serial/JTAG
+                (this project's sdkconfig.defaults); with any other
+                console it only logs that. Installing the driver moves
+                all printf output onto the interrupt-driven USB-Serial-
+                JTAG driver. Cost: one 4 KB task and ~2.3 KB of buffers.
+
+                OFF locks the stored templates: nobody can enrol, train
+                or forget over serial, and templates already in NVS are
+                still used.
+
+        config CSI_EXPLAIN
+            bool "Explain decisions on the serial port (EXPLAIN lines for tools/dashboard)"
+            default y
+            help
+                Prints WHY the detector decides what it decides, in two
+                forms, one of each per decision:
+                  - a machine-readable line 'EXPLAIN {json}' (the same
+                    idea as the 'JSON ' line) for tools/dashboard.py:
+                    the live thresholds ("config"), each calibration
+                    ("cal"), every gait window with its distance to each
+                    enrolled person and the vote ring ("gait"), every
+                    count block ("count"), every vitals analysis
+                    ("vitals"), every PRESENT / EMPTY change and its
+                    reason ("presence"), and a rate-limited stream of the
+                    normalised CSI amplitudes ("amp");
+                  - a plain-English log line starting "why:", for a
+                    person reading idf.py monitor, e.g.
+                    "why: gait window 12 - 84% moving; nearest raj
+                    1.21 ... -> vote raj; votes raj 4 of 7 -> person raj".
+                The console command 'explain' prints the thresholds on
+                demand. main.c's header comment lists every key.
+
+                Cost: nothing extra per packet except the amplitude line
+                (CSI_EXPLAIN_AMP_HZ); everything else runs once per gait
+                window (~2.5 s at 50 Hz), count block (~5 s), vitals
+                analysis (~2 s) or presence change. The serial output
+                roughly doubles (~3-4 KB/s), and the console's transmit
+                buffer is 4 KB so a burst of lines never waits.
+
+                OFF: exactly the previous output (JSON, bar line, logs).
+
+        config CSI_EXPLAIN_AMP_HZ
+            int "Amplitude stream for the dashboard's CSI waterfall (lines/s, 0 = off)"
+            default 5
+            range 0 20
+            help
+                How often an 'EXPLAIN {"ev":"amp",...}' line carries the
+                normalised amplitude of every selected subcarrier (at
+                most 64 values; with more selected, every 2nd, 3rd, ...
+                one), the motion and deviation levels and the motion
+                gate's state. tools/dashboard.py draws it as a scrolling
+                heatmap - people moving disturb it visibly.
+
+                Each line is ~230 bytes at 26 subcarriers (L-LTF), ~450
+                at 64, formatted with integer arithmetic (no soft-float
+                printf), and is skipped while the console's transmit
+                buffer is full (no host reading).
+                0 switches the stream off; the other EXPLAIN lines stay.
+                Only used with CSI_EXPLAIN.
+
+    endmenu
+
+endmenu

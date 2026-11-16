@@ -1,0 +1,1018 @@
+# EXCERPT of a 900 s Step 10 soak on the ESP32-C5 (COM13), 2026-09-28 13:52:34-14:07:34 local time.
+# Removed: EXPLAIN amp lines (5/s), the bar lines, and the per-0.5 s JSON lines of state 'detect'.
+# Kept: every other line, verbatim. Full capture (2.3 MB), the capture script and its summary:
+#   D:\ESP32C5_CSI_logs\2026-09-28_step10_soak\ (outside the repo, docs/TESTING.md section 5).
+# Format: <seconds since capture start> <wall clock> <line>; '## ' lines are the capture script's own notes.
+    0.00 13:52:34.129 ## soak start, port COM13, 900 s, date 2026-09-28
+    0.00 13:52:34.131 ## port open
+    0.01 13:52:34.134 ## first board line: schedule starts now
+    0.01 13:52:34.134 RESENT  |#####################################...| motion    9.5 sd  dev   16.5 sd  level 189%  rssi -35  n=1 who=- br=- hr~-
+    0.01 13:52:34.134 EXPLAIN {"ev":"count","t_ms":32589,"blk":4,"duty":0.69,"used":false,"why":"no-model","feat":[1.792,0.318,0.710,0.968,0.691,1.991],"dist":null,"vote":null,"ring":"","est":0}
+    0.01 13:52:34.134 I (32813) csi-human: why: count block 4 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+    0.01 13:52:34.134 EXPLAIN {"ev":"gait","t_ms":32591,"win":7,"moving_frac":0.69,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+    0.01 13:52:34.134 I (32815) csi-human: why: gait window 7 - only 69% of packets moving (needs 80%) -> no vote
+    0.82 13:52:34.952 W (64146) csi-human: console: output resumed - for ~29 s no host read it (port closed, or USB re-enumerated) and what was printed then was dropped; the detector kept running (reset reason: POWERON)
+    1.43 13:52:35.557 EXPLAIN {"ev":"gait","t_ms":64480,"win":20,"moving_frac":0.85,"used":false,"why":"no-model","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+    1.43 13:52:35.557 I (64705) csi-human: why: gait window 20 - 85% moving, but nobody is enrolled yet ('enroll <slot> <name>') -> no vote
+    3.90 13:52:38.031 EXPLAIN {"ev":"count","t_ms":67003,"blk":11,"duty":0.48,"used":false,"why":"no-model","feat":[1.266,0.086,0.885,0.555,0.484,1.751],"dist":null,"vote":null,"ring":"","est":0}
+    4.10 13:52:38.233 I (67227) csi-human: why: count block 11 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+    4.11 13:52:38.233 EXPLAIN {"ev":"gait","t_ms":67005,"win":21,"moving_frac":0.48,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+    4.11 13:52:38.234 I (67229) csi-human: why: gait window 21 - only 48% of packets moving (needs 80%) -> no vote
+    5.11 13:52:39.242 ## sent: status
+    5.32 13:52:39.446 CMD status: phase detect, PRESENT, 52.6 CSI packets/s live (calibrated 50.2/s), 26/26 subcarriers used, channel 6, free heap 94248 bytes
+    5.32 13:52:39.447     count 1 (presence); count model: one 0/20, two+ 0/20 blocks - untrained, count = presence
+    5.32 13:52:39.447     person - (dist -, 0/0 windows); 0 of 4 slots ready
+    5.32 13:52:39.447     vitals settling (of -): breathing -/min (conf -), heart ~-/min EXPERIMENTAL (conf -), 2 s still data
+    5.32 13:52:39.447     motion gate STILL: hf 1.13 (moving at >= 4.00), floor from the quietest recent second (room not seen empty)
+    5.32 13:52:39.447     session none
+    5.32 13:52:39.447     pipeline: slowest packet 52.2 ms since boot, 0 CSI packets dropped since boot (queue of 16)
+    5.32 13:52:39.447     board: up 68 s, last reset POWERON (1); console: USB host connected, transmit buffer found full at 43 of the 1-s checks (longest run 29 s)
+    6.54 13:52:40.669 EXPLAIN {"ev":"gait","t_ms":69503,"win":22,"moving_frac":0.12,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+    6.54 13:52:40.669 I (69727) csi-human: why: gait window 22 - only 12% of packets moving (needs 80%) -> no vote
+    8.99 13:52:43.120 EXPLAIN {"ev":"count","t_ms":72024,"blk":12,"duty":0.00,"used":false,"why":"no-model","feat":[1.982,0.162,0.696,-0.817,0.000,1.013],"dist":null,"vote":null,"ring":"","est":0}
+    8.99 13:52:43.120 I (72247) csi-human: why: count block 12 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+    8.99 13:52:43.120 EXPLAIN {"ev":"gait","t_ms":72025,"win":23,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+    8.99 13:52:43.120 I (72249) csi-human: why: gait window 23 - only 0% of packets moving (needs 80%) -> no vote
+   11.44 13:52:45.570 EXPLAIN {"ev":"gait","t_ms":74504,"win":24,"moving_frac":0.09,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+   11.44 13:52:45.570 I (74728) csi-human: why: gait window 24 - only 9% of packets moving (needs 80%) -> no vote
+   13.87 13:52:48.000 EXPLAIN {"ev":"count","t_ms":76966,"blk":13,"duty":0.23,"used":false,"why":"no-model","feat":[1.599,0.220,0.772,0.167,0.227,2.199],"dist":null,"vote":null,"ring":"","est":0}
+   13.87 13:52:48.000 I (77190) csi-human: why: count block 13 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+   13.87 13:52:48.000 EXPLAIN {"ev":"gait","t_ms":76968,"win":25,"moving_frac":0.23,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+   13.87 13:52:48.000 I (77192) csi-human: why: gait window 25 - only 23% of packets moving (needs 80%) -> no vote
+   16.50 13:52:50.628 EXPLAIN {"ev":"gait","t_ms":79502,"win":26,"moving_frac":0.14,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+   16.50 13:52:50.628 I (79726) csi-human: why: gait window 26 - only 14% of packets moving (needs 80%) -> no vote
+   18.94 13:52:53.071 EXPLAIN {"ev":"count","t_ms":81984,"blk":14,"duty":0.00,"used":false,"why":"no-model","feat":[2.093,0.414,0.637,-0.391,0.000,3.257],"dist":null,"vote":null,"ring":"","est":0}
+   18.94 13:52:53.071 I (82208) csi-human: why: count block 14 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+   18.94 13:52:53.071 EXPLAIN {"ev":"gait","t_ms":81986,"win":27,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+   18.94 13:52:53.071 I (82209) csi-human: why: gait window 27 - only 0% of packets moving (needs 80%) -> no vote
+   21.57 13:52:55.702 EXPLAIN {"ev":"gait","t_ms":84522,"win":28,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+   21.57 13:52:55.702 I (84746) csi-human: why: gait window 28 - only 0% of packets moving (needs 80%) -> no vote
+   24.01 13:52:58.139 EXPLAIN {"ev":"count","t_ms":87067,"blk":15,"duty":0.00,"used":false,"why":"no-model","feat":[2.036,0.275,0.672,-0.639,0.000,0.773],"dist":null,"vote":null,"ring":"","est":0}
+   24.01 13:52:58.139 I (87291) csi-human: why: count block 15 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+   24.01 13:52:58.139 EXPLAIN {"ev":"gait","t_ms":87069,"win":29,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+   24.01 13:52:58.139 I (87293) csi-human: why: gait window 29 - only 0% of packets moving (needs 80%) -> no vote
+   26.65 13:53:00.776 EXPLAIN {"ev":"gait","t_ms":89583,"win":30,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+   26.65 13:53:00.776 I (89807) csi-human: why: gait window 30 - only 0% of packets moving (needs 80%) -> no vote
+   29.08 13:53:03.213 EXPLAIN {"ev":"count","t_ms":92106,"blk":16,"duty":0.00,"used":false,"why":"no-model","feat":[2.529,0.654,0.523,-0.510,0.000,4.204],"dist":null,"vote":null,"ring":"","est":0}
+   29.08 13:53:03.213 I (92330) csi-human: why: count block 16 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+   29.08 13:53:03.213 EXPLAIN {"ev":"gait","t_ms":92107,"win":31,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+   29.08 13:53:03.213 I (92331) csi-human: why: gait window 31 - only 0% of packets moving (needs 80%) -> no vote
+   31.73 13:53:05.863 EXPLAIN {"ev":"gait","t_ms":94662,"win":32,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+   31.73 13:53:05.863 I (94886) csi-human: why: gait window 32 - only 0% of packets moving (needs 80%) -> no vote
+   34.19 13:53:08.314 EXPLAIN {"ev":"count","t_ms":97228,"blk":17,"duty":0.00,"used":false,"why":"no-model","feat":[1.439,0.122,0.827,-0.322,0.000,1.419],"dist":null,"vote":null,"ring":"","est":0}
+   34.19 13:53:08.314 I (97452) csi-human: why: count block 17 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+   34.19 13:53:08.314 EXPLAIN {"ev":"gait","t_ms":97230,"win":33,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+   34.19 13:53:08.314 I (97454) csi-human: why: gait window 33 - only 0% of packets moving (needs 80%) -> no vote
+   36.81 13:53:10.936 EXPLAIN {"ev":"gait","t_ms":99742,"win":34,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+   36.81 13:53:10.936 I (99966) csi-human: why: gait window 34 - only 0% of packets moving (needs 80%) -> no vote
+   39.25 13:53:13.377 EXPLAIN {"ev":"count","t_ms":102264,"blk":18,"duty":0.00,"used":false,"why":"no-model","feat":[2.216,0.610,0.572,-0.218,0.000,3.984],"dist":null,"vote":null,"ring":"","est":0}
+   39.25 13:53:13.377 I (102488) csi-human: why: count block 18 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+   39.25 13:53:13.377 EXPLAIN {"ev":"gait","t_ms":102265,"win":35,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+   39.25 13:53:13.377 I (102489) csi-human: why: gait window 35 - only 0% of packets moving (needs 80%) -> no vote
+   40.06 13:53:14.192 ## sent: recal
+   40.27 13:53:14.396 CMD recal: recalibrating - LEAVE THE ROOM
+   40.27 13:53:14.396 W (103409) csi-human: 'recal' command - recalibrating. LEAVE THE ROOM.
+   40.27 13:53:14.396 EXPLAIN {"ev":"presence","t_ms":103186,"present":0,"reason":"recal","m":null,"d":null}
+   40.27 13:53:14.396 I (103410) csi-human: why: EMPTY - recalibration started (leave the room)
+   40.27 13:53:14.396 W (103410) csi-human: templates and count model kept - re-enrol / retrain if results get worse
+   40.27 13:53:14.396 I (103570) csi-human: [leave-room] 10 s left, 8 packets
+   40.27 13:53:14.396 JSON {"t_ms":103347,"state":"leave-room","present":0,"remaining_s":10}
+   41.29 13:53:15.414 I (104597) csi-human: [leave-room] 9 s left, 60 packets
+   41.29 13:53:15.414 JSON {"t_ms":104375,"state":"leave-room","present":0,"remaining_s":9}
+   42.30 13:53:16.429 I (105619) csi-human: [leave-room] 8 s left, 111 packets
+   42.30 13:53:16.429 JSON {"t_ms":105397,"state":"leave-room","present":0,"remaining_s":8}
+   43.32 13:53:17.451 I (106625) csi-human: [leave-room] 7 s left, 162 packets
+   43.32 13:53:17.451 JSON {"t_ms":106402,"state":"leave-room","present":0,"remaining_s":7}
+   44.34 13:53:18.465 I (107629) csi-human: [leave-room] 6 s left, 212 packets
+   44.34 13:53:18.465 JSON {"t_ms":107407,"state":"leave-room","present":0,"remaining_s":6}
+   45.35 13:53:19.480 I (108647) csi-human: [leave-room] 5 s left, 264 packets
+   45.35 13:53:19.480 JSON {"t_ms":108424,"state":"leave-room","present":0,"remaining_s":5}
+   46.37 13:53:20.497 I (109647) csi-human: [leave-room] 4 s left, 314 packets
+   46.37 13:53:20.497 JSON {"t_ms":109425,"state":"leave-room","present":0,"remaining_s":4}
+   47.39 13:53:21.515 I (110665) csi-human: [leave-room] 3 s left, 365 packets
+   47.39 13:53:21.515 JSON {"t_ms":110442,"state":"leave-room","present":0,"remaining_s":3}
+   48.40 13:53:22.526 I (111666) csi-human: [leave-room] 2 s left, 415 packets
+   48.40 13:53:22.526 JSON {"t_ms":111444,"state":"leave-room","present":0,"remaining_s":2}
+   49.42 13:53:23.544 I (112686) csi-human: [leave-room] 1 s left, 466 packets
+   49.42 13:53:23.544 JSON {"t_ms":112464,"state":"leave-room","present":0,"remaining_s":1}
+   50.23 13:53:24.354 W (113425) csi-human: calibration starting - stay out of the room
+   50.43 13:53:24.557 I (113695) csi-human: [warmup] 5 s left, 13 packets
+   50.43 13:53:24.557 JSON {"t_ms":113472,"state":"warmup","present":0,"remaining_s":5}
+   51.44 13:53:25.565 I (114712) csi-human: [warmup] 4 s left, 64 packets
+   51.44 13:53:25.565 JSON {"t_ms":114490,"state":"warmup","present":0,"remaining_s":4}
+   52.46 13:53:26.587 I (115735) csi-human: [warmup] 3 s left, 116 packets
+   52.46 13:53:26.587 JSON {"t_ms":115513,"state":"warmup","present":0,"remaining_s":3}
+   53.49 13:53:27.618 I (116745) csi-human: [warmup] 2 s left, 167 packets
+   53.49 13:53:27.618 JSON {"t_ms":116522,"state":"warmup","present":0,"remaining_s":2}
+   54.53 13:53:28.655 I (117765) csi-human: [warmup] 1 s left, 218 packets
+   54.53 13:53:28.655 JSON {"t_ms":117542,"state":"warmup","present":0,"remaining_s":1}
+   55.13 13:53:29.260 I (118426) csi-human: measured 50.2 CSI packets/s
+   55.54 13:53:29.665 I (118785) csi-human: [calib-A] 15 s left, 19 packets
+   55.54 13:53:29.666 JSON {"t_ms":118562,"state":"calib-A","present":0,"remaining_s":15}
+   56.55 13:53:30.681 I (119785) csi-human: [calib-A] 14 s left, 69 packets
+   56.55 13:53:30.681 JSON {"t_ms":119562,"state":"calib-A","present":0,"remaining_s":14}
+   57.56 13:53:31.692 I (120807) csi-human: [calib-A] 13 s left, 121 packets
+   57.56 13:53:31.692 JSON {"t_ms":120585,"state":"calib-A","present":0,"remaining_s":13}
+   58.60 13:53:32.725 I (121825) csi-human: [calib-A] 12 s left, 173 packets
+   58.60 13:53:32.725 JSON {"t_ms":121603,"state":"calib-A","present":0,"remaining_s":12}
+   59.64 13:53:33.772 I (122846) csi-human: [calib-A] 11 s left, 224 packets
+   59.64 13:53:33.772 JSON {"t_ms":122623,"state":"calib-A","present":0,"remaining_s":11}
+   60.68 13:53:34.804 I (123847) csi-human: [calib-A] 10 s left, 274 packets
+   60.68 13:53:34.804 JSON {"t_ms":123624,"state":"calib-A","present":0,"remaining_s":10}
+   61.74 13:53:35.865 I (124849) csi-human: [calib-A] 9 s left, 324 packets
+   61.74 13:53:35.865 JSON {"t_ms":124626,"state":"calib-A","present":0,"remaining_s":9}
+   62.54 13:53:36.671 I (125865) csi-human: [calib-A] 8 s left, 375 packets
+   62.54 13:53:36.671 JSON {"t_ms":125642,"state":"calib-A","present":0,"remaining_s":8}
+   63.57 13:53:37.697 I (126865) csi-human: [calib-A] 7 s left, 427 packets
+   63.57 13:53:37.697 JSON {"t_ms":126643,"state":"calib-A","present":0,"remaining_s":7}
+   64.58 13:53:38.712 I (127866) csi-human: [calib-A] 6 s left, 477 packets
+   64.58 13:53:38.712 JSON {"t_ms":127644,"state":"calib-A","present":0,"remaining_s":6}
+   65.60 13:53:39.729 I (128867) csi-human: [calib-A] 5 s left, 527 packets
+   65.60 13:53:39.729 JSON {"t_ms":128644,"state":"calib-A","present":0,"remaining_s":5}
+   66.62 13:53:40.750 I (129888) csi-human: [calib-A] 4 s left, 578 packets
+   66.62 13:53:40.750 JSON {"t_ms":129666,"state":"calib-A","present":0,"remaining_s":4}
+   67.65 13:53:41.776 I (130912) csi-human: [calib-A] 3 s left, 629 packets
+   67.65 13:53:41.776 JSON {"t_ms":130690,"state":"calib-A","present":0,"remaining_s":3}
+   68.66 13:53:42.789 I (131931) csi-human: [calib-A] 2 s left, 680 packets
+   68.66 13:53:42.789 JSON {"t_ms":131708,"state":"calib-A","present":0,"remaining_s":2}
+   69.68 13:53:43.806 I (132959) csi-human: [calib-A] 1 s left, 731 packets
+   69.68 13:53:43.806 JSON {"t_ms":132736,"state":"calib-A","present":0,"remaining_s":1}
+   70.30 13:53:44.424 I (133450) csi-human: using 26 of 26 subcarriers
+   70.71 13:53:44.843 I (133967) csi-human: [calib-B] 15 s left, 26 packets
+   70.71 13:53:44.843 JSON {"t_ms":133744,"state":"calib-B","present":0,"remaining_s":15}
+   71.73 13:53:45.862 I (134985) csi-human: [calib-B] 14 s left, 78 packets
+   71.73 13:53:45.862 JSON {"t_ms":134762,"state":"calib-B","present":0,"remaining_s":14}
+   72.75 13:53:46.876 I (135986) csi-human: [calib-B] 13 s left, 129 packets
+   72.75 13:53:46.877 JSON {"t_ms":135764,"state":"calib-B","present":0,"remaining_s":13}
+   73.76 13:53:47.886 I (137006) csi-human: [calib-B] 12 s left, 180 packets
+   73.76 13:53:47.886 JSON {"t_ms":136784,"state":"calib-B","present":0,"remaining_s":12}
+   74.78 13:53:48.912 I (138025) csi-human: [calib-B] 11 s left, 231 packets
+   74.78 13:53:48.912 JSON {"t_ms":137802,"state":"calib-B","present":0,"remaining_s":11}
+   75.80 13:53:49.925 I (139046) csi-human: [calib-B] 10 s left, 282 packets
+   75.80 13:53:49.926 JSON {"t_ms":138824,"state":"calib-B","present":0,"remaining_s":10}
+   76.81 13:53:50.937 I (140084) csi-human: [calib-B] 9 s left, 333 packets
+   76.81 13:53:50.937 JSON {"t_ms":139862,"state":"calib-B","present":0,"remaining_s":9}
+   77.83 13:53:51.963 I (141085) csi-human: [calib-B] 8 s left, 385 packets
+   77.83 13:53:51.963 JSON {"t_ms":140863,"state":"calib-B","present":0,"remaining_s":8}
+   78.85 13:53:52.976 I (142086) csi-human: [calib-B] 7 s left, 435 packets
+   78.85 13:53:52.976 JSON {"t_ms":141864,"state":"calib-B","present":0,"remaining_s":7}
+   79.86 13:53:53.987 I (143102) csi-human: [calib-B] 6 s left, 485 packets
+   79.86 13:53:53.987 JSON {"t_ms":142879,"state":"calib-B","present":0,"remaining_s":6}
+   80.87 13:53:54.997 I (144102) csi-human: [calib-B] 5 s left, 536 packets
+   80.87 13:53:54.997 JSON {"t_ms":143880,"state":"calib-B","present":0,"remaining_s":5}
+   81.88 13:53:56.003 I (145110) csi-human: [calib-B] 4 s left, 587 packets
+   81.88 13:53:56.004 JSON {"t_ms":144888,"state":"calib-B","present":0,"remaining_s":4}
+   82.89 13:53:57.017 I (146116) csi-human: [calib-B] 3 s left, 638 packets
+   82.89 13:53:57.017 JSON {"t_ms":145893,"state":"calib-B","present":0,"remaining_s":3}
+   83.89 13:53:58.023 I (147126) csi-human: [calib-B] 2 s left, 690 packets
+   83.90 13:53:58.023 JSON {"t_ms":146903,"state":"calib-B","present":0,"remaining_s":2}
+   84.92 13:53:59.048 I (148130) csi-human: [calib-B] 1 s left, 740 packets
+   84.92 13:53:59.048 JSON {"t_ms":147907,"state":"calib-B","present":0,"remaining_s":1}
+   85.32 13:53:59.451 W (148499) csi-human: =================================================
+   85.32 13:53:59.451 W (148499) csi-human:  CALIBRATED (ESP_OK)
+   85.32 13:53:59.451 W (148499) csi-human:    subcarriers 26/26, 50.2 Hz, channel 6
+   85.32 13:53:59.451 W (148500) csi-human:    empty M 0.6051 +/- 0.2334   D 0.9861 +/- 0.3685
+   85.32 13:53:59.451 W (148500) csi-human:    trigger at M > 1.7722, D > 2.8287 sustained 4000 ms
+   85.32 13:53:59.451 W (148501) csi-human:  DETECTING NOW - walk in and watch it fire.
+   85.32 13:53:59.451 W (148501) csi-human: =================================================
+   85.32 13:53:59.451 EXPLAIN {"ev":"cal","t_ms":148278,"src":"fresh","m_mean":0.605,"m_std":0.233,"d_mean":0.986,"d_std":0.369,"nsub_selected":26,"nsub":26,"csi_len":106,"channel":6,"rate_hz":50.2}
+   85.32 13:53:59.451 I (148502) csi-human: why: baseline (fresh) - empty room: motion metric 0.605 +/- 0.233, deviation 0.986 +/- 0.369; PRESENT above motion 1.772 (5.0 sd) or deviation 2.829 (5.0 sd, for 4000 ms)
+   85.32 13:53:59.451 I (148503) csi-human: step 10: 26 selected subcarriers in 8 groups
+   85.32 13:53:59.451 I (148503) csi-human: step 10: motion gate at 50.2 packets/s, moving at hf >= 4.00
+   85.32 13:53:59.451 I (148504) csi-human: step 10: vitals track 12 subcarriers
+   85.32 13:53:59.451 I (148504) csi-human: step 10: gait frequencies from the measured 50.2 packets/s
+   85.32 13:53:59.452 EXPLAIN {"ev":"config","t_ms":148282,"reset":"POWERON","rate_hz":50.2,"csi_len":106,"nsub":26,"nsel":26,"channel":6,"lltf":true,"thr_motion":5.00,"thr_release":2.50,"thr_static":5.00,"static_sustain_ms":4000,"presence_hold_ms":5000,"gate_ratio":4.00,"amp_hz":5,"id":{"reject":2.50,"margin":1.15,"votes":7,"min_votes":3,"win":256,"hop":128,"min_moving":0.80,"min_windows":10,"slots":[{"name":null,"n":0,"ready":false},{"name":null,"n":0,"ready":false},{"name":null,"n":0,"ready":false},{"name":null,"n":0,"ready":false}]},"count":{"votes":5,"win":256,"min_duty":0.30,"need":20,"ready":false,"n1":0,"n2":0},"vitals":{"window_s":30,"min_s":20,"br_conf_min":4.00,"hr_conf_min":5.00,"holds_presence":true}}
+  107.65 13:54:21.778 EXPLAIN {"ev":"vitals","t_ms":170558,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":20.2,"vitals_of":null,"multiple":false}
+  107.65 13:54:21.778 I (170782) csi-human: why: vitals - analysed 20 s of still data, but nobody is PRESENT -> nothing reported
+  109.48 13:54:23.608 EXPLAIN {"ev":"vitals","t_ms":172550,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":22.2,"vitals_of":null,"multiple":false}
+  109.48 13:54:23.608 I (172774) csi-human: why: vitals - analysed 22 s of still data, but nobody is PRESENT -> nothing reported
+  111.51 13:54:25.635 EXPLAIN {"ev":"vitals","t_ms":174570,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":24.2,"vitals_of":null,"multiple":false}
+  111.51 13:54:25.635 I (174794) csi-human: why: vitals - analysed 24 s of still data, but nobody is PRESENT -> nothing reported
+  113.55 13:54:27.678 EXPLAIN {"ev":"vitals","t_ms":176573,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":26.2,"vitals_of":null,"multiple":false}
+  113.55 13:54:27.678 I (176797) csi-human: why: vitals - analysed 26 s of still data, but nobody is PRESENT -> nothing reported
+  115.58 13:54:29.707 EXPLAIN {"ev":"vitals","t_ms":178586,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":28.2,"vitals_of":null,"multiple":false}
+  115.58 13:54:29.707 I (178809) csi-human: why: vitals - analysed 28 s of still data, but nobody is PRESENT -> nothing reported
+  117.60 13:54:31.731 EXPLAIN {"ev":"vitals","t_ms":180571,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":30.2,"vitals_of":null,"multiple":false}
+  117.60 13:54:31.731 I (180794) csi-human: why: vitals - analysed 30 s of still data, but nobody is PRESENT -> nothing reported
+  119.62 13:54:33.745 EXPLAIN {"ev":"vitals","t_ms":182570,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":32.2,"vitals_of":null,"multiple":false}
+  119.62 13:54:33.745 I (182794) csi-human: why: vitals - analysed 32 s of still data, but nobody is PRESENT -> nothing reported
+  120.02 13:54:34.152 ## sent: status
+  120.23 13:54:34.354 CMD status: phase detect, empty, 49.9 CSI packets/s live (calibrated 50.2/s), 26/26 subcarriers used, channel 6, free heap 94132 bytes
+  120.23 13:54:34.354     count 0 (presence); count model: one 0/20, two+ 0/20 blocks - untrained, count = presence
+  120.23 13:54:34.354     person - (dist -, 0/0 windows); 0 of 4 slots ready
+  120.23 13:54:34.354     vitals no-person (of -): breathing -/min (conf -), heart ~-/min EXPERIMENTAL (conf -), 33 s still data
+  120.23 13:54:34.354     motion gate STILL: hf 1.38 (moving at >= 4.00), floor from the empty room
+  120.23 13:54:34.354     session none
+  120.23 13:54:34.354     pipeline: slowest packet 52.2 ms since boot, 0 CSI packets dropped since boot (queue of 16)
+  120.23 13:54:34.354     board: up 183 s, last reset POWERON (1); console: USB host connected, transmit buffer found full at 43 of the 1-s checks (longest run 29 s)
+  121.64 13:54:35.768 EXPLAIN {"ev":"vitals","t_ms":184565,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":34.2,"vitals_of":null,"multiple":false}
+  121.64 13:54:35.768 I (184788) csi-human: why: vitals - analysed 34 s of still data, but nobody is PRESENT -> nothing reported
+  123.69 13:54:37.814 EXPLAIN {"ev":"vitals","t_ms":186575,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":36.2,"vitals_of":null,"multiple":false}
+  123.69 13:54:37.814 I (186799) csi-human: why: vitals - analysed 36 s of still data, but nobody is PRESENT -> nothing reported
+  125.52 13:54:39.649 EXPLAIN {"ev":"vitals","t_ms":188579,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":38.2,"vitals_of":null,"multiple":false}
+  125.52 13:54:39.649 I (188803) csi-human: why: vitals - analysed 38 s of still data, but nobody is PRESENT -> nothing reported
+  127.56 13:54:41.687 EXPLAIN {"ev":"vitals","t_ms":190565,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":40.2,"vitals_of":null,"multiple":false}
+  127.56 13:54:41.687 I (190789) csi-human: why: vitals - analysed 40 s of still data, but nobody is PRESENT -> nothing reported
+  129.62 13:54:43.745 EXPLAIN {"ev":"vitals","t_ms":192531,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":42.1,"vitals_of":null,"multiple":false}
+  129.62 13:54:43.745 I (192755) csi-human: why: vitals - analysed 42 s of still data, but nobody is PRESENT -> nothing reported
+  131.66 13:54:45.787 EXPLAIN {"ev":"vitals","t_ms":194577,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":44.2,"vitals_of":null,"multiple":false}
+  131.66 13:54:45.787 I (194801) csi-human: why: vitals - analysed 44 s of still data, but nobody is PRESENT -> nothing reported
+  132.06 13:54:46.190 W (195265) csi-human: >>> HUMAN DETECTED  (motion 5.0 sd, deviation -1.8 sd)
+  132.06 13:54:46.190 EXPLAIN {"ev":"presence","t_ms":195043,"present":1,"reason":"motion","m":5.01,"d":-1.75}
+  132.06 13:54:46.190 I (195266) csi-human: why: PRESENT - motion 5.0 sd >= threshold 5.0 (deviation -1.8 sd)
+  133.47 13:54:47.603 EXPLAIN {"ev":"vitals","t_ms":196551,"state":"no-signal","br":null,"br_conf":3.6,"hr_exp":null,"hr_conf":null,"still_s":46.2,"vitals_of":null,"multiple":false}
+  133.47 13:54:47.603 I (196775) csi-human: why: vitals - no clear breathing peak (conf 3.6 < 4.0) in 46 s of still data -> no rate
+  135.52 13:54:49.653 EXPLAIN {"ev":"vitals","t_ms":198570,"state":"no-signal","br":null,"br_conf":3.0,"hr_exp":null,"hr_conf":null,"still_s":48.2,"vitals_of":null,"multiple":false}
+  135.52 13:54:49.653 I (198794) csi-human: why: vitals - no clear breathing peak (conf 3.0 < 4.0) in 48 s of still data -> no rate
+  137.18 13:54:51.308 EXPLAIN {"ev":"count","t_ms":200124,"blk":19,"duty":0.00,"used":false,"why":"no-model","feat":[2.098,0.355,0.646,1.116,0.000,0.951],"dist":null,"vote":null,"ring":"","est":0}
+  137.18 13:54:51.308 I (200347) csi-human: why: count block 19 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  137.18 13:54:51.308 EXPLAIN {"ev":"gait","t_ms":200125,"win":36,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  137.18 13:54:51.308 I (200349) csi-human: why: gait window 36 - only 0% of packets moving (needs 80%) -> no vote
+  137.59 13:54:51.723 EXPLAIN {"ev":"vitals","t_ms":200570,"state":"no-signal","br":null,"br_conf":2.8,"hr_exp":null,"hr_conf":null,"still_s":50.2,"vitals_of":null,"multiple":false}
+  137.59 13:54:51.723 I (200794) csi-human: why: vitals - no clear breathing peak (conf 2.8 < 4.0) in 50 s of still data -> no rate
+  139.41 13:54:53.537 W (202657) csi-human: >>> room clear  (motion 0.5 sd, deviation -0.8 sd)
+  139.41 13:54:53.537 EXPLAIN {"ev":"presence","t_ms":202434,"present":0,"reason":"hold-expired","m":0.54,"d":-0.81}
+  139.41 13:54:53.537 I (202658) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion 0.5 sd, released below 2.5; deviation -0.8 sd, needs 5.0 for 4000 ms)
+  139.61 13:54:53.739 EXPLAIN {"ev":"vitals","t_ms":202573,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  139.61 13:54:53.739 I (202797) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  141.63 13:54:55.761 EXPLAIN {"ev":"vitals","t_ms":204571,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  141.63 13:54:55.761 I (204794) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  143.46 13:54:57.586 EXPLAIN {"ev":"vitals","t_ms":206550,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  143.46 13:54:57.586 I (206774) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  145.53 13:54:59.654 EXPLAIN {"ev":"vitals","t_ms":208571,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  145.53 13:54:59.654 I (208794) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  147.61 13:55:01.737 EXPLAIN {"ev":"vitals","t_ms":210570,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  147.61 13:55:01.737 I (210794) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  149.66 13:55:03.790 EXPLAIN {"ev":"vitals","t_ms":212570,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  149.66 13:55:03.790 I (212794) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  151.70 13:55:05.824 EXPLAIN {"ev":"vitals","t_ms":214594,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  151.70 13:55:05.824 I (214818) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  153.52 13:55:07.645 EXPLAIN {"ev":"vitals","t_ms":216531,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  153.52 13:55:07.645 I (216755) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  155.57 13:55:09.701 EXPLAIN {"ev":"vitals","t_ms":218635,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  155.57 13:55:09.701 I (218858) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  180.96 13:55:35.088 EXPLAIN {"ev":"vitals","t_ms":244039,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":20.2,"vitals_of":null,"multiple":false}
+  180.96 13:55:35.088 I (244262) csi-human: why: vitals - analysed 20 s of still data, but nobody is PRESENT -> nothing reported
+  183.00 13:55:37.124 EXPLAIN {"ev":"vitals","t_ms":246033,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":22.2,"vitals_of":null,"multiple":false}
+  183.00 13:55:37.124 I (246257) csi-human: why: vitals - analysed 22 s of still data, but nobody is PRESENT -> nothing reported
+  185.04 13:55:39.164 EXPLAIN {"ev":"vitals","t_ms":248055,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":24.2,"vitals_of":null,"multiple":false}
+  185.04 13:55:39.164 I (248279) csi-human: why: vitals - analysed 24 s of still data, but nobody is PRESENT -> nothing reported
+  187.07 13:55:41.199 EXPLAIN {"ev":"vitals","t_ms":250053,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":26.2,"vitals_of":null,"multiple":false}
+  187.07 13:55:41.199 I (250277) csi-human: why: vitals - analysed 26 s of still data, but nobody is PRESENT -> nothing reported
+  189.09 13:55:43.222 EXPLAIN {"ev":"vitals","t_ms":252043,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":28.2,"vitals_of":null,"multiple":false}
+  189.09 13:55:43.222 I (252267) csi-human: why: vitals - analysed 28 s of still data, but nobody is PRESENT -> nothing reported
+  191.13 13:55:45.256 EXPLAIN {"ev":"vitals","t_ms":254050,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":30.2,"vitals_of":null,"multiple":false}
+  191.13 13:55:45.256 I (254274) csi-human: why: vitals - analysed 30 s of still data, but nobody is PRESENT -> nothing reported
+  192.96 13:55:47.084 EXPLAIN {"ev":"vitals","t_ms":256052,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":32.2,"vitals_of":null,"multiple":false}
+  192.96 13:55:47.084 I (256276) csi-human: why: vitals - analysed 32 s of still data, but nobody is PRESENT -> nothing reported
+  195.00 13:55:49.124 EXPLAIN {"ev":"vitals","t_ms":258050,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":34.2,"vitals_of":null,"multiple":false}
+  195.00 13:55:49.124 I (258274) csi-human: why: vitals - analysed 34 s of still data, but nobody is PRESENT -> nothing reported
+  197.02 13:55:51.149 EXPLAIN {"ev":"vitals","t_ms":260050,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":36.2,"vitals_of":null,"multiple":false}
+  197.02 13:55:51.149 I (260274) csi-human: why: vitals - analysed 36 s of still data, but nobody is PRESENT -> nothing reported
+  199.06 13:55:53.185 EXPLAIN {"ev":"vitals","t_ms":262050,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":38.2,"vitals_of":null,"multiple":false}
+  199.06 13:55:53.185 I (262274) csi-human: why: vitals - analysed 38 s of still data, but nobody is PRESENT -> nothing reported
+  201.08 13:55:55.212 EXPLAIN {"ev":"vitals","t_ms":264031,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":40.2,"vitals_of":null,"multiple":false}
+  201.08 13:55:55.212 I (264255) csi-human: why: vitals - analysed 40 s of still data, but nobody is PRESENT -> nothing reported
+  203.12 13:55:57.244 EXPLAIN {"ev":"vitals","t_ms":266052,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":42.2,"vitals_of":null,"multiple":false}
+  203.12 13:55:57.244 I (266276) csi-human: why: vitals - analysed 42 s of still data, but nobody is PRESENT -> nothing reported
+  205.15 13:55:59.276 EXPLAIN {"ev":"vitals","t_ms":268051,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":44.2,"vitals_of":null,"multiple":false}
+  205.15 13:55:59.276 I (268275) csi-human: why: vitals - analysed 44 s of still data, but nobody is PRESENT -> nothing reported
+  206.99 13:56:01.114 EXPLAIN {"ev":"vitals","t_ms":270067,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":46.2,"vitals_of":null,"multiple":false}
+  206.99 13:56:01.114 I (270291) csi-human: why: vitals - analysed 46 s of still data, but nobody is PRESENT -> nothing reported
+  209.01 13:56:03.139 EXPLAIN {"ev":"vitals","t_ms":272033,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":48.2,"vitals_of":null,"multiple":false}
+  209.01 13:56:03.139 I (272257) csi-human: why: vitals - analysed 48 s of still data, but nobody is PRESENT -> nothing reported
+  230.82 13:56:24.950 EXPLAIN {"ev":"vitals","t_ms":293870,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":20.2,"vitals_of":null,"multiple":false}
+  230.82 13:56:24.950 I (294093) csi-human: why: vitals - analysed 20 s of still data, but nobody is PRESENT -> nothing reported
+  232.86 13:56:26.988 EXPLAIN {"ev":"vitals","t_ms":295872,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":22.2,"vitals_of":null,"multiple":false}
+  232.86 13:56:26.988 I (296095) csi-human: why: vitals - analysed 22 s of still data, but nobody is PRESENT -> nothing reported
+  234.88 13:56:29.007 EXPLAIN {"ev":"vitals","t_ms":297874,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":24.2,"vitals_of":null,"multiple":false}
+  234.88 13:56:29.007 I (298098) csi-human: why: vitals - analysed 24 s of still data, but nobody is PRESENT -> nothing reported
+  236.91 13:56:31.040 EXPLAIN {"ev":"vitals","t_ms":299872,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":26.2,"vitals_of":null,"multiple":false}
+  236.91 13:56:31.040 I (300096) csi-human: why: vitals - analysed 26 s of still data, but nobody is PRESENT -> nothing reported
+  252.40 13:56:46.528 W (315596) csi-human: >>> HUMAN DETECTED  (motion 6.0 sd, deviation 1.2 sd)
+  252.40 13:56:46.528 EXPLAIN {"ev":"presence","t_ms":315374,"present":1,"reason":"motion","m":5.97,"d":1.21}
+  252.40 13:56:46.528 I (315597) csi-human: why: PRESENT - motion 6.0 sd >= threshold 5.0 (deviation 1.2 sd)
+  257.48 13:56:51.606 EXPLAIN {"ev":"count","t_ms":320444,"blk":20,"duty":0.00,"used":false,"why":"no-model","feat":[3.088,0.673,0.460,0.460,0.000,4.736],"dist":null,"vote":null,"ring":"","est":0}
+  257.48 13:56:51.606 I (320668) csi-human: why: count block 20 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  257.48 13:56:51.606 EXPLAIN {"ev":"gait","t_ms":320446,"win":37,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  257.48 13:56:51.606 I (320670) csi-human: why: gait window 37 - only 0% of packets moving (needs 80%) -> no vote
+  257.68 13:56:51.810 W (320865) csi-human: >>> room clear  (motion -0.9 sd, deviation 1.9 sd)
+  257.68 13:56:51.810 EXPLAIN {"ev":"presence","t_ms":320642,"present":0,"reason":"hold-expired","m":-0.89,"d":1.94}
+  257.68 13:56:51.810 I (320866) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.9 sd, released below 2.5; deviation 1.9 sd, needs 5.0 for 4000 ms)
+  261.15 13:56:55.276 EXPLAIN {"ev":"vitals","t_ms":324190,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":20.2,"vitals_of":null,"multiple":false}
+  261.15 13:56:55.276 I (324413) csi-human: why: vitals - analysed 20 s of still data, but nobody is PRESENT -> nothing reported
+  263.19 13:56:57.321 W (326395) csi-human: >>> HUMAN DETECTED  (motion 5.7 sd, deviation 4.5 sd)
+  263.19 13:56:57.321 EXPLAIN {"ev":"presence","t_ms":326172,"present":1,"reason":"motion","m":5.66,"d":4.46}
+  263.19 13:56:57.321 I (326396) csi-human: why: PRESENT - motion 5.7 sd >= threshold 5.0 (deviation 4.5 sd)
+  263.19 13:56:57.321 EXPLAIN {"ev":"vitals","t_ms":326196,"state":"no-signal","br":null,"br_conf":4.8,"hr_exp":null,"hr_conf":null,"still_s":22.2,"vitals_of":null,"multiple":false}
+  263.19 13:56:57.321 I (326420) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  265.22 13:56:59.345 EXPLAIN {"ev":"vitals","t_ms":328171,"state":"ok","br":10.5,"br_conf":4.6,"hr_exp":null,"hr_conf":null,"still_s":24.2,"vitals_of":null,"multiple":false}
+  265.22 13:56:59.345 I (328395) csi-human: why: vitals - breathing 10.5/min (conf 4.6 >= 4.0), heart: none (conf 4.0 < 5.0) over 24 s of still data, of nobody named
+  267.26 13:57:01.384 EXPLAIN {"ev":"vitals","t_ms":330174,"state":"ok","br":10.2,"br_conf":5.8,"hr_exp":null,"hr_conf":null,"still_s":26.2,"vitals_of":null,"multiple":false}
+  267.26 13:57:01.384 I (330398) csi-human: why: vitals - breathing 10.2/min (conf 5.8 >= 4.0), heart: none (its peak sits on a band edge or a breathing harmonic) over 26 s of still data, of nobody named
+  268.27 13:57:02.402 EXPLAIN {"ev":"count","t_ms":331245,"blk":21,"duty":0.00,"used":false,"why":"no-model","feat":[1.371,0.097,0.849,0.676,0.000,2.601],"dist":null,"vote":null,"ring":"","est":0}
+  268.27 13:57:02.402 I (331469) csi-human: why: count block 21 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  268.27 13:57:02.402 EXPLAIN {"ev":"gait","t_ms":331246,"win":38,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  268.27 13:57:02.402 I (331470) csi-human: why: gait window 38 - only 0% of packets moving (needs 80%) -> no vote
+  268.89 13:57:03.021 W (332047) csi-human: >>> room clear  (motion -0.8 sd, deviation 0.3 sd)
+  268.89 13:57:03.021 EXPLAIN {"ev":"presence","t_ms":331825,"present":0,"reason":"hold-expired","m":-0.77,"d":0.29}
+  268.89 13:57:03.021 I (332048) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.8 sd, released below 2.5; deviation 0.3 sd, needs 5.0 for 4000 ms)
+  269.10 13:57:03.225 EXPLAIN {"ev":"vitals","t_ms":332172,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":28.2,"vitals_of":null,"multiple":false}
+  269.10 13:57:03.225 I (332396) csi-human: why: vitals - analysed 28 s of still data, but nobody is PRESENT -> nothing reported
+  271.12 13:57:05.249 EXPLAIN {"ev":"vitals","t_ms":334131,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":30.1,"vitals_of":null,"multiple":false}
+  271.12 13:57:05.249 I (334355) csi-human: why: vitals - analysed 30 s of still data, but nobody is PRESENT -> nothing reported
+  273.15 13:57:07.282 EXPLAIN {"ev":"vitals","t_ms":336151,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":32.1,"vitals_of":null,"multiple":false}
+  273.15 13:57:07.282 I (336375) csi-human: why: vitals - analysed 32 s of still data, but nobody is PRESENT -> nothing reported
+  274.18 13:57:08.308 W (337305) csi-human: >>> HUMAN DETECTED  (motion 5.6 sd, deviation -1.0 sd)
+  274.18 13:57:08.308 EXPLAIN {"ev":"presence","t_ms":337083,"present":1,"reason":"motion","m":5.57,"d":-1.02}
+  274.18 13:57:08.308 I (337306) csi-human: why: PRESENT - motion 5.6 sd >= threshold 5.0 (deviation -1.0 sd)
+  275.19 13:57:09.320 EXPLAIN {"ev":"vitals","t_ms":338208,"state":"no-signal","br":null,"br_conf":5.8,"hr_exp":null,"hr_conf":null,"still_s":34.2,"vitals_of":null,"multiple":false}
+  275.19 13:57:09.320 I (338432) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  277.23 13:57:11.354 EXPLAIN {"ev":"vitals","t_ms":340191,"state":"no-signal","br":null,"br_conf":5.7,"hr_exp":null,"hr_conf":null,"still_s":36.2,"vitals_of":null,"multiple":false}
+  277.23 13:57:11.355 I (340415) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  279.05 13:57:13.182 EXPLAIN {"ev":"count","t_ms":342116,"blk":22,"duty":0.00,"used":false,"why":"no-model","feat":[2.436,0.807,0.496,0.927,0.000,3.092],"dist":null,"vote":null,"ring":"","est":0}
+  279.05 13:57:13.182 I (342340) csi-human: why: count block 22 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  279.05 13:57:13.182 EXPLAIN {"ev":"gait","t_ms":342118,"win":39,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  279.05 13:57:13.182 I (342342) csi-human: why: gait window 39 - only 0% of packets moving (needs 80%) -> no vote
+  279.25 13:57:13.382 EXPLAIN {"ev":"vitals","t_ms":342173,"state":"ok","br":8.0,"br_conf":6.8,"hr_exp":54.2,"hr_conf":6.1,"still_s":38.2,"vitals_of":null,"multiple":false}
+  279.25 13:57:13.382 I (342397) csi-human: why: vitals - breathing 8.0/min (conf 6.8 >= 4.0), heart ~54/min EXPERIMENTAL (conf 6.1 >= 5.0) over 38 s of still data, of nobody named
+  279.66 13:57:13.789 W (342905) csi-human: >>> room clear  (motion -0.6 sd, deviation 4.4 sd)
+  279.66 13:57:13.789 EXPLAIN {"ev":"presence","t_ms":342683,"present":0,"reason":"hold-expired","m":-0.63,"d":4.44}
+  279.66 13:57:13.789 I (342906) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.6 sd, released below 2.5; deviation 4.4 sd, needs 5.0 for 4000 ms)
+  281.28 13:57:15.406 EXPLAIN {"ev":"vitals","t_ms":344205,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":40.2,"vitals_of":null,"multiple":false}
+  281.28 13:57:15.406 I (344429) csi-human: why: vitals - analysed 40 s of still data, but nobody is PRESENT -> nothing reported
+  283.09 13:57:17.223 EXPLAIN {"ev":"vitals","t_ms":346192,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":42.2,"vitals_of":null,"multiple":false}
+  283.09 13:57:17.223 I (346416) csi-human: why: vitals - analysed 42 s of still data, but nobody is PRESENT -> nothing reported
+  284.93 13:57:19.061 W (348125) csi-human: >>> HUMAN DETECTED  (motion 5.3 sd, deviation 3.0 sd)
+  284.93 13:57:19.061 EXPLAIN {"ev":"presence","t_ms":347903,"present":1,"reason":"motion","m":5.27,"d":3.00}
+  284.93 13:57:19.061 I (348126) csi-human: why: PRESENT - motion 5.3 sd >= threshold 5.0 (deviation 3.0 sd)
+  285.15 13:57:19.276 EXPLAIN {"ev":"vitals","t_ms":348194,"state":"ok","br":8.3,"br_conf":9.8,"hr_exp":null,"hr_conf":null,"still_s":44.2,"vitals_of":null,"multiple":false}
+  285.15 13:57:19.276 I (348418) csi-human: why: vitals - breathing 8.3/min (conf 9.8 >= 4.0), heart: none (conf 4.6 < 5.0) over 44 s of still data, of nobody named
+  287.16 13:57:21.292 EXPLAIN {"ev":"vitals","t_ms":350191,"state":"ok","br":8.4,"br_conf":7.9,"hr_exp":null,"hr_conf":null,"still_s":46.2,"vitals_of":null,"multiple":false}
+  287.16 13:57:21.292 I (350415) csi-human: why: vitals - breathing 8.4/min (conf 7.9 >= 4.0), heart: none (conf 3.9 < 5.0) over 46 s of still data, of nobody named
+  289.19 13:57:23.323 EXPLAIN {"ev":"vitals","t_ms":352171,"state":"ok","br":8.5,"br_conf":7.7,"hr_exp":null,"hr_conf":null,"still_s":48.2,"vitals_of":null,"multiple":false}
+  289.19 13:57:23.323 I (352395) csi-human: why: vitals - breathing 8.5/min (conf 7.7 >= 4.0), heart: none (conf 3.7 < 5.0) over 48 s of still data, of nobody named
+  290.01 13:57:24.143 EXPLAIN {"ev":"count","t_ms":353003,"blk":23,"duty":0.00,"used":false,"why":"no-model","feat":[1.488,0.124,0.812,0.514,0.000,2.500],"dist":null,"vote":null,"ring":"","est":0}
+  290.01 13:57:24.143 I (353227) csi-human: why: count block 23 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  290.01 13:57:24.143 EXPLAIN {"ev":"gait","t_ms":353005,"win":40,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  290.01 13:57:24.143 I (353229) csi-human: why: gait window 40 - only 0% of packets moving (needs 80%) -> no vote
+  290.44 13:57:24.573 W (353705) csi-human: >>> room clear  (motion -1.0 sd, deviation 0.5 sd)
+  290.44 13:57:24.573 EXPLAIN {"ev":"presence","t_ms":353482,"present":0,"reason":"hold-expired","m":-1.05,"d":0.50}
+  290.44 13:57:24.573 I (353706) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -1.0 sd, released below 2.5; deviation 0.5 sd, needs 5.0 for 4000 ms)
+  291.27 13:57:25.394 EXPLAIN {"ev":"vitals","t_ms":354197,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":50.2,"vitals_of":null,"multiple":false}
+  291.27 13:57:25.394 I (354421) csi-human: why: vitals - analysed 50 s of still data, but nobody is PRESENT -> nothing reported
+  293.28 13:57:27.410 EXPLAIN {"ev":"vitals","t_ms":356192,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  293.28 13:57:27.410 I (356416) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  295.11 13:57:29.242 EXPLAIN {"ev":"vitals","t_ms":358171,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  295.11 13:57:29.242 I (358395) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  295.73 13:57:29.861 W (359006) csi-human: >>> HUMAN DETECTED  (motion 5.8 sd, deviation -0.4 sd)
+  295.73 13:57:29.861 EXPLAIN {"ev":"presence","t_ms":358783,"present":1,"reason":"motion","m":5.79,"d":-0.38}
+  295.73 13:57:29.861 I (359007) csi-human: why: PRESENT - motion 5.8 sd >= threshold 5.0 (deviation -0.4 sd)
+  297.16 13:57:31.286 EXPLAIN {"ev":"vitals","t_ms":360179,"state":"ok","br":8.2,"br_conf":9.5,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  297.16 13:57:31.286 I (360403) csi-human: why: vitals - breathing 8.2/min (conf 9.5 >= 4.0), heart: none (conf 3.7 < 5.0) over 51 s of still data, of nobody named
+  300.01 13:57:34.135 ## sent: status
+  300.21 13:57:34.338 CMD status: phase detect, PRESENT, 49.7 CSI packets/s live (calibrated 50.2/s), 26/26 subcarriers used, channel 6, free heap 94132 bytes
+  300.21 13:57:34.338     count 1 (presence); count model: one 0/20, two+ 0/20 blocks - untrained, count = presence
+  300.21 13:57:34.338     person - (dist -, 0/0 windows); 0 of 4 slots ready
+  300.21 13:57:34.338     vitals settling (of -): breathing -/min (conf -), heart ~-/min EXPERIMENTAL (conf -), 1 s still data
+  300.21 13:57:34.338     motion gate STILL: hf 0.59 (moving at >= 4.00), floor from the empty room
+  300.21 13:57:34.338     session none
+  300.21 13:57:34.338     pipeline: slowest packet 52.2 ms since boot, 0 CSI packets dropped since boot (queue of 16)
+  300.21 13:57:34.338     board: up 363 s, last reset POWERON (1); console: USB host connected, transmit buffer found full at 43 of the 1-s checks (longest run 29 s)
+  300.81 13:57:34.943 EXPLAIN {"ev":"count","t_ms":363830,"blk":24,"duty":0.00,"used":false,"why":"no-model","feat":[1.824,0.205,0.720,0.860,0.000,3.061],"dist":null,"vote":null,"ring":"","est":0}
+  300.81 13:57:34.943 I (364054) csi-human: why: count block 24 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  300.81 13:57:34.943 EXPLAIN {"ev":"gait","t_ms":363832,"win":41,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  300.81 13:57:34.943 I (364056) csi-human: why: gait window 41 - only 0% of packets moving (needs 80%) -> no vote
+  301.42 13:57:35.553 W (364651) csi-human: >>> room clear  (motion -0.9 sd, deviation 3.0 sd)
+  301.42 13:57:35.553 EXPLAIN {"ev":"presence","t_ms":364429,"present":0,"reason":"hold-expired","m":-0.89,"d":2.96}
+  301.42 13:57:35.553 I (364652) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.9 sd, released below 2.5; deviation 3.0 sd, needs 5.0 for 4000 ms)
+  303.44 13:57:37.570 W (366633) csi-human: >>> HUMAN DETECTED  (motion 6.4 sd, deviation 3.4 sd)
+  303.44 13:57:37.570 EXPLAIN {"ev":"presence","t_ms":366411,"present":1,"reason":"motion","m":6.40,"d":3.45}
+  303.44 13:57:37.570 I (366634) csi-human: why: PRESENT - motion 6.4 sd >= threshold 5.0 (deviation 3.4 sd)
+  307.91 13:57:42.041 EXPLAIN {"ev":"count","t_ms":370823,"blk":25,"duty":0.30,"used":false,"why":"no-model","feat":[1.418,0.175,0.827,1.362,0.301,1.537],"dist":null,"vote":null,"ring":"","est":0}
+  307.91 13:57:42.041 I (371047) csi-human: why: count block 25 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  307.91 13:57:42.041 EXPLAIN {"ev":"gait","t_ms":370825,"win":42,"moving_frac":0.30,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  307.91 13:57:42.041 I (371049) csi-human: why: gait window 42 - only 30% of packets moving (needs 80%) -> no vote
+  310.35 13:57:44.478 EXPLAIN {"ev":"gait","t_ms":373344,"win":43,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  310.35 13:57:44.478 I (373568) csi-human: why: gait window 43 - only 0% of packets moving (needs 80%) -> no vote
+  312.17 13:57:46.295 W (375446) csi-human: >>> room clear  (motion -1.0 sd, deviation -0.2 sd)
+  312.17 13:57:46.295 EXPLAIN {"ev":"presence","t_ms":375224,"present":0,"reason":"hold-expired","m":-1.04,"d":-0.24}
+  312.17 13:57:46.295 I (375447) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -1.0 sd, released below 2.5; deviation -0.2 sd, needs 5.0 for 4000 ms)
+  317.66 13:57:51.787 W (380831) csi-human: >>> HUMAN DETECTED  (motion 5.4 sd, deviation -0.9 sd)
+  317.66 13:57:51.787 EXPLAIN {"ev":"presence","t_ms":380609,"present":1,"reason":"motion","m":5.45,"d":-0.95}
+  317.66 13:57:51.787 I (380832) csi-human: why: PRESENT - motion 5.4 sd >= threshold 5.0 (deviation -0.9 sd)
+  322.73 13:57:56.862 EXPLAIN {"ev":"count","t_ms":385683,"blk":26,"duty":0.00,"used":false,"why":"no-model","feat":[1.660,0.201,0.760,0.653,0.000,2.120],"dist":null,"vote":null,"ring":"","est":0}
+  322.73 13:57:56.862 I (385907) csi-human: why: count block 26 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  322.73 13:57:56.862 EXPLAIN {"ev":"gait","t_ms":385685,"win":44,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  322.73 13:57:56.862 I (385909) csi-human: why: gait window 44 - only 0% of packets moving (needs 80%) -> no vote
+  323.14 13:57:57.265 W (386425) csi-human: >>> room clear  (motion -0.1 sd, deviation 4.3 sd)
+  323.14 13:57:57.265 EXPLAIN {"ev":"presence","t_ms":386202,"present":0,"reason":"hold-expired","m":-0.09,"d":4.27}
+  323.14 13:57:57.265 I (386426) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.1 sd, released below 2.5; deviation 4.3 sd, needs 5.0 for 4000 ms)
+  326.99 13:58:01.117 EXPLAIN {"ev":"vitals","t_ms":389977,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":20.2,"vitals_of":null,"multiple":false}
+  326.99 13:58:01.117 I (390200) csi-human: why: vitals - analysed 20 s of still data, but nobody is PRESENT -> nothing reported
+  328.42 13:58:02.551 W (391727) csi-human: >>> HUMAN DETECTED  (motion 5.6 sd, deviation 2.7 sd)
+  328.42 13:58:02.551 EXPLAIN {"ev":"presence","t_ms":391504,"present":1,"reason":"motion","m":5.58,"d":2.73}
+  328.42 13:58:02.551 I (391728) csi-human: why: PRESENT - motion 5.6 sd >= threshold 5.0 (deviation 2.7 sd)
+  329.04 13:58:03.172 EXPLAIN {"ev":"vitals","t_ms":391970,"state":"no-signal","br":null,"br_conf":9.7,"hr_exp":null,"hr_conf":null,"still_s":22.2,"vitals_of":null,"multiple":false}
+  329.04 13:58:03.172 I (392194) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  330.88 13:58:05.009 EXPLAIN {"ev":"vitals","t_ms":393971,"state":"no-signal","br":null,"br_conf":7.7,"hr_exp":null,"hr_conf":null,"still_s":24.2,"vitals_of":null,"multiple":false}
+  330.88 13:58:05.009 I (394194) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  332.92 13:58:07.047 EXPLAIN {"ev":"vitals","t_ms":395951,"state":"ok","br":8.1,"br_conf":7.2,"hr_exp":null,"hr_conf":null,"still_s":26.2,"vitals_of":null,"multiple":false}
+  332.92 13:58:07.047 I (396175) csi-human: why: vitals - breathing 8.1/min (conf 7.2 >= 4.0), heart: none (conf 3.6 < 5.0) over 26 s of still data, of nobody named
+  333.53 13:58:07.655 EXPLAIN {"ev":"count","t_ms":396605,"blk":27,"duty":0.00,"used":false,"why":"no-model","feat":[1.411,0.103,0.836,0.570,0.000,2.524],"dist":null,"vote":null,"ring":"","est":0}
+  333.53 13:58:07.655 I (396829) csi-human: why: count block 27 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  333.53 13:58:07.655 EXPLAIN {"ev":"gait","t_ms":396606,"win":45,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  333.53 13:58:07.655 I (396830) csi-human: why: gait window 45 - only 0% of packets moving (needs 80%) -> no vote
+  334.95 13:58:09.074 EXPLAIN {"ev":"vitals","t_ms":397974,"state":"ok","br":8.2,"br_conf":9.1,"hr_exp":null,"hr_conf":null,"still_s":28.2,"vitals_of":null,"multiple":false}
+  334.95 13:58:09.074 I (398198) csi-human: why: vitals - breathing 8.2/min (conf 9.1 >= 4.0), heart: none (conf 3.8 < 5.0) over 28 s of still data, of nobody named
+  336.16 13:58:10.284 EXPLAIN {"ev":"gait","t_ms":399166,"win":46,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  336.16 13:58:10.284 I (399390) csi-human: why: gait window 46 - only 0% of packets moving (needs 80%) -> no vote
+  336.96 13:58:11.090 EXPLAIN {"ev":"vitals","t_ms":399993,"state":"ok","br":8.2,"br_conf":11.2,"hr_exp":null,"hr_conf":null,"still_s":30.2,"vitals_of":null,"multiple":false}
+  336.96 13:58:11.090 I (400216) csi-human: why: vitals - breathing 8.2/min (conf 11.2 >= 4.0), heart: none (conf 4.0 < 5.0) over 30 s of still data, of nobody named
+  338.78 13:58:12.910 EXPLAIN {"ev":"count","t_ms":401738,"blk":28,"duty":0.00,"used":false,"why":"no-model","feat":[3.311,0.418,0.480,-0.238,0.000,0.699],"dist":null,"vote":null,"ring":"","est":0}
+  338.78 13:58:12.910 I (401961) csi-human: why: count block 28 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  338.78 13:58:12.910 EXPLAIN {"ev":"gait","t_ms":401739,"win":47,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  338.78 13:58:12.910 I (401963) csi-human: why: gait window 47 - only 0% of packets moving (needs 80%) -> no vote
+  338.99 13:58:13.114 EXPLAIN {"ev":"vitals","t_ms":401959,"state":"ok","br":8.2,"br_conf":9.7,"hr_exp":null,"hr_conf":null,"still_s":32.2,"vitals_of":null,"multiple":false}
+  338.99 13:58:13.114 I (402183) csi-human: why: vitals - breathing 8.2/min (conf 9.7 >= 4.0), heart: none (conf 4.0 < 5.0) over 32 s of still data, of nobody named
+  341.06 13:58:15.184 EXPLAIN {"ev":"vitals","t_ms":403971,"state":"ok","br":8.3,"br_conf":7.0,"hr_exp":null,"hr_conf":null,"still_s":34.2,"vitals_of":null,"multiple":false}
+  341.06 13:58:15.184 I (404195) csi-human: why: vitals - breathing 8.3/min (conf 7.0 >= 4.0), heart: none (conf 3.5 < 5.0) over 34 s of still data, of nobody named
+  341.26 13:58:15.385 EXPLAIN {"ev":"gait","t_ms":404284,"win":48,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  341.26 13:58:15.385 I (404508) csi-human: why: gait window 48 - only 0% of packets moving (needs 80%) -> no vote
+  342.88 13:58:17.004 EXPLAIN {"ev":"vitals","t_ms":405953,"state":"ok","br":8.4,"br_conf":6.9,"hr_exp":null,"hr_conf":null,"still_s":36.2,"vitals_of":null,"multiple":false}
+  342.88 13:58:17.004 I (406177) csi-human: why: vitals - breathing 8.4/min (conf 6.9 >= 4.0), heart: none (conf 2.2 < 5.0) over 36 s of still data, of nobody named
+  343.90 13:58:18.025 EXPLAIN {"ev":"count","t_ms":406844,"blk":29,"duty":0.00,"used":false,"why":"no-model","feat":[2.000,0.216,0.686,0.427,0.000,1.968],"dist":null,"vote":null,"ring":"","est":0}
+  343.90 13:58:18.025 I (407068) csi-human: why: count block 29 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  343.90 13:58:18.025 EXPLAIN {"ev":"gait","t_ms":406846,"win":49,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  343.90 13:58:18.025 I (407070) csi-human: why: gait window 49 - only 0% of packets moving (needs 80%) -> no vote
+  344.91 13:58:19.039 EXPLAIN {"ev":"vitals","t_ms":407972,"state":"ok","br":8.3,"br_conf":7.7,"hr_exp":null,"hr_conf":null,"still_s":38.2,"vitals_of":null,"multiple":false}
+  344.91 13:58:19.039 I (408196) csi-human: why: vitals - breathing 8.3/min (conf 7.7 >= 4.0), heart: none (conf 2.1 < 5.0) over 38 s of still data, of nobody named
+  346.33 13:58:20.454 EXPLAIN {"ev":"gait","t_ms":409403,"win":50,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  346.33 13:58:20.454 I (409627) csi-human: why: gait window 50 - only 0% of packets moving (needs 80%) -> no vote
+  346.93 13:58:21.062 EXPLAIN {"ev":"vitals","t_ms":409953,"state":"ok","br":8.2,"br_conf":8.5,"hr_exp":null,"hr_conf":null,"still_s":40.2,"vitals_of":null,"multiple":false}
+  346.93 13:58:21.063 I (410177) csi-human: why: vitals - breathing 8.2/min (conf 8.5 >= 4.0), heart: none (conf 2.6 < 5.0) over 40 s of still data, of nobody named
+  348.55 13:58:22.683 EXPLAIN {"ev":"count","t_ms":411581,"blk":30,"duty":0.04,"used":false,"why":"no-model","feat":[1.165,0.038,0.926,1.020,0.043,3.156],"dist":null,"vote":null,"ring":"","est":0}
+  348.55 13:58:22.683 I (411805) csi-human: why: count block 30 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  348.55 13:58:22.683 EXPLAIN {"ev":"gait","t_ms":411583,"win":51,"moving_frac":0.04,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  348.55 13:58:22.683 I (411807) csi-human: why: gait window 51 - only 4% of packets moving (needs 80%) -> no vote
+  350.78 13:58:24.912 EXPLAIN {"ev":"gait","t_ms":413817,"win":52,"moving_frac":0.38,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  350.78 13:58:24.912 I (414041) csi-human: why: gait window 52 - only 38% of packets moving (needs 80%) -> no vote
+  353.42 13:58:27.552 EXPLAIN {"ev":"count","t_ms":416324,"blk":31,"duty":0.34,"used":false,"why":"no-model","feat":[1.610,0.237,0.766,1.108,0.340,1.718],"dist":null,"vote":null,"ring":"","est":0}
+  353.42 13:58:27.553 I (416548) csi-human: why: count block 31 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  353.42 13:58:27.553 EXPLAIN {"ev":"gait","t_ms":416326,"win":53,"moving_frac":0.34,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  353.42 13:58:27.553 I (416550) csi-human: why: gait window 53 - only 34% of packets moving (needs 80%) -> no vote
+  355.86 13:58:29.990 W (419076) csi-human: >>> room clear  (motion -1.0 sd, deviation 0.4 sd)
+  355.86 13:58:29.990 EXPLAIN {"ev":"presence","t_ms":418854,"present":0,"reason":"hold-expired","m":-1.00,"d":0.40}
+  355.86 13:58:29.990 I (419077) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -1.0 sd, released below 2.5; deviation 0.4 sd, needs 5.0 for 4000 ms)
+  361.15 13:58:35.283 W (424412) csi-human: >>> HUMAN DETECTED  (motion 5.2 sd, deviation -0.3 sd)
+  361.15 13:58:35.283 EXPLAIN {"ev":"presence","t_ms":424190,"present":1,"reason":"motion","m":5.24,"d":-0.34}
+  361.15 13:58:35.283 I (424413) csi-human: why: PRESENT - motion 5.2 sd >= threshold 5.0 (deviation -0.3 sd)
+  366.25 13:58:40.375 EXPLAIN {"ev":"count","t_ms":429295,"blk":32,"duty":0.00,"used":false,"why":"no-model","feat":[2.161,0.269,0.652,0.454,0.000,2.251],"dist":null,"vote":null,"ring":"","est":0}
+  366.25 13:58:40.375 I (429519) csi-human: why: count block 32 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  366.25 13:58:40.375 EXPLAIN {"ev":"gait","t_ms":429297,"win":54,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  366.25 13:58:40.375 I (429521) csi-human: why: gait window 54 - only 0% of packets moving (needs 80%) -> no vote
+  366.65 13:58:40.780 W (429785) csi-human: >>> room clear  (motion -0.6 sd, deviation 2.5 sd)
+  366.65 13:58:40.780 EXPLAIN {"ev":"presence","t_ms":429562,"present":0,"reason":"hold-expired","m":-0.63,"d":2.47}
+  366.65 13:58:40.780 I (429786) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.6 sd, released below 2.5; deviation 2.5 sd, needs 5.0 for 4000 ms)
+  371.97 13:58:46.101 EXPLAIN {"ev":"vitals","t_ms":434974,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":20.2,"vitals_of":null,"multiple":false}
+  371.97 13:58:46.101 I (435198) csi-human: why: vitals - analysed 20 s of still data, but nobody is PRESENT -> nothing reported
+  374.02 13:58:48.148 EXPLAIN {"ev":"vitals","t_ms":437009,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":22.2,"vitals_of":null,"multiple":false}
+  374.02 13:58:48.148 I (437233) csi-human: why: vitals - analysed 22 s of still data, but nobody is PRESENT -> nothing reported
+  376.07 13:58:50.197 W (439198) csi-human: >>> still person, breathing 8.5/min - holding PRESENT
+  376.07 13:58:50.198 EXPLAIN {"ev":"presence","t_ms":438976,"present":1,"reason":"breathing-hold","m":-0.78,"d":0.42}
+  376.07 13:58:50.198 I (439199) csi-human: why: PRESENT - a still person breathing 8.5/min: breathing may hold a still spell that began while PRESENT (motion -0.8 sd)
+  376.07 13:58:50.198 EXPLAIN {"ev":"vitals","t_ms":438977,"state":"ok","br":8.5,"br_conf":4.9,"hr_exp":null,"hr_conf":null,"still_s":24.2,"vitals_of":null,"multiple":false}
+  376.07 13:58:50.198 I (439201) csi-human: why: vitals - breathing 8.5/min (conf 4.9 >= 4.0), heart: none (conf 2.5 < 5.0) over 24 s of still data, of nobody named
+  377.90 13:58:52.028 EXPLAIN {"ev":"vitals","t_ms":440973,"state":"ok","br":8.4,"br_conf":6.2,"hr_exp":null,"hr_conf":null,"still_s":26.2,"vitals_of":null,"multiple":false}
+  377.90 13:58:52.029 I (441197) csi-human: why: vitals - breathing 8.4/min (conf 6.2 >= 4.0), heart: none (conf 2.9 < 5.0) over 26 s of still data, of nobody named
+  379.94 13:58:54.066 EXPLAIN {"ev":"vitals","t_ms":442976,"state":"ok","br":8.3,"br_conf":8.3,"hr_exp":null,"hr_conf":null,"still_s":28.2,"vitals_of":null,"multiple":false}
+  379.94 13:58:54.066 I (443200) csi-human: why: vitals - breathing 8.3/min (conf 8.3 >= 4.0), heart: none (conf 3.3 < 5.0) over 28 s of still data, of nobody named
+  380.96 13:58:55.086 EXPLAIN {"ev":"count","t_ms":444050,"blk":33,"duty":0.00,"used":false,"why":"no-model","feat":[3.164,0.381,0.500,-0.208,0.000,0.741],"dist":null,"vote":null,"ring":"","est":0}
+  380.96 13:58:55.086 I (444274) csi-human: why: count block 33 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  380.96 13:58:55.086 EXPLAIN {"ev":"gait","t_ms":444052,"win":55,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  380.96 13:58:55.086 I (444275) csi-human: why: gait window 55 - only 0% of packets moving (needs 80%) -> no vote
+  381.98 13:58:56.107 EXPLAIN {"ev":"vitals","t_ms":444987,"state":"ok","br":8.3,"br_conf":8.9,"hr_exp":null,"hr_conf":null,"still_s":30.2,"vitals_of":null,"multiple":false}
+  381.98 13:58:56.107 I (445211) csi-human: why: vitals - breathing 8.3/min (conf 8.9 >= 4.0), heart: none (conf 3.4 < 5.0) over 30 s of still data, of nobody named
+  383.63 13:58:57.755 EXPLAIN {"ev":"gait","t_ms":446610,"win":56,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  383.63 13:58:57.755 I (446834) csi-human: why: gait window 56 - only 0% of packets moving (needs 80%) -> no vote
+  384.04 13:58:58.170 EXPLAIN {"ev":"vitals","t_ms":447001,"state":"ok","br":8.3,"br_conf":7.3,"hr_exp":null,"hr_conf":null,"still_s":32.2,"vitals_of":null,"multiple":false}
+  384.04 13:58:58.170 I (447225) csi-human: why: vitals - breathing 8.3/min (conf 7.3 >= 4.0), heart: none (conf 3.4 < 5.0) over 32 s of still data, of nobody named
+  386.08 13:59:00.204 EXPLAIN {"ev":"vitals","t_ms":449012,"state":"ok","br":8.2,"br_conf":6.7,"hr_exp":null,"hr_conf":null,"still_s":34.2,"vitals_of":null,"multiple":false}
+  386.08 13:59:00.204 I (449236) csi-human: why: vitals - breathing 8.2/min (conf 6.7 >= 4.0), heart: none (conf 3.1 < 5.0) over 34 s of still data, of nobody named
+  386.08 13:59:00.204 EXPLAIN {"ev":"count","t_ms":449170,"blk":34,"duty":0.00,"used":false,"why":"no-model","feat":[1.376,0.090,0.848,0.609,0.000,2.462],"dist":null,"vote":null,"ring":"","est":0}
+  386.08 13:59:00.204 I (449393) csi-human: why: count block 34 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  386.08 13:59:00.204 EXPLAIN {"ev":"gait","t_ms":449171,"win":57,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  386.08 13:59:00.204 I (449395) csi-human: why: gait window 57 - only 0% of packets moving (needs 80%) -> no vote
+  387.90 13:59:02.031 EXPLAIN {"ev":"vitals","t_ms":450992,"state":"no-signal","br":null,"br_conf":5.8,"hr_exp":null,"hr_conf":null,"still_s":36.2,"vitals_of":null,"multiple":false}
+  387.90 13:59:02.031 I (451216) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  388.73 13:59:02.863 EXPLAIN {"ev":"gait","t_ms":451704,"win":58,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  388.73 13:59:02.863 I (451928) csi-human: why: gait window 58 - only 0% of packets moving (needs 80%) -> no vote
+  389.96 13:59:04.089 EXPLAIN {"ev":"vitals","t_ms":452982,"state":"no-signal","br":null,"br_conf":4.6,"hr_exp":null,"hr_conf":null,"still_s":38.2,"vitals_of":null,"multiple":false}
+  389.96 13:59:04.089 I (453206) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  391.17 13:59:05.301 EXPLAIN {"ev":"count","t_ms":454231,"blk":35,"duty":0.00,"used":false,"why":"no-model","feat":[3.125,0.391,0.502,-0.210,0.000,0.730],"dist":null,"vote":null,"ring":"","est":0}
+  391.17 13:59:05.301 I (454455) csi-human: why: count block 35 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  391.17 13:59:05.301 EXPLAIN {"ev":"gait","t_ms":454233,"win":59,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  391.17 13:59:05.301 I (454457) csi-human: why: gait window 59 - only 0% of packets moving (needs 80%) -> no vote
+  391.98 13:59:06.110 EXPLAIN {"ev":"vitals","t_ms":454942,"state":"no-signal","br":null,"br_conf":3.6,"hr_exp":null,"hr_conf":null,"still_s":40.1,"vitals_of":null,"multiple":false}
+  391.98 13:59:06.110 I (455165) csi-human: why: vitals - no clear breathing peak (conf 3.6 < 4.0) in 40 s of still data -> no rate
+  393.01 13:59:07.135 W (456207) csi-human: >>> room clear  (motion -0.9 sd, deviation 0.4 sd)
+  393.01 13:59:07.135 EXPLAIN {"ev":"presence","t_ms":455984,"present":0,"reason":"hold-expired","m":-0.94,"d":0.41}
+  393.01 13:59:07.135 I (456208) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.9 sd, released below 2.5; deviation 0.4 sd, needs 5.0 for 4000 ms)
+  394.02 13:59:08.148 EXPLAIN {"ev":"vitals","t_ms":456992,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":42.2,"vitals_of":null,"multiple":false}
+  394.02 13:59:08.148 I (457216) csi-human: why: vitals - analysed 42 s of still data, but nobody is PRESENT -> nothing reported
+  396.05 13:59:10.180 EXPLAIN {"ev":"vitals","t_ms":459012,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":44.2,"vitals_of":null,"multiple":false}
+  396.05 13:59:10.180 I (459236) csi-human: why: vitals - analysed 44 s of still data, but nobody is PRESENT -> nothing reported
+  398.09 13:59:12.220 EXPLAIN {"ev":"vitals","t_ms":460994,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":46.2,"vitals_of":null,"multiple":false}
+  398.09 13:59:12.221 I (461218) csi-human: why: vitals - analysed 46 s of still data, but nobody is PRESENT -> nothing reported
+  399.92 13:59:14.046 EXPLAIN {"ev":"vitals","t_ms":462977,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":48.2,"vitals_of":null,"multiple":false}
+  399.92 13:59:14.046 I (463201) csi-human: why: vitals - analysed 48 s of still data, but nobody is PRESENT -> nothing reported
+  401.95 13:59:16.082 EXPLAIN {"ev":"vitals","t_ms":464990,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":50.2,"vitals_of":null,"multiple":false}
+  401.95 13:59:16.082 I (465214) csi-human: why: vitals - analysed 50 s of still data, but nobody is PRESENT -> nothing reported
+  403.98 13:59:18.108 W (467216) csi-human: >>> still person, breathing 9.3/min - holding PRESENT
+  403.98 13:59:18.108 EXPLAIN {"ev":"presence","t_ms":466993,"present":1,"reason":"breathing-hold","m":-0.66,"d":0.59}
+  403.98 13:59:18.108 I (467217) csi-human: why: PRESENT - a still person breathing 9.3/min: breathing may hold a still spell that began while PRESENT (motion -0.7 sd)
+  403.98 13:59:18.108 EXPLAIN {"ev":"vitals","t_ms":466995,"state":"ok","br":9.3,"br_conf":4.1,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  403.98 13:59:18.108 I (467218) csi-human: why: vitals - breathing 9.3/min (conf 4.1 >= 4.0), heart: none (conf 3.7 < 5.0) over 51 s of still data, of nobody named
+  406.01 13:59:20.134 EXPLAIN {"ev":"vitals","t_ms":468971,"state":"ok","br":9.0,"br_conf":4.9,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  406.01 13:59:20.134 I (469195) csi-human: why: vitals - breathing 9.0/min (conf 4.9 >= 4.0), heart: none (conf 4.6 < 5.0) over 51 s of still data, of nobody named
+  408.04 13:59:22.171 EXPLAIN {"ev":"vitals","t_ms":470995,"state":"ok","br":8.6,"br_conf":5.9,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  408.04 13:59:22.171 I (471219) csi-human: why: vitals - breathing 8.6/min (conf 5.9 >= 4.0), heart: none (conf 3.4 < 5.0) over 51 s of still data, of nobody named
+  409.06 13:59:23.192 EXPLAIN {"ev":"count","t_ms":472069,"blk":36,"duty":0.00,"used":false,"why":"no-model","feat":[2.003,0.330,0.669,0.606,0.000,3.605],"dist":null,"vote":null,"ring":"","est":0}
+  409.06 13:59:23.193 I (472292) csi-human: why: count block 36 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  409.06 13:59:23.193 EXPLAIN {"ev":"gait","t_ms":472070,"win":60,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  409.06 13:59:23.193 I (472294) csi-human: why: gait window 60 - only 0% of packets moving (needs 80%) -> no vote
+  410.08 13:59:24.209 EXPLAIN {"ev":"vitals","t_ms":472991,"state":"ok","br":8.3,"br_conf":8.1,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  410.08 13:59:24.209 I (473215) csi-human: why: vitals - breathing 8.3/min (conf 8.1 >= 4.0), heart: none (conf 3.2 < 5.0) over 51 s of still data, of nobody named
+  411.70 13:59:25.832 EXPLAIN {"ev":"gait","t_ms":474629,"win":61,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  411.70 13:59:25.832 I (474853) csi-human: why: gait window 61 - only 0% of packets moving (needs 80%) -> no vote
+  411.91 13:59:26.034 EXPLAIN {"ev":"vitals","t_ms":474991,"state":"ok","br":8.2,"br_conf":8.0,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  411.91 13:59:26.034 I (475215) csi-human: why: vitals - breathing 8.2/min (conf 8.0 >= 4.0), heart: none (conf 3.9 < 5.0) over 51 s of still data, of nobody named
+  413.93 13:59:28.063 EXPLAIN {"ev":"vitals","t_ms":476994,"state":"ok","br":8.1,"br_conf":8.8,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  413.93 13:59:28.063 I (477218) csi-human: why: vitals - breathing 8.1/min (conf 8.8 >= 4.0), heart: none (conf 4.3 < 5.0) over 51 s of still data, of nobody named
+  414.14 13:59:28.268 EXPLAIN {"ev":"count","t_ms":477185,"blk":37,"duty":0.00,"used":false,"why":"no-model","feat":[3.509,0.426,0.458,-0.216,0.000,0.692],"dist":null,"vote":null,"ring":"","est":0}
+  414.14 13:59:28.268 I (477409) csi-human: why: count block 37 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  414.14 13:59:28.268 EXPLAIN {"ev":"gait","t_ms":477187,"win":62,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  414.14 13:59:28.268 I (477410) csi-human: why: gait window 62 - only 0% of packets moving (needs 80%) -> no vote
+  415.99 13:59:30.115 EXPLAIN {"ev":"vitals","t_ms":478974,"state":"ok","br":8.1,"br_conf":8.1,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  415.99 13:59:30.115 I (479198) csi-human: why: vitals - breathing 8.1/min (conf 8.1 >= 4.0), heart: none (conf 4.4 < 5.0) over 51 s of still data, of nobody named
+  416.80 13:59:30.928 EXPLAIN {"ev":"gait","t_ms":479726,"win":63,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  416.80 13:59:30.928 I (479950) csi-human: why: gait window 63 - only 0% of packets moving (needs 80%) -> no vote
+  418.03 13:59:32.154 EXPLAIN {"ev":"vitals","t_ms":480995,"state":"ok","br":8.2,"br_conf":7.0,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  418.03 13:59:32.154 I (481218) csi-human: why: vitals - breathing 8.2/min (conf 7.0 >= 4.0), heart: none (conf 3.7 < 5.0) over 51 s of still data, of nobody named
+  419.24 13:59:33.373 EXPLAIN {"ev":"count","t_ms":482225,"blk":38,"duty":0.00,"used":false,"why":"no-model","feat":[2.251,0.716,0.541,0.788,0.000,3.950],"dist":null,"vote":null,"ring":"","est":0}
+  419.24 13:59:33.373 I (482449) csi-human: why: count block 38 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  419.24 13:59:33.373 EXPLAIN {"ev":"gait","t_ms":482227,"win":64,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  419.24 13:59:33.373 I (482450) csi-human: why: gait window 64 - only 0% of packets moving (needs 80%) -> no vote
+  420.05 13:59:34.183 EXPLAIN {"ev":"vitals","t_ms":482996,"state":"ok","br":7.9,"br_conf":4.6,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  420.05 13:59:34.183 I (483220) csi-human: why: vitals - breathing 7.9/min (conf 4.6 >= 4.0), heart: none (conf 3.0 < 5.0) over 51 s of still data, of nobody named
+  421.88 13:59:36.010 EXPLAIN {"ev":"gait","t_ms":484791,"win":65,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  421.88 13:59:36.010 I (485015) csi-human: why: gait window 65 - only 0% of packets moving (needs 80%) -> no vote
+  422.09 13:59:36.215 EXPLAIN {"ev":"vitals","t_ms":484991,"state":"no-signal","br":null,"br_conf":4.0,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  422.09 13:59:36.215 I (485215) csi-human: why: vitals - no clear breathing peak (conf 4.0 < 4.0) in 51 s of still data -> no rate
+  423.91 13:59:38.035 EXPLAIN {"ev":"vitals","t_ms":486991,"state":"no-signal","br":null,"br_conf":3.4,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  423.91 13:59:38.035 I (487215) csi-human: why: vitals - no clear breathing peak (conf 3.4 < 4.0) in 51 s of still data -> no rate
+  424.31 13:59:38.441 EXPLAIN {"ev":"count","t_ms":487345,"blk":39,"duty":0.00,"used":false,"why":"no-model","feat":[3.347,0.401,0.480,-0.223,0.000,0.630],"dist":null,"vote":null,"ring":"","est":0}
+  424.31 13:59:38.441 I (487568) csi-human: why: count block 39 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  424.31 13:59:38.441 EXPLAIN {"ev":"gait","t_ms":487346,"win":66,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  424.31 13:59:38.441 I (487570) csi-human: why: gait window 66 - only 0% of packets moving (needs 80%) -> no vote
+  425.93 13:59:40.059 EXPLAIN {"ev":"vitals","t_ms":489000,"state":"no-signal","br":null,"br_conf":3.0,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  425.93 13:59:40.059 I (489224) csi-human: why: vitals - no clear breathing peak (conf 3.0 < 4.0) in 51 s of still data -> no rate
+  426.95 13:59:41.075 EXPLAIN {"ev":"gait","t_ms":489883,"win":67,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  426.95 13:59:41.075 I (490107) csi-human: why: gait window 67 - only 0% of packets moving (needs 80%) -> no vote
+  427.97 13:59:42.102 EXPLAIN {"ev":"vitals","t_ms":490991,"state":"no-signal","br":null,"br_conf":2.4,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  427.97 13:59:42.102 I (491215) csi-human: why: vitals - no clear breathing peak (conf 2.4 < 4.0) in 51 s of still data -> no rate
+  429.39 13:59:43.518 EXPLAIN {"ev":"count","t_ms":492446,"blk":40,"duty":0.00,"used":false,"why":"no-model","feat":[1.478,0.110,0.816,0.599,0.000,2.430],"dist":null,"vote":null,"ring":"","est":0}
+  429.39 13:59:43.518 I (492670) csi-human: why: count block 40 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  429.39 13:59:43.518 EXPLAIN {"ev":"gait","t_ms":492447,"win":68,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  429.39 13:59:43.518 I (492671) csi-human: why: gait window 68 - only 0% of packets moving (needs 80%) -> no vote
+  430.00 13:59:44.129 EXPLAIN {"ev":"vitals","t_ms":492993,"state":"no-signal","br":null,"br_conf":3.1,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  430.00 13:59:44.129 I (493217) csi-human: why: vitals - no clear breathing peak (conf 3.1 < 4.0) in 51 s of still data -> no rate
+  431.63 13:59:45.760 W (494807) csi-human: >>> room clear  (motion -0.4 sd, deviation 0.1 sd)
+  431.63 13:59:45.760 EXPLAIN {"ev":"presence","t_ms":494584,"present":0,"reason":"hold-expired","m":-0.35,"d":0.09}
+  431.63 13:59:45.760 I (494808) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.4 sd, released below 2.5; deviation 0.1 sd, needs 5.0 for 4000 ms)
+  432.04 13:59:46.164 EXPLAIN {"ev":"vitals","t_ms":494990,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  432.04 13:59:46.165 I (495214) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  434.07 13:59:48.198 EXPLAIN {"ev":"vitals","t_ms":496992,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  434.07 13:59:48.198 I (497216) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  435.91 13:59:50.041 EXPLAIN {"ev":"vitals","t_ms":498993,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  435.91 13:59:50.041 I (499217) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  437.13 13:59:51.263 W (500385) csi-human: >>> HUMAN DETECTED  (motion 5.3 sd, deviation 0.7 sd)
+  437.13 13:59:51.263 EXPLAIN {"ev":"presence","t_ms":500163,"present":1,"reason":"motion","m":5.28,"d":0.68}
+  437.13 13:59:51.263 I (500386) csi-human: why: PRESENT - motion 5.3 sd >= threshold 5.0 (deviation 0.7 sd)
+  437.94 13:59:52.071 EXPLAIN {"ev":"vitals","t_ms":500991,"state":"ok","br":9.5,"br_conf":4.7,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  437.94 13:59:52.071 I (501215) csi-human: why: vitals - breathing 9.5/min (conf 4.7 >= 4.0), heart: none (conf 2.7 < 5.0) over 51 s of still data, of nobody named
+  439.97 13:59:54.095 EXPLAIN {"ev":"vitals","t_ms":502992,"state":"ok","br":9.3,"br_conf":5.9,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  439.97 13:59:54.095 I (503216) csi-human: why: vitals - breathing 9.3/min (conf 5.9 >= 4.0), heart: none (conf 2.4 < 5.0) over 51 s of still data, of nobody named
+  442.00 13:59:56.131 EXPLAIN {"ev":"vitals","t_ms":504993,"state":"ok","br":9.1,"br_conf":5.9,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  442.00 13:59:56.131 I (505217) csi-human: why: vitals - breathing 9.1/min (conf 5.9 >= 4.0), heart: none (conf 3.1 < 5.0) over 51 s of still data, of nobody named
+  442.21 13:59:56.334 EXPLAIN {"ev":"count","t_ms":505203,"blk":41,"duty":0.00,"used":false,"why":"no-model","feat":[1.584,0.155,0.784,0.608,0.000,2.065],"dist":null,"vote":null,"ring":"","est":0}
+  442.21 13:59:56.334 I (505427) csi-human: why: count block 41 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  442.21 13:59:56.334 EXPLAIN {"ev":"gait","t_ms":505205,"win":69,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  442.21 13:59:56.334 I (505429) csi-human: why: gait window 69 - only 0% of packets moving (needs 80%) -> no vote
+  444.04 13:59:58.165 EXPLAIN {"ev":"vitals","t_ms":506993,"state":"ok","br":9.0,"br_conf":5.8,"hr_exp":57.4,"hr_conf":5.1,"still_s":51.2,"vitals_of":null,"multiple":false}
+  444.04 13:59:58.166 I (507218) csi-human: why: vitals - breathing 9.0/min (conf 5.8 >= 4.0), heart ~57/min EXPERIMENTAL (conf 5.1 >= 5.0) over 51 s of still data, of nobody named
+  444.65 13:59:58.778 EXPLAIN {"ev":"gait","t_ms":507744,"win":70,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  444.65 13:59:58.778 I (507969) csi-human: why: gait window 70 - only 0% of packets moving (needs 80%) -> no vote
+  445.88 14:00:00.007 EXPLAIN {"ev":"vitals","t_ms":508975,"state":"ok","br":9.1,"br_conf":5.5,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  445.88 14:00:00.007 I (509199) csi-human: why: vitals - breathing 9.1/min (conf 5.5 >= 4.0), heart: none (conf 4.6 < 5.0) over 51 s of still data, of nobody named
+  447.30 14:00:01.428 EXPLAIN {"ev":"count","t_ms":510304,"blk":42,"duty":0.00,"used":false,"why":"no-model","feat":[2.177,0.193,0.655,0.151,0.000,0.995],"dist":null,"vote":null,"ring":"","est":0}
+  447.30 14:00:01.429 I (510528) csi-human: why: count block 42 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  447.30 14:00:01.429 EXPLAIN {"ev":"gait","t_ms":510306,"win":71,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  447.30 14:00:01.429 I (510529) csi-human: why: gait window 71 - only 0% of packets moving (needs 80%) -> no vote
+  447.91 14:00:02.039 EXPLAIN {"ev":"vitals","t_ms":510998,"state":"ok","br":9.2,"br_conf":5.3,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  447.91 14:00:02.039 I (511222) csi-human: why: vitals - breathing 9.2/min (conf 5.3 >= 4.0), heart: none (conf 4.3 < 5.0) over 51 s of still data, of nobody named
+  449.94 14:00:04.068 EXPLAIN {"ev":"gait","t_ms":512870,"win":72,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  449.94 14:00:04.068 I (513094) csi-human: why: gait window 72 - only 0% of packets moving (needs 80%) -> no vote
+  449.94 14:00:04.068 EXPLAIN {"ev":"vitals","t_ms":512991,"state":"ok","br":9.4,"br_conf":4.4,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  449.94 14:00:04.068 I (513215) csi-human: why: vitals - breathing 9.4/min (conf 4.4 >= 4.0), heart: none (conf 2.8 < 5.0) over 51 s of still data, of nobody named
+  451.97 14:00:06.098 EXPLAIN {"ev":"vitals","t_ms":514999,"state":"no-signal","br":null,"br_conf":3.6,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  451.97 14:00:06.098 I (515223) csi-human: why: vitals - no clear breathing peak (conf 3.6 < 4.0) in 51 s of still data -> no rate
+  452.38 14:00:06.504 EXPLAIN {"ev":"count","t_ms":515424,"blk":43,"duty":0.00,"used":false,"why":"no-model","feat":[1.418,0.110,0.834,0.618,0.000,2.549],"dist":null,"vote":null,"ring":"","est":0}
+  452.38 14:00:06.504 I (515648) csi-human: why: count block 43 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  452.38 14:00:06.504 EXPLAIN {"ev":"gait","t_ms":515426,"win":73,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  452.38 14:00:06.504 I (515650) csi-human: why: gait window 73 - only 0% of packets moving (needs 80%) -> no vote
+  454.01 14:00:08.143 EXPLAIN {"ev":"vitals","t_ms":516991,"state":"ok","br":9.7,"br_conf":4.0,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  454.01 14:00:08.143 I (517215) csi-human: why: vitals - breathing 9.7/min (conf 4.0 >= 4.0), heart: none (conf 2.9 < 5.0) over 51 s of still data, of nobody named
+  455.03 14:00:09.159 EXPLAIN {"ev":"gait","t_ms":517942,"win":74,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  455.03 14:00:09.160 I (518166) csi-human: why: gait window 74 - only 0% of packets moving (needs 80%) -> no vote
+  456.04 14:00:10.169 EXPLAIN {"ev":"vitals","t_ms":519004,"state":"no-signal","br":null,"br_conf":3.6,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  456.04 14:00:10.169 I (519228) csi-human: why: vitals - no clear breathing peak (conf 3.6 < 4.0) in 51 s of still data -> no rate
+  457.46 14:00:11.588 EXPLAIN {"ev":"count","t_ms":520487,"blk":44,"duty":0.00,"used":false,"why":"no-model","feat":[3.245,0.395,0.488,-0.155,0.000,0.670],"dist":null,"vote":null,"ring":"","est":0}
+  457.46 14:00:11.588 I (520711) csi-human: why: count block 44 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  457.46 14:00:11.588 EXPLAIN {"ev":"gait","t_ms":520489,"win":75,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  457.46 14:00:11.588 I (520713) csi-human: why: gait window 75 - only 0% of packets moving (needs 80%) -> no vote
+  458.08 14:00:12.212 EXPLAIN {"ev":"vitals","t_ms":520990,"state":"no-signal","br":null,"br_conf":3.6,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  458.08 14:00:12.212 I (521214) csi-human: why: vitals - no clear breathing peak (conf 3.6 < 4.0) in 51 s of still data -> no rate
+  459.91 14:00:14.036 EXPLAIN {"ev":"vitals","t_ms":522994,"state":"no-signal","br":null,"br_conf":4.4,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  459.91 14:00:14.036 I (523218) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  460.11 14:00:14.241 EXPLAIN {"ev":"gait","t_ms":523047,"win":76,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  460.11 14:00:14.241 I (523271) csi-human: why: gait window 76 - only 0% of packets moving (needs 80%) -> no vote
+  461.94 14:00:16.070 EXPLAIN {"ev":"vitals","t_ms":524991,"state":"no-signal","br":null,"br_conf":5.1,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  461.94 14:00:16.070 I (525215) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  462.55 14:00:16.675 EXPLAIN {"ev":"count","t_ms":525584,"blk":45,"duty":0.00,"used":false,"why":"no-model","feat":[1.723,0.196,0.745,0.573,0.000,2.225],"dist":null,"vote":null,"ring":"","est":0}
+  462.55 14:00:16.675 I (525808) csi-human: why: count block 45 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  462.55 14:00:16.676 EXPLAIN {"ev":"gait","t_ms":525585,"win":77,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  462.55 14:00:16.676 I (525809) csi-human: why: gait window 77 - only 0% of packets moving (needs 80%) -> no vote
+  463.97 14:00:18.097 EXPLAIN {"ev":"vitals","t_ms":526972,"state":"ok","br":8.1,"br_conf":6.1,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  463.97 14:00:18.097 I (527196) csi-human: why: vitals - breathing 8.1/min (conf 6.1 >= 4.0), heart: none (conf 4.0 < 5.0) over 51 s of still data, of nobody named
+  465.19 14:00:19.319 EXPLAIN {"ev":"gait","t_ms":528108,"win":78,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  465.19 14:00:19.319 I (528332) csi-human: why: gait window 78 - only 0% of packets moving (needs 80%) -> no vote
+  466.00 14:00:20.133 EXPLAIN {"ev":"vitals","t_ms":528992,"state":"ok","br":8.2,"br_conf":7.4,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  466.00 14:00:20.133 I (529216) csi-human: why: vitals - breathing 8.2/min (conf 7.4 >= 4.0), heart: none (conf 4.9 < 5.0) over 51 s of still data, of nobody named
+  467.63 14:00:21.757 EXPLAIN {"ev":"count","t_ms":530676,"blk":46,"duty":0.00,"used":false,"why":"no-model","feat":[2.810,0.312,0.552,0.123,0.000,0.787],"dist":null,"vote":null,"ring":"","est":0}
+  467.63 14:00:21.757 I (530899) csi-human: why: count block 46 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  467.63 14:00:21.757 EXPLAIN {"ev":"gait","t_ms":530677,"win":79,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  467.63 14:00:21.757 I (530901) csi-human: why: gait window 79 - only 0% of packets moving (needs 80%) -> no vote
+  468.03 14:00:22.160 EXPLAIN {"ev":"vitals","t_ms":530991,"state":"ok","br":8.2,"br_conf":8.8,"hr_exp":55.1,"hr_conf":5.3,"still_s":51.2,"vitals_of":null,"multiple":false}
+  468.03 14:00:22.160 I (531215) csi-human: why: vitals - breathing 8.2/min (conf 8.8 >= 4.0), heart ~55/min EXPERIMENTAL (conf 5.3 >= 5.0) over 51 s of still data, of nobody named
+  469.87 14:00:24.002 EXPLAIN {"ev":"vitals","t_ms":532971,"state":"ok","br":8.2,"br_conf":9.3,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  469.87 14:00:24.002 I (533195) csi-human: why: vitals - breathing 8.2/min (conf 9.3 >= 4.0), heart: none (its peak sits on a band edge or a breathing harmonic) over 51 s of still data, of nobody named
+  470.28 14:00:24.406 EXPLAIN {"ev":"gait","t_ms":533202,"win":80,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  470.28 14:00:24.406 I (533426) csi-human: why: gait window 80 - only 0% of packets moving (needs 80%) -> no vote
+  471.91 14:00:26.035 EXPLAIN {"ev":"vitals","t_ms":534991,"state":"ok","br":8.1,"br_conf":8.4,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  471.91 14:00:26.035 I (535215) csi-human: why: vitals - breathing 8.1/min (conf 8.4 >= 4.0), heart: none (conf 4.9 < 5.0) over 51 s of still data, of nobody named
+  472.71 14:00:26.843 EXPLAIN {"ev":"count","t_ms":535725,"blk":47,"duty":0.00,"used":false,"why":"no-model","feat":[1.503,0.116,0.809,0.685,0.000,2.048],"dist":null,"vote":null,"ring":"","est":0}
+  472.72 14:00:26.843 I (535949) csi-human: why: count block 47 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  472.72 14:00:26.844 EXPLAIN {"ev":"gait","t_ms":535727,"win":81,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  472.72 14:00:26.844 I (535951) csi-human: why: gait window 81 - only 0% of packets moving (needs 80%) -> no vote
+  473.93 14:00:28.061 EXPLAIN {"ev":"vitals","t_ms":536996,"state":"no-signal","br":null,"br_conf":5.0,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  473.93 14:00:28.061 I (537219) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  475.35 14:00:29.480 EXPLAIN {"ev":"gait","t_ms":538282,"win":82,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  475.35 14:00:29.480 I (538506) csi-human: why: gait window 82 - only 0% of packets moving (needs 80%) -> no vote
+  475.96 14:00:30.084 EXPLAIN {"ev":"vitals","t_ms":538990,"state":"no-signal","br":null,"br_conf":4.8,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  475.96 14:00:30.084 I (539214) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  477.78 14:00:31.909 EXPLAIN {"ev":"count","t_ms":540813,"blk":48,"duty":0.00,"used":false,"why":"no-model","feat":[2.122,0.198,0.666,0.331,0.000,9.144],"dist":null,"vote":null,"ring":"","est":0}
+  477.78 14:00:31.909 I (541037) csi-human: why: count block 48 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  477.78 14:00:31.909 EXPLAIN {"ev":"gait","t_ms":540815,"win":83,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  477.78 14:00:31.909 I (541039) csi-human: why: gait window 83 - only 0% of packets moving (needs 80%) -> no vote
+  478.99 14:00:33.122 W (542205) csi-human: >>> room clear  (motion -0.4 sd, deviation -0.1 sd)
+  478.99 14:00:33.122 EXPLAIN {"ev":"presence","t_ms":541983,"present":0,"reason":"hold-expired","m":-0.43,"d":-0.13}
+  478.99 14:00:33.122 I (542206) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.4 sd, released below 2.5; deviation -0.1 sd, needs 5.0 for 4000 ms)
+  491.83 14:00:45.954 W (555025) csi-human: >>> HUMAN DETECTED  (motion 5.1 sd, deviation -0.2 sd)
+  491.83 14:00:45.954 EXPLAIN {"ev":"presence","t_ms":554803,"present":1,"reason":"motion","m":5.11,"d":-0.16}
+  491.83 14:00:45.954 I (555026) csi-human: why: PRESENT - motion 5.1 sd >= threshold 5.0 (deviation -0.2 sd)
+  496.91 14:00:51.034 EXPLAIN {"ev":"count","t_ms":559851,"blk":49,"duty":0.00,"used":false,"why":"no-model","feat":[1.840,0.204,0.719,0.487,0.000,2.056],"dist":null,"vote":null,"ring":"","est":0}
+  496.91 14:00:51.035 I (560074) csi-human: why: count block 49 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  496.91 14:00:51.035 EXPLAIN {"ev":"gait","t_ms":559852,"win":84,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  496.91 14:00:51.035 I (560076) csi-human: why: gait window 84 - only 0% of packets moving (needs 80%) -> no vote
+  497.31 14:00:51.443 W (560488) csi-human: >>> room clear  (motion -0.2 sd, deviation 1.8 sd)
+  497.31 14:00:51.443 EXPLAIN {"ev":"presence","t_ms":560266,"present":0,"reason":"hold-expired","m":-0.24,"d":1.79}
+  497.31 14:00:51.443 I (560489) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.2 sd, released below 2.5; deviation 1.8 sd, needs 5.0 for 4000 ms)
+  502.60 14:00:56.733 W (565865) csi-human: >>> HUMAN DETECTED  (motion 5.0 sd, deviation 0.2 sd)
+  502.60 14:00:56.733 EXPLAIN {"ev":"presence","t_ms":565643,"present":1,"reason":"motion","m":5.03,"d":0.24}
+  502.60 14:00:56.733 I (565866) csi-human: why: PRESENT - motion 5.0 sd >= threshold 5.0 (deviation 0.2 sd)
+  507.80 14:01:01.928 EXPLAIN {"ev":"count","t_ms":570724,"blk":50,"duty":0.00,"used":false,"why":"no-model","feat":[1.752,0.175,0.741,0.327,0.000,2.328],"dist":null,"vote":null,"ring":"","est":0}
+  507.80 14:01:01.928 I (570947) csi-human: why: count block 50 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  507.80 14:01:01.928 EXPLAIN {"ev":"gait","t_ms":570725,"win":85,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  507.80 14:01:01.928 I (570949) csi-human: why: gait window 85 - only 0% of packets moving (needs 80%) -> no vote
+  508.00 14:01:02.128 W (571227) csi-human: >>> room clear  (motion -0.8 sd, deviation 0.8 sd)
+  508.00 14:01:02.128 EXPLAIN {"ev":"presence","t_ms":571004,"present":0,"reason":"hold-expired","m":-0.81,"d":0.81}
+  508.00 14:01:02.128 I (571228) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.8 sd, released below 2.5; deviation 0.8 sd, needs 5.0 for 4000 ms)
+  513.67 14:01:07.801 W (576906) csi-human: >>> HUMAN DETECTED  (motion 5.1 sd, deviation -0.9 sd)
+  513.67 14:01:07.801 EXPLAIN {"ev":"presence","t_ms":576684,"present":1,"reason":"motion","m":5.06,"d":-0.94}
+  513.67 14:01:07.801 I (576907) csi-human: why: PRESENT - motion 5.1 sd >= threshold 5.0 (deviation -0.9 sd)
+  518.76 14:01:12.893 EXPLAIN {"ev":"count","t_ms":581703,"blk":51,"duty":0.00,"used":false,"why":"no-model","feat":[2.223,0.433,0.612,0.739,0.000,4.424],"dist":null,"vote":null,"ring":"","est":0}
+  518.76 14:01:12.893 I (581927) csi-human: why: count block 51 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  518.76 14:01:12.893 EXPLAIN {"ev":"gait","t_ms":581705,"win":86,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  518.76 14:01:12.893 I (581929) csi-human: why: gait window 86 - only 0% of packets moving (needs 80%) -> no vote
+  519.17 14:01:13.298 W (582305) csi-human: >>> room clear  (motion -0.6 sd, deviation 1.6 sd)
+  519.17 14:01:13.298 EXPLAIN {"ev":"presence","t_ms":582083,"present":0,"reason":"hold-expired","m":-0.60,"d":1.58}
+  519.17 14:01:13.298 I (582306) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.6 sd, released below 2.5; deviation 1.6 sd, needs 5.0 for 4000 ms)
+  524.67 14:01:18.796 W (587830) csi-human: >>> HUMAN DETECTED  (motion 5.0 sd, deviation 0.3 sd)
+  524.67 14:01:18.796 EXPLAIN {"ev":"presence","t_ms":587607,"present":1,"reason":"motion","m":5.04,"d":0.29}
+  524.67 14:01:18.796 I (587831) csi-human: why: PRESENT - motion 5.0 sd >= threshold 5.0 (deviation 0.3 sd)
+  529.76 14:01:23.889 EXPLAIN {"ev":"count","t_ms":592691,"blk":52,"duty":0.00,"used":false,"why":"no-model","feat":[1.834,0.207,0.720,0.327,0.000,2.203],"dist":null,"vote":null,"ring":"","est":0}
+  529.76 14:01:23.889 I (592915) csi-human: why: count block 52 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  529.76 14:01:23.889 EXPLAIN {"ev":"gait","t_ms":592693,"win":87,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  529.76 14:01:23.889 I (592916) csi-human: why: gait window 87 - only 0% of packets moving (needs 80%) -> no vote
+  529.96 14:01:24.092 W (593251) csi-human: >>> room clear  (motion -0.7 sd, deviation 1.2 sd)
+  529.96 14:01:24.092 EXPLAIN {"ev":"presence","t_ms":593029,"present":0,"reason":"hold-expired","m":-0.71,"d":1.20}
+  529.96 14:01:24.092 I (593252) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.7 sd, released below 2.5; deviation 1.2 sd, needs 5.0 for 4000 ms)
+  535.49 14:01:29.619 W (598677) csi-human: >>> HUMAN DETECTED  (motion 5.1 sd, deviation 0.7 sd)
+  535.49 14:01:29.619 EXPLAIN {"ev":"presence","t_ms":598455,"present":1,"reason":"motion","m":5.14,"d":0.69}
+  535.49 14:01:29.619 I (598678) csi-human: why: PRESENT - motion 5.1 sd >= threshold 5.0 (deviation 0.7 sd)
+  540.42 14:01:34.550 EXPLAIN {"ev":"count","t_ms":603490,"blk":53,"duty":0.00,"used":false,"why":"no-model","feat":[1.950,0.263,0.689,0.752,0.000,3.717],"dist":null,"vote":null,"ring":"","est":0}
+  540.42 14:01:34.550 I (603714) csi-human: why: count block 53 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  540.42 14:01:34.550 EXPLAIN {"ev":"gait","t_ms":603492,"win":88,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  540.42 14:01:34.550 I (603715) csi-human: why: gait window 88 - only 0% of packets moving (needs 80%) -> no vote
+  541.03 14:01:35.156 W (604166) csi-human: >>> room clear  (motion -0.8 sd, deviation -0.3 sd)
+  541.03 14:01:35.156 EXPLAIN {"ev":"presence","t_ms":603943,"present":0,"reason":"hold-expired","m":-0.85,"d":-0.26}
+  541.03 14:01:35.156 I (604167) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.8 sd, released below 2.5; deviation -0.3 sd, needs 5.0 for 4000 ms)
+  553.09 14:01:47.214 W (616355) csi-human: >>> HUMAN DETECTED  (motion 6.1 sd, deviation -0.1 sd)
+  553.09 14:01:47.214 EXPLAIN {"ev":"presence","t_ms":616132,"present":1,"reason":"motion","m":6.06,"d":-0.05}
+  553.09 14:01:47.214 I (616356) csi-human: why: PRESENT - motion 6.1 sd >= threshold 5.0 (deviation -0.1 sd)
+  557.56 14:01:51.691 EXPLAIN {"ev":"count","t_ms":620563,"blk":54,"duty":0.29,"used":false,"why":"no-model","feat":[1.316,0.122,0.865,1.335,0.289,1.650],"dist":null,"vote":null,"ring":"","est":0}
+  557.56 14:01:51.691 I (620787) csi-human: why: count block 54 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  557.56 14:01:51.691 EXPLAIN {"ev":"gait","t_ms":620565,"win":89,"moving_frac":0.29,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  557.56 14:01:51.691 I (620789) csi-human: why: gait window 89 - only 29% of packets moving (needs 80%) -> no vote
+  559.61 14:01:53.740 W (622765) csi-human: >>> room clear  (motion -0.7 sd, deviation 1.3 sd)
+  559.61 14:01:53.740 EXPLAIN {"ev":"presence","t_ms":622542,"present":0,"reason":"hold-expired","m":-0.71,"d":1.28}
+  559.61 14:01:53.740 I (622766) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.7 sd, released below 2.5; deviation 1.3 sd, needs 5.0 for 4000 ms)
+  568.33 14:02:02.456 W (631505) csi-human: >>> HUMAN DETECTED  (motion 5.1 sd, deviation -0.6 sd)
+  568.33 14:02:02.456 EXPLAIN {"ev":"presence","t_ms":631283,"present":1,"reason":"motion","m":5.09,"d":-0.63}
+  568.33 14:02:02.456 I (631506) csi-human: why: PRESENT - motion 5.1 sd >= threshold 5.0 (deviation -0.6 sd)
+  573.42 14:02:07.551 EXPLAIN {"ev":"count","t_ms":636395,"blk":55,"duty":0.00,"used":false,"why":"no-model","feat":[2.166,0.271,0.650,0.363,0.000,1.853],"dist":null,"vote":null,"ring":"","est":0}
+  573.42 14:02:07.551 I (636619) csi-human: why: count block 55 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  573.42 14:02:07.551 EXPLAIN {"ev":"gait","t_ms":636397,"win":90,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  573.42 14:02:07.551 I (636621) csi-human: why: gait window 90 - only 0% of packets moving (needs 80%) -> no vote
+  573.62 14:02:07.753 W (636805) csi-human: >>> room clear  (motion -0.6 sd, deviation 0.8 sd)
+  573.62 14:02:07.753 EXPLAIN {"ev":"presence","t_ms":636583,"present":0,"reason":"hold-expired","m":-0.58,"d":0.84}
+  573.62 14:02:07.753 I (636806) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.6 sd, released below 2.5; deviation 0.8 sd, needs 5.0 for 4000 ms)
+  576.86 14:02:10.988 EXPLAIN {"ev":"vitals","t_ms":639834,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":20.2,"vitals_of":null,"multiple":false}
+  576.86 14:02:10.988 I (640058) csi-human: why: vitals - analysed 20 s of still data, but nobody is PRESENT -> nothing reported
+  578.90 14:02:13.028 EXPLAIN {"ev":"vitals","t_ms":641830,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":22.2,"vitals_of":null,"multiple":false}
+  578.90 14:02:13.028 I (642054) csi-human: why: vitals - analysed 22 s of still data, but nobody is PRESENT -> nothing reported
+  579.31 14:02:13.434 W (642465) csi-human: >>> HUMAN DETECTED  (motion 5.0 sd, deviation -0.7 sd)
+  579.31 14:02:13.434 EXPLAIN {"ev":"presence","t_ms":642242,"present":1,"reason":"motion","m":5.00,"d":-0.67}
+  579.31 14:02:13.434 I (642466) csi-human: why: PRESENT - motion 5.0 sd >= threshold 5.0 (deviation -0.7 sd)
+  580.93 14:02:15.057 EXPLAIN {"ev":"vitals","t_ms":643832,"state":"no-signal","br":null,"br_conf":6.6,"hr_exp":null,"hr_conf":null,"still_s":24.2,"vitals_of":null,"multiple":false}
+  580.93 14:02:15.057 I (644056) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  582.76 14:02:16.889 EXPLAIN {"ev":"vitals","t_ms":645811,"state":"no-signal","br":null,"br_conf":5.5,"hr_exp":null,"hr_conf":null,"still_s":26.2,"vitals_of":null,"multiple":false}
+  582.76 14:02:16.889 I (646035) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  584.39 14:02:18.521 EXPLAIN {"ev":"count","t_ms":647304,"blk":56,"duty":0.00,"used":false,"why":"no-model","feat":[1.942,0.184,0.700,0.237,0.000,2.214],"dist":null,"vote":null,"ring":"","est":0}
+  584.39 14:02:18.522 I (647528) csi-human: why: count block 56 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  584.39 14:02:18.522 EXPLAIN {"ev":"gait","t_ms":647305,"win":91,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  584.39 14:02:18.522 I (647529) csi-human: why: gait window 91 - only 0% of packets moving (needs 80%) -> no vote
+  584.60 14:02:18.724 W (647819) csi-human: >>> room clear  (motion -1.0 sd, deviation 1.2 sd)
+  584.60 14:02:18.724 EXPLAIN {"ev":"presence","t_ms":647596,"present":0,"reason":"hold-expired","m":-0.98,"d":1.20}
+  584.60 14:02:18.724 I (647820) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -1.0 sd, released below 2.5; deviation 1.2 sd, needs 5.0 for 4000 ms)
+  584.80 14:02:18.926 W (648055) csi-human: >>> still person, breathing 8.0/min - holding PRESENT
+  584.80 14:02:18.926 EXPLAIN {"ev":"presence","t_ms":647833,"present":1,"reason":"breathing-hold","m":-0.89,"d":1.21}
+  584.80 14:02:18.926 I (648056) csi-human: why: PRESENT - a still person breathing 8.0/min: breathing may hold a still spell that began while PRESENT (motion -0.9 sd)
+  584.80 14:02:18.926 EXPLAIN {"ev":"vitals","t_ms":647834,"state":"ok","br":8.0,"br_conf":6.4,"hr_exp":null,"hr_conf":null,"still_s":28.2,"vitals_of":null,"multiple":false}
+  584.80 14:02:18.926 I (648058) csi-human: why: vitals - breathing 8.0/min (conf 6.4 >= 4.0), heart: none (conf 4.0 < 5.0) over 28 s of still data, of nobody named
+  586.82 14:02:20.953 EXPLAIN {"ev":"vitals","t_ms":649831,"state":"ok","br":8.0,"br_conf":8.4,"hr_exp":null,"hr_conf":null,"still_s":30.2,"vitals_of":null,"multiple":false}
+  586.82 14:02:20.953 I (650055) csi-human: why: vitals - breathing 8.0/min (conf 8.4 >= 4.0), heart: none (conf 4.4 < 5.0) over 30 s of still data, of nobody named
+  588.85 14:02:22.983 EXPLAIN {"ev":"vitals","t_ms":651851,"state":"ok","br":8.1,"br_conf":8.7,"hr_exp":null,"hr_conf":null,"still_s":32.2,"vitals_of":null,"multiple":false}
+  588.85 14:02:22.983 I (652075) csi-human: why: vitals - breathing 8.1/min (conf 8.7 >= 4.0), heart: none (conf 4.8 < 5.0) over 32 s of still data, of nobody named
+  589.88 14:02:24.011 EXPLAIN {"ev":"count","t_ms":652925,"blk":57,"duty":0.00,"used":false,"why":"no-model","feat":[3.194,0.376,0.497,-0.209,0.000,0.641],"dist":null,"vote":null,"ring":"","est":0}
+  589.88 14:02:24.011 I (653148) csi-human: why: count block 57 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  589.88 14:02:24.011 EXPLAIN {"ev":"gait","t_ms":652926,"win":92,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  589.88 14:02:24.011 I (653150) csi-human: why: gait window 92 - only 0% of packets moving (needs 80%) -> no vote
+  590.90 14:02:25.024 EXPLAIN {"ev":"vitals","t_ms":653831,"state":"ok","br":8.2,"br_conf":7.4,"hr_exp":null,"hr_conf":null,"still_s":34.2,"vitals_of":null,"multiple":false}
+  590.90 14:02:25.024 I (654055) csi-human: why: vitals - breathing 8.2/min (conf 7.4 >= 4.0), heart: none (conf 3.3 < 5.0) over 34 s of still data, of nobody named
+  592.52 14:02:26.646 EXPLAIN {"ev":"gait","t_ms":655462,"win":93,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  592.52 14:02:26.646 I (655686) csi-human: why: gait window 93 - only 0% of packets moving (needs 80%) -> no vote
+  592.93 14:02:27.054 EXPLAIN {"ev":"vitals","t_ms":655854,"state":"ok","br":8.3,"br_conf":5.3,"hr_exp":null,"hr_conf":null,"still_s":36.2,"vitals_of":null,"multiple":false}
+  592.93 14:02:27.054 I (656078) csi-human: why: vitals - breathing 8.3/min (conf 5.3 >= 4.0), heart: none (conf 3.2 < 5.0) over 36 s of still data, of nobody named
+  594.77 14:02:28.897 EXPLAIN {"ev":"vitals","t_ms":657833,"state":"ok","br":8.6,"br_conf":4.5,"hr_exp":null,"hr_conf":null,"still_s":38.2,"vitals_of":null,"multiple":false}
+  594.77 14:02:28.897 I (658057) csi-human: why: vitals - breathing 8.6/min (conf 4.5 >= 4.0), heart: none (conf 4.7 < 5.0) over 38 s of still data, of nobody named
+  594.97 14:02:29.100 EXPLAIN {"ev":"count","t_ms":658029,"blk":58,"duty":0.00,"used":false,"why":"no-model","feat":[1.449,0.103,0.825,0.548,0.000,2.455],"dist":null,"vote":null,"ring":"","est":0}
+  594.97 14:02:29.100 I (658252) csi-human: why: count block 58 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  594.97 14:02:29.100 EXPLAIN {"ev":"gait","t_ms":658030,"win":94,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  594.97 14:02:29.100 I (658254) csi-human: why: gait window 94 - only 0% of packets moving (needs 80%) -> no vote
+  596.83 14:02:30.956 EXPLAIN {"ev":"vitals","t_ms":659832,"state":"no-signal","br":null,"br_conf":3.8,"hr_exp":null,"hr_conf":null,"still_s":40.2,"vitals_of":null,"multiple":false}
+  596.83 14:02:30.956 I (660056) csi-human: why: vitals - no clear breathing peak (conf 3.8 < 4.0) in 40 s of still data -> no rate
+  597.65 14:02:31.779 EXPLAIN {"ev":"gait","t_ms":660582,"win":95,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  597.65 14:02:31.779 I (660806) csi-human: why: gait window 95 - only 0% of packets moving (needs 80%) -> no vote
+  600.10 14:02:34.226 EXPLAIN {"ev":"count","t_ms":663105,"blk":59,"duty":0.00,"used":false,"why":"no-model","feat":[2.124,0.236,0.661,0.180,0.000,8.822],"dist":null,"vote":null,"ring":"","est":0}
+  600.10 14:02:34.226 I (663329) csi-human: why: count block 59 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  600.10 14:02:34.226 EXPLAIN {"ev":"gait","t_ms":663107,"win":96,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  600.10 14:02:34.226 I (663330) csi-human: why: gait window 96 - only 0% of packets moving (needs 80%) -> no vote
+  600.10 14:02:34.226 ## sent: status
+  600.30 14:02:34.427 CMD status: phase detect, PRESENT, 50.2 CSI packets/s live (calibrated 50.2/s), 26/26 subcarriers used, channel 6, free heap 94132 bytes
+  600.30 14:02:34.427     count 1 (presence); count model: one 0/20, two+ 0/20 blocks - untrained, count = presence
+  600.30 14:02:34.428     person - (dist -, 0/0 windows); 0 of 4 slots ready
+  600.30 14:02:34.428     vitals settling (of -): breathing -/min (conf -), heart ~-/min EXPERIMENTAL (conf -), 1 s still data
+  600.30 14:02:34.428     motion gate STILL: hf 0.58 (moving at >= 4.00), floor from the empty room
+  600.30 14:02:34.428     session none
+  600.30 14:02:34.428     pipeline: slowest packet 52.2 ms since boot, 0 CSI packets dropped since boot (queue of 16)
+  600.30 14:02:34.428     board: up 663 s, last reset POWERON (1); console: USB host connected, transmit buffer found full at 43 of the 1-s checks (longest run 29 s)
+  601.73 14:02:35.855 W (665025) csi-human: >>> room clear  (motion 0.0 sd, deviation -1.6 sd)
+  601.73 14:02:35.855 EXPLAIN {"ev":"presence","t_ms":664803,"present":0,"reason":"hold-expired","m":0.04,"d":-1.55}
+  601.73 14:02:35.855 I (665026) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion 0.0 sd, released below 2.5; deviation -1.6 sd, needs 5.0 for 4000 ms)
+  630.68 14:03:04.811 EXPLAIN {"ev":"vitals","t_ms":693762,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":20.2,"vitals_of":null,"multiple":false}
+  630.68 14:03:04.811 I (693985) csi-human: why: vitals - analysed 20 s of still data, but nobody is PRESENT -> nothing reported
+  632.72 14:03:06.849 EXPLAIN {"ev":"vitals","t_ms":695756,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":22.2,"vitals_of":null,"multiple":false}
+  632.72 14:03:06.849 I (695980) csi-human: why: vitals - analysed 22 s of still data, but nobody is PRESENT -> nothing reported
+  634.74 14:03:08.872 EXPLAIN {"ev":"vitals","t_ms":697738,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":24.2,"vitals_of":null,"multiple":false}
+  634.74 14:03:08.872 I (697962) csi-human: why: vitals - analysed 24 s of still data, but nobody is PRESENT -> nothing reported
+  696.11 14:04:10.234 EXPLAIN {"ev":"vitals","t_ms":759186,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":20.2,"vitals_of":null,"multiple":false}
+  696.11 14:04:10.234 I (759410) csi-human: why: vitals - analysed 20 s of still data, but nobody is PRESENT -> nothing reported
+  698.16 14:04:12.291 EXPLAIN {"ev":"vitals","t_ms":761191,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":22.2,"vitals_of":null,"multiple":false}
+  698.16 14:04:12.291 I (761414) csi-human: why: vitals - analysed 22 s of still data, but nobody is PRESENT -> nothing reported
+  700.20 14:04:14.330 EXPLAIN {"ev":"vitals","t_ms":763191,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":24.2,"vitals_of":null,"multiple":false}
+  700.20 14:04:14.330 I (763415) csi-human: why: vitals - analysed 24 s of still data, but nobody is PRESENT -> nothing reported
+  702.24 14:04:16.368 EXPLAIN {"ev":"vitals","t_ms":765176,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":26.2,"vitals_of":null,"multiple":false}
+  702.24 14:04:16.368 I (765400) csi-human: why: vitals - analysed 26 s of still data, but nobody is PRESENT -> nothing reported
+  704.27 14:04:18.394 EXPLAIN {"ev":"vitals","t_ms":767171,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":28.2,"vitals_of":null,"multiple":false}
+  704.27 14:04:18.394 I (767395) csi-human: why: vitals - analysed 28 s of still data, but nobody is PRESENT -> nothing reported
+  706.10 14:04:20.227 EXPLAIN {"ev":"vitals","t_ms":769173,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":30.2,"vitals_of":null,"multiple":false}
+  706.10 14:04:20.227 I (769397) csi-human: why: vitals - analysed 30 s of still data, but nobody is PRESENT -> nothing reported
+  708.14 14:04:22.265 EXPLAIN {"ev":"vitals","t_ms":771171,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":32.2,"vitals_of":null,"multiple":false}
+  708.14 14:04:22.265 I (771395) csi-human: why: vitals - analysed 32 s of still data, but nobody is PRESENT -> nothing reported
+  710.15 14:04:24.279 EXPLAIN {"ev":"vitals","t_ms":773192,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":34.2,"vitals_of":null,"multiple":false}
+  710.15 14:04:24.279 I (773416) csi-human: why: vitals - analysed 34 s of still data, but nobody is PRESENT -> nothing reported
+  739.28 14:04:53.407 EXPLAIN {"ev":"vitals","t_ms":802370,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":20.2,"vitals_of":null,"multiple":false}
+  739.28 14:04:53.407 I (802593) csi-human: why: vitals - analysed 20 s of still data, but nobody is PRESENT -> nothing reported
+  741.31 14:04:55.442 EXPLAIN {"ev":"vitals","t_ms":804370,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":22.2,"vitals_of":null,"multiple":false}
+  741.31 14:04:55.442 I (804594) csi-human: why: vitals - analysed 22 s of still data, but nobody is PRESENT -> nothing reported
+  742.95 14:04:57.075 W (806147) csi-human: >>> HUMAN DETECTED  (motion 5.1 sd, deviation -0.9 sd)
+  742.95 14:04:57.075 EXPLAIN {"ev":"presence","t_ms":805924,"present":1,"reason":"motion","m":5.06,"d":-0.88}
+  742.95 14:04:57.075 I (806148) csi-human: why: PRESENT - motion 5.1 sd >= threshold 5.0 (deviation -0.9 sd)
+  743.35 14:04:57.479 EXPLAIN {"ev":"vitals","t_ms":806351,"state":"no-signal","br":null,"br_conf":7.1,"hr_exp":null,"hr_conf":null,"still_s":24.2,"vitals_of":null,"multiple":false}
+  743.35 14:04:57.479 I (806574) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  745.39 14:04:59.514 EXPLAIN {"ev":"vitals","t_ms":808372,"state":"no-signal","br":null,"br_conf":6.5,"hr_exp":null,"hr_conf":null,"still_s":26.2,"vitals_of":null,"multiple":false}
+  745.39 14:04:59.514 I (808596) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  747.42 14:05:01.544 EXPLAIN {"ev":"vitals","t_ms":810371,"state":"ok","br":8.1,"br_conf":7.0,"hr_exp":null,"hr_conf":null,"still_s":28.2,"vitals_of":null,"multiple":false}
+  747.42 14:05:01.544 I (810595) csi-human: why: vitals - breathing 8.1/min (conf 7.0 >= 4.0), heart: none (conf 4.0 < 5.0) over 28 s of still data, of nobody named
+  748.03 14:05:02.154 EXPLAIN {"ev":"count","t_ms":811028,"blk":60,"duty":0.00,"used":false,"why":"no-model","feat":[2.423,0.376,0.595,0.395,0.000,1.621],"dist":null,"vote":null,"ring":"","est":0}
+  748.03 14:05:02.154 I (811252) csi-human: why: count block 60 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  748.03 14:05:02.154 EXPLAIN {"ev":"gait","t_ms":811029,"win":97,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  748.03 14:05:02.154 I (811253) csi-human: why: gait window 97 - only 0% of packets moving (needs 80%) -> no vote
+  748.23 14:05:02.357 W (811525) csi-human: >>> room clear  (motion -0.6 sd, deviation 2.5 sd)
+  748.23 14:05:02.357 EXPLAIN {"ev":"presence","t_ms":811303,"present":0,"reason":"hold-expired","m":-0.61,"d":2.51}
+  748.23 14:05:02.357 I (811526) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.6 sd, released below 2.5; deviation 2.5 sd, needs 5.0 for 4000 ms)
+  749.45 14:05:03.582 EXPLAIN {"ev":"vitals","t_ms":812371,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":30.2,"vitals_of":null,"multiple":false}
+  749.45 14:05:03.582 I (812595) csi-human: why: vitals - analysed 30 s of still data, but nobody is PRESENT -> nothing reported
+  753.77 14:05:07.894 W (817045) csi-human: >>> HUMAN DETECTED  (motion 5.1 sd, deviation 0.3 sd)
+  753.77 14:05:07.894 EXPLAIN {"ev":"presence","t_ms":816823,"present":1,"reason":"motion","m":5.06,"d":0.29}
+  753.77 14:05:07.894 I (817046) csi-human: why: PRESENT - motion 5.1 sd >= threshold 5.0 (deviation 0.3 sd)
+  758.85 14:05:12.979 EXPLAIN {"ev":"count","t_ms":821823,"blk":61,"duty":0.00,"used":false,"why":"no-model","feat":[1.623,0.205,0.768,0.826,0.000,5.131],"dist":null,"vote":null,"ring":"","est":0}
+  758.85 14:05:12.979 I (822047) csi-human: why: count block 61 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  758.85 14:05:12.979 EXPLAIN {"ev":"gait","t_ms":821825,"win":98,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  758.85 14:05:12.979 I (822049) csi-human: why: gait window 98 - only 0% of packets moving (needs 80%) -> no vote
+  759.25 14:05:13.383 W (822445) csi-human: >>> room clear  (motion -0.7 sd, deviation 0.5 sd)
+  759.25 14:05:13.383 EXPLAIN {"ev":"presence","t_ms":822222,"present":0,"reason":"hold-expired","m":-0.72,"d":0.50}
+  759.25 14:05:13.383 I (822446) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.7 sd, released below 2.5; deviation 0.5 sd, needs 5.0 for 4000 ms)
+  764.73 14:05:18.861 W (827965) csi-human: >>> HUMAN DETECTED  (motion 5.2 sd, deviation -0.8 sd)
+  764.73 14:05:18.861 EXPLAIN {"ev":"presence","t_ms":827743,"present":1,"reason":"motion","m":5.25,"d":-0.84}
+  764.73 14:05:18.861 I (827966) csi-human: why: PRESENT - motion 5.2 sd >= threshold 5.0 (deviation -0.8 sd)
+  769.80 14:05:23.933 EXPLAIN {"ev":"count","t_ms":832824,"blk":62,"duty":0.00,"used":false,"why":"no-model","feat":[2.023,0.241,0.678,0.472,0.000,1.939],"dist":null,"vote":null,"ring":"","est":0}
+  769.81 14:05:23.934 I (833047) csi-human: why: count block 62 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  769.81 14:05:23.934 EXPLAIN {"ev":"gait","t_ms":832825,"win":99,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  769.81 14:05:23.934 I (833049) csi-human: why: gait window 99 - only 0% of packets moving (needs 80%) -> no vote
+  770.21 14:05:24.336 W (833408) csi-human: >>> room clear  (motion -1.0 sd, deviation 2.5 sd)
+  770.21 14:05:24.336 EXPLAIN {"ev":"presence","t_ms":833186,"present":0,"reason":"hold-expired","m":-1.02,"d":2.50}
+  770.21 14:05:24.336 I (833409) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -1.0 sd, released below 2.5; deviation 2.5 sd, needs 5.0 for 4000 ms)
+  775.67 14:05:29.802 W (838912) csi-human: >>> HUMAN DETECTED  (motion 5.0 sd, deviation 1.1 sd)
+  775.67 14:05:29.802 EXPLAIN {"ev":"presence","t_ms":838689,"present":1,"reason":"motion","m":5.04,"d":1.14}
+  775.67 14:05:29.802 I (838913) csi-human: why: PRESENT - motion 5.0 sd >= threshold 5.0 (deviation 1.1 sd)
+  780.74 14:05:34.872 EXPLAIN {"ev":"count","t_ms":843764,"blk":63,"duty":0.00,"used":false,"why":"no-model","feat":[2.399,0.497,0.574,0.572,0.000,3.578],"dist":null,"vote":null,"ring":"","est":0}
+  780.74 14:05:34.872 I (843988) csi-human: why: count block 63 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  780.74 14:05:34.872 EXPLAIN {"ev":"gait","t_ms":843765,"win":100,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  780.74 14:05:34.872 I (843989) csi-human: why: gait window 100 - only 0% of packets moving (needs 80%) -> no vote
+  781.15 14:05:35.275 W (844385) csi-human: >>> room clear  (motion -0.6 sd, deviation 0.7 sd)
+  781.15 14:05:35.276 EXPLAIN {"ev":"presence","t_ms":844163,"present":0,"reason":"hold-expired","m":-0.61,"d":0.69}
+  781.15 14:05:35.276 I (844386) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.6 sd, released below 2.5; deviation 0.7 sd, needs 5.0 for 4000 ms)
+  799.26 14:05:53.391 EXPLAIN {"ev":"vitals","t_ms":862351,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":20.2,"vitals_of":null,"multiple":false}
+  799.26 14:05:53.391 I (862574) csi-human: why: vitals - analysed 20 s of still data, but nobody is PRESENT -> nothing reported
+  801.28 14:05:55.408 EXPLAIN {"ev":"vitals","t_ms":864350,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":22.2,"vitals_of":null,"multiple":false}
+  801.28 14:05:55.408 I (864573) csi-human: why: vitals - analysed 22 s of still data, but nobody is PRESENT -> nothing reported
+  803.31 14:05:57.434 W (866573) csi-human: >>> still person, breathing 8.1/min - holding PRESENT
+  803.31 14:05:57.434 EXPLAIN {"ev":"presence","t_ms":866351,"present":1,"reason":"breathing-hold","m":-0.80,"d":0.39}
+  803.31 14:05:57.434 I (866575) csi-human: why: PRESENT - a still person breathing 8.1/min: breathing may hold a still spell that began while PRESENT (motion -0.8 sd)
+  803.31 14:05:57.434 EXPLAIN {"ev":"vitals","t_ms":866352,"state":"ok","br":8.1,"br_conf":4.3,"hr_exp":null,"hr_conf":null,"still_s":24.2,"vitals_of":null,"multiple":false}
+  803.31 14:05:57.434 I (866576) csi-human: why: vitals - breathing 8.1/min (conf 4.3 >= 4.0), heart: none (conf 2.7 < 5.0) over 24 s of still data, of nobody named
+  805.34 14:05:59.471 EXPLAIN {"ev":"vitals","t_ms":868352,"state":"no-signal","br":null,"br_conf":4.1,"hr_exp":null,"hr_conf":null,"still_s":26.2,"vitals_of":null,"multiple":false}
+  805.34 14:05:59.471 I (868575) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  807.38 14:06:01.511 EXPLAIN {"ev":"vitals","t_ms":870353,"state":"no-signal","br":null,"br_conf":4.5,"hr_exp":null,"hr_conf":null,"still_s":28.2,"vitals_of":null,"multiple":false}
+  807.38 14:06:01.511 I (870576) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  808.40 14:06:02.524 EXPLAIN {"ev":"count","t_ms":871444,"blk":64,"duty":0.00,"used":false,"why":"no-model","feat":[3.080,0.428,0.505,0.138,0.000,2.536],"dist":null,"vote":null,"ring":"","est":0}
+  808.40 14:06:02.524 I (871668) csi-human: why: count block 64 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  808.40 14:06:02.524 EXPLAIN {"ev":"gait","t_ms":871446,"win":101,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  808.40 14:06:02.524 I (871670) csi-human: why: gait window 101 - only 0% of packets moving (needs 80%) -> no vote
+  809.41 14:06:03.536 EXPLAIN {"ev":"vitals","t_ms":872332,"state":"no-signal","br":null,"br_conf":4.7,"hr_exp":null,"hr_conf":null,"still_s":30.2,"vitals_of":null,"multiple":false}
+  809.41 14:06:03.536 I (872555) csi-human: why: vitals - the breathing peak is on the band edge (outside ~7.6-28.7/min) -> no rate
+  810.42 14:06:04.548 W (873566) csi-human: >>> room clear  (motion -0.0 sd, deviation 0.2 sd)
+  810.42 14:06:04.548 EXPLAIN {"ev":"presence","t_ms":873344,"present":0,"reason":"hold-expired","m":-0.02,"d":0.15}
+  810.42 14:06:04.548 I (873567) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.0 sd, released below 2.5; deviation 0.2 sd, needs 5.0 for 4000 ms)
+  811.23 14:06:05.362 EXPLAIN {"ev":"vitals","t_ms":874291,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":32.1,"vitals_of":null,"multiple":false}
+  811.23 14:06:05.362 I (874515) csi-human: why: vitals - analysed 32 s of still data, but nobody is PRESENT -> nothing reported
+  813.27 14:06:07.401 EXPLAIN {"ev":"vitals","t_ms":876330,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":34.2,"vitals_of":null,"multiple":false}
+  813.27 14:06:07.401 I (876554) csi-human: why: vitals - analysed 34 s of still data, but nobody is PRESENT -> nothing reported
+  815.30 14:06:09.427 W (878602) csi-human: >>> still person, breathing 7.8/min - holding PRESENT
+  815.30 14:06:09.427 EXPLAIN {"ev":"presence","t_ms":878379,"present":1,"reason":"breathing-hold","m":-0.66,"d":0.28}
+  815.30 14:06:09.427 I (878603) csi-human: why: PRESENT - a still person breathing 7.8/min: breathing may hold a still spell that began while PRESENT (motion -0.7 sd)
+  815.30 14:06:09.427 EXPLAIN {"ev":"vitals","t_ms":878380,"state":"ok","br":7.8,"br_conf":4.2,"hr_exp":null,"hr_conf":null,"still_s":36.2,"vitals_of":null,"multiple":false}
+  815.30 14:06:09.427 I (878605) csi-human: why: vitals - breathing 7.8/min (conf 4.2 >= 4.0), heart: none (conf 2.3 < 5.0) over 36 s of still data, of nobody named
+  817.33 14:06:11.454 EXPLAIN {"ev":"vitals","t_ms":880331,"state":"ok","br":8.1,"br_conf":4.9,"hr_exp":null,"hr_conf":null,"still_s":38.2,"vitals_of":null,"multiple":false}
+  817.33 14:06:11.454 I (880555) csi-human: why: vitals - breathing 8.1/min (conf 4.9 >= 4.0), heart: none (conf 2.1 < 5.0) over 38 s of still data, of nobody named
+  819.35 14:06:13.474 EXPLAIN {"ev":"vitals","t_ms":882331,"state":"ok","br":8.3,"br_conf":4.1,"hr_exp":null,"hr_conf":null,"still_s":40.2,"vitals_of":null,"multiple":false}
+  819.35 14:06:13.474 I (882555) csi-human: why: vitals - breathing 8.3/min (conf 4.1 >= 4.0), heart: none (conf 2.7 < 5.0) over 40 s of still data, of nobody named
+  820.37 14:06:14.498 EXPLAIN {"ev":"count","t_ms":883447,"blk":65,"duty":0.00,"used":false,"why":"no-model","feat":[2.473,0.289,0.596,0.425,0.000,1.660],"dist":null,"vote":null,"ring":"","est":0}
+  820.37 14:06:14.498 I (883671) csi-human: why: count block 65 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  820.37 14:06:14.498 EXPLAIN {"ev":"gait","t_ms":883449,"win":102,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  820.37 14:06:14.498 I (883673) csi-human: why: gait window 102 - only 0% of packets moving (needs 80%) -> no vote
+  821.38 14:06:15.508 EXPLAIN {"ev":"vitals","t_ms":884351,"state":"no-signal","br":null,"br_conf":3.8,"hr_exp":null,"hr_conf":null,"still_s":42.2,"vitals_of":null,"multiple":false}
+  821.38 14:06:15.508 I (884575) csi-human: why: vitals - no clear breathing peak (conf 3.8 < 4.0) in 42 s of still data -> no rate
+  823.01 14:06:17.136 EXPLAIN {"ev":"gait","t_ms":886006,"win":103,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  823.01 14:06:17.136 I (886230) csi-human: why: gait window 103 - only 0% of packets moving (needs 80%) -> no vote
+  823.42 14:06:17.552 EXPLAIN {"ev":"vitals","t_ms":886356,"state":"no-signal","br":null,"br_conf":3.9,"hr_exp":null,"hr_conf":null,"still_s":44.2,"vitals_of":null,"multiple":false}
+  823.42 14:06:17.552 I (886580) csi-human: why: vitals - no clear breathing peak (conf 3.9 < 4.0) in 44 s of still data -> no rate
+  825.45 14:06:19.574 EXPLAIN {"ev":"vitals","t_ms":888351,"state":"no-signal","br":null,"br_conf":3.8,"hr_exp":null,"hr_conf":null,"still_s":46.2,"vitals_of":null,"multiple":false}
+  825.45 14:06:19.574 I (888575) csi-human: why: vitals - no clear breathing peak (conf 3.8 < 4.0) in 46 s of still data -> no rate
+  825.45 14:06:19.574 EXPLAIN {"ev":"count","t_ms":888525,"blk":66,"duty":0.00,"used":false,"why":"no-model","feat":[3.712,0.397,0.449,-0.133,0.000,0.643],"dist":null,"vote":null,"ring":"","est":0}
+  825.45 14:06:19.574 I (888749) csi-human: why: count block 66 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  825.45 14:06:19.574 EXPLAIN {"ev":"gait","t_ms":888527,"win":104,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  825.45 14:06:19.574 I (888751) csi-human: why: gait window 104 - only 0% of packets moving (needs 80%) -> no vote
+  826.26 14:06:20.393 W (889545) csi-human: >>> room clear  (motion -0.8 sd, deviation 0.4 sd)
+  826.26 14:06:20.393 EXPLAIN {"ev":"presence","t_ms":889323,"present":0,"reason":"hold-expired","m":-0.81,"d":0.36}
+  826.26 14:06:20.393 I (889546) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.8 sd, released below 2.5; deviation 0.4 sd, needs 5.0 for 4000 ms)
+  827.28 14:06:21.404 EXPLAIN {"ev":"vitals","t_ms":890351,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":48.2,"vitals_of":null,"multiple":false}
+  827.28 14:06:21.404 I (890575) csi-human: why: vitals - analysed 48 s of still data, but nobody is PRESENT -> nothing reported
+  829.30 14:06:23.432 EXPLAIN {"ev":"vitals","t_ms":892333,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":50.2,"vitals_of":null,"multiple":false}
+  829.30 14:06:23.432 I (892557) csi-human: why: vitals - analysed 50 s of still data, but nobody is PRESENT -> nothing reported
+  831.35 14:06:25.474 EXPLAIN {"ev":"vitals","t_ms":894333,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  831.35 14:06:25.474 I (894557) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  833.38 14:06:27.507 EXPLAIN {"ev":"vitals","t_ms":896334,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  833.38 14:06:27.507 I (896557) csi-human: why: vitals - analysed 51 s of still data, but nobody is PRESENT -> nothing reported
+  835.40 14:06:29.533 W (898537) csi-human: >>> still person, breathing 7.8/min - holding PRESENT
+  835.41 14:06:29.534 EXPLAIN {"ev":"presence","t_ms":898315,"present":1,"reason":"breathing-hold","m":-0.67,"d":-0.95}
+  835.41 14:06:29.534 I (898539) csi-human: why: PRESENT - a still person breathing 7.8/min: breathing may hold a still spell that began while PRESENT (motion -0.7 sd)
+  835.41 14:06:29.534 EXPLAIN {"ev":"vitals","t_ms":898316,"state":"ok","br":7.8,"br_conf":4.1,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  835.41 14:06:29.534 I (898540) csi-human: why: vitals - breathing 7.8/min (conf 4.1 >= 4.0), heart: none (conf 2.3 < 5.0) over 51 s of still data, of nobody named
+  837.43 14:06:31.556 EXPLAIN {"ev":"vitals","t_ms":900356,"state":"ok","br":7.6,"br_conf":5.1,"hr_exp":null,"hr_conf":null,"still_s":51.2,"vitals_of":null,"multiple":false}
+  837.43 14:06:31.556 I (900580) csi-human: why: vitals - breathing 7.6/min (conf 5.1 >= 4.0), heart: none (conf 2.5 < 5.0) over 51 s of still data, of nobody named
+  840.48 14:06:34.604 EXPLAIN {"ev":"count","t_ms":903366,"blk":67,"duty":0.00,"used":false,"why":"no-model","feat":[2.774,0.407,0.545,0.391,0.000,6.246],"dist":null,"vote":null,"ring":"","est":0}
+  840.48 14:06:34.604 I (903590) csi-human: why: count block 67 - no count model yet (one 0/20, two+ 0/20 blocks: 'count-train 1', then 'count-train 2') -> count follows presence (1)
+  840.48 14:06:34.604 EXPLAIN {"ev":"gait","t_ms":903368,"win":105,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  840.48 14:06:34.604 I (903592) csi-human: why: gait window 105 - only 0% of packets moving (needs 80%) -> no vote
+  842.91 14:06:37.036 EXPLAIN {"ev":"gait","t_ms":905922,"win":106,"moving_frac":0.00,"used":false,"why":"few-moving","dist":null,"nearest":null,"second_dist":null,"best":null,"reason":null,"vote":null,"ring":"","tally":{"label":null,"k":0,"n":0}}
+  842.91 14:06:37.036 I (906146) csi-human: why: gait window 106 - only 0% of packets moving (needs 80%) -> no vote
+  842.91 14:06:37.036 W (906207) csi-human: >>> room clear  (motion -0.8 sd, deviation 0.4 sd)
+  842.91 14:06:37.036 EXPLAIN {"ev":"presence","t_ms":905985,"present":0,"reason":"hold-expired","m":-0.78,"d":0.43}
+  842.91 14:06:37.036 I (906208) csi-human: why: EMPTY - nothing triggered for 5000 ms (motion -0.8 sd, released below 2.5; deviation 0.4 sd, needs 5.0 for 4000 ms)
+  871.19 14:07:05.321 EXPLAIN {"ev":"vitals","t_ms":934147,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":20.2,"vitals_of":null,"multiple":false}
+  871.19 14:07:05.321 I (934371) csi-human: why: vitals - analysed 20 s of still data, but nobody is PRESENT -> nothing reported
+  873.21 14:07:07.338 EXPLAIN {"ev":"vitals","t_ms":936148,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":22.2,"vitals_of":null,"multiple":false}
+  873.21 14:07:07.338 I (936371) csi-human: why: vitals - analysed 22 s of still data, but nobody is PRESENT -> nothing reported
+  875.04 14:07:09.169 EXPLAIN {"ev":"vitals","t_ms":938136,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":24.2,"vitals_of":null,"multiple":false}
+  875.04 14:07:09.169 I (938360) csi-human: why: vitals - analysed 24 s of still data, but nobody is PRESENT -> nothing reported
+  877.05 14:07:11.183 EXPLAIN {"ev":"vitals","t_ms":940147,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":26.2,"vitals_of":null,"multiple":false}
+  877.05 14:07:11.183 I (940371) csi-human: why: vitals - analysed 26 s of still data, but nobody is PRESENT -> nothing reported
+  879.09 14:07:13.219 EXPLAIN {"ev":"vitals","t_ms":942131,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":28.2,"vitals_of":null,"multiple":false}
+  879.09 14:07:13.219 I (942355) csi-human: why: vitals - analysed 28 s of still data, but nobody is PRESENT -> nothing reported
+  880.10 14:07:14.231 ## sent: status
+  880.30 14:07:14.433 CMD status: phase detect, empty, 50.9 CSI packets/s live (calibrated 50.2/s), 26/26 subcarriers used, channel 6, free heap 94132 bytes
+  880.30 14:07:14.433     count 0 (presence); count model: one 0/20, two+ 0/20 blocks - untrained, count = presence
+  880.30 14:07:14.433     person - (dist -, 0/0 windows); 0 of 4 slots ready
+  880.30 14:07:14.433     vitals no-person (of -): breathing -/min (conf -), heart ~-/min EXPERIMENTAL (conf -), 29 s still data
+  880.30 14:07:14.433     motion gate STILL: hf 0.57 (moving at >= 4.00), floor from the empty room
+  880.30 14:07:14.433     session none
+  880.30 14:07:14.433     pipeline: slowest packet 52.2 ms since boot, 0 CSI packets dropped since boot (queue of 16)
+  880.30 14:07:14.433     board: up 943 s, last reset POWERON (1); console: USB host connected, transmit buffer found full at 43 of the 1-s checks (longest run 29 s)
+  881.12 14:07:15.244 EXPLAIN {"ev":"vitals","t_ms":944131,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":30.2,"vitals_of":null,"multiple":false}
+  881.12 14:07:15.244 I (944355) csi-human: why: vitals - analysed 30 s of still data, but nobody is PRESENT -> nothing reported
+  883.15 14:07:17.279 EXPLAIN {"ev":"vitals","t_ms":946132,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":32.2,"vitals_of":null,"multiple":false}
+  883.15 14:07:17.279 I (946356) csi-human: why: vitals - analysed 32 s of still data, but nobody is PRESENT -> nothing reported
+  885.17 14:07:19.297 EXPLAIN {"ev":"vitals","t_ms":948131,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":34.2,"vitals_of":null,"multiple":false}
+  885.17 14:07:19.297 I (948355) csi-human: why: vitals - analysed 34 s of still data, but nobody is PRESENT -> nothing reported
+  887.20 14:07:21.332 EXPLAIN {"ev":"vitals","t_ms":950133,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":36.2,"vitals_of":null,"multiple":false}
+  887.20 14:07:21.332 I (950357) csi-human: why: vitals - analysed 36 s of still data, but nobody is PRESENT -> nothing reported
+  889.23 14:07:23.354 EXPLAIN {"ev":"vitals","t_ms":952131,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":38.2,"vitals_of":null,"multiple":false}
+  889.23 14:07:23.354 I (952355) csi-human: why: vitals - analysed 38 s of still data, but nobody is PRESENT -> nothing reported
+  891.05 14:07:25.173 EXPLAIN {"ev":"vitals","t_ms":954131,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":40.2,"vitals_of":null,"multiple":false}
+  891.05 14:07:25.173 I (954355) csi-human: why: vitals - analysed 40 s of still data, but nobody is PRESENT -> nothing reported
+  893.08 14:07:27.210 EXPLAIN {"ev":"vitals","t_ms":956135,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":42.2,"vitals_of":null,"multiple":false}
+  893.08 14:07:27.210 I (956359) csi-human: why: vitals - analysed 42 s of still data, but nobody is PRESENT -> nothing reported
+  895.14 14:07:29.271 EXPLAIN {"ev":"vitals","t_ms":958132,"state":"no-person","br":null,"br_conf":null,"hr_exp":null,"hr_conf":null,"still_s":44.2,"vitals_of":null,"multiple":false}
+  895.14 14:07:29.271 I (958355) csi-human: why: vitals - analysed 44 s of still data, but nobody is PRESENT -> nothing reported
+  896.17 14:07:30.294 W (959387) csi-human: >>> HUMAN DETECTED  (motion 5.2 sd, deviation -0.8 sd)
+  896.17 14:07:30.294 EXPLAIN {"ev":"presence","t_ms":959165,"present":1,"reason":"motion","m":5.15,"d":-0.78}
+  896.17 14:07:30.294 I (959388) csi-human: why: PRESENT - motion 5.2 sd >= threshold 5.0 (deviation -0.8 sd)
+  897.20 14:07:31.328 EXPLAIN {"ev":"vitals","t_ms":960151,"state":"ok","br":8.0,"br_conf":6.8,"hr_exp":null,"hr_conf":null,"still_s":46.2,"vitals_of":null,"multiple":false}
+  897.20 14:07:31.328 I (960375) csi-human: why: vitals - breathing 8.0/min (conf 6.8 >= 4.0), heart: none (conf 3.4 < 5.0) over 46 s of still data, of nobody named
+  899.06 14:07:33.184 EXPLAIN {"ev":"vitals","t_ms":962135,"state":"ok","br":8.0,"br_conf":4.3,"hr_exp":null,"hr_conf":null,"still_s":48.2,"vitals_of":null,"multiple":false}
+  899.06 14:07:33.184 I (962358) csi-human: why: vitals - breathing 8.0/min (conf 4.3 >= 4.0), heart: none (conf 3.2 < 5.0) over 48 s of still data, of nobody named
+  900.07 14:07:34.196 ## soak end

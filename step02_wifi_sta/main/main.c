@@ -35,6 +35,7 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "esp_netif.h"
+#include "esp_timer.h"
 #include "nvs_flash.h"
 
 static const char *TAG = "step02";
@@ -44,6 +45,30 @@ static const char *TAG = "step02";
 
 static EventGroupHandle_t s_wifi_events;
 static int s_retry_count = 0;
+static esp_timer_handle_t s_reconnect_timer;
+static bool s_connected_once = false;
+
+/* ------------------------------------------------------------------ */
+/*  Reconnection policy                                                */
+/*                                                                     */
+/*  First join: CONFIG_CSI_WIFI_MAX_RETRY attempts, then give up, so a */
+/*  wrong password is reported instead of retried forever.             */
+/*  After the first join: never give up. A router reboot or firmware   */
+/*  update is off the air for 1-3 minutes, and a board that stops      */
+/*  retrying stays offline until someone power-cycles it. Retries back */
+/*  off 1, 2, 4 ... 30 s and run from a timer: a vTaskDelay inside the */
+/*  event handler would stall every other event on the default loop.   */
+/* ------------------------------------------------------------------ */
+static void reconnect_cb(void *arg)
+{
+    esp_wifi_connect();
+}
+
+static void schedule_reconnect(uint32_t delay_ms)
+{
+    esp_timer_stop(s_reconnect_timer);          /* harmless if idle */
+    esp_timer_start_once(s_reconnect_timer, (uint64_t)delay_ms * 1000);
+}
 
 /* ------------------------------------------------------------------ */
 /*  WiFi / IP event handler                                            */
@@ -57,12 +82,18 @@ static void event_handler(void *arg, esp_event_base_t base,
 
     } else if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
         wifi_event_sta_disconnected_t *d = (wifi_event_sta_disconnected_t *)data;
-        if (s_retry_count < CONFIG_CSI_WIFI_MAX_RETRY) {
+        if (s_connected_once) {
+            uint32_t delay_s = 1u << (s_retry_count < 5 ? s_retry_count : 5);
+            if (delay_s > 30) delay_s = 30;
+            s_retry_count++;
+            ESP_LOGW(TAG, "link lost (reason %d), reconnect attempt %d in %" PRIu32 " s",
+                     d->reason, s_retry_count, delay_s);
+            schedule_reconnect(delay_s * 1000);
+        } else if (s_retry_count < CONFIG_CSI_WIFI_MAX_RETRY) {
             s_retry_count++;
             ESP_LOGW(TAG, "disconnected (reason %d), retry %d/%d",
                      d->reason, s_retry_count, CONFIG_CSI_WIFI_MAX_RETRY);
-            vTaskDelay(pdMS_TO_TICKS(1000));
-            esp_wifi_connect();
+            schedule_reconnect(1000);
         } else {
             ESP_LOGE(TAG, "giving up after %d retries (last reason %d)",
                      s_retry_count, d->reason);
@@ -74,6 +105,7 @@ static void event_handler(void *arg, esp_event_base_t base,
         ESP_LOGI(TAG, "got IP     : " IPSTR, IP2STR(&e->ip_info.ip));
         ESP_LOGI(TAG, "gateway    : " IPSTR, IP2STR(&e->ip_info.gw));
         s_retry_count = 0;
+        s_connected_once = true;
         xEventGroupSetBits(s_wifi_events, WIFI_CONNECTED_BIT);
     }
 }
@@ -82,6 +114,11 @@ static void event_handler(void *arg, esp_event_base_t base,
 static void wifi_init_sta(void)
 {
     s_wifi_events = xEventGroupCreate();
+
+    const esp_timer_create_args_t rt = {
+        .callback = reconnect_cb, .name = "wifi_reconnect",
+    };
+    ESP_ERROR_CHECK(esp_timer_create(&rt, &s_reconnect_timer));
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());

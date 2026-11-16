@@ -1,0 +1,16 @@
+{
+  "idf.flashBaudRate": "460800",
+  "idf.monitorBaudRate": "115200",
+  "idf.enableCCache": true,
+  "idf.saveBeforeBuild": true,
+  "idf.notificationMode": "All",
+  "idf.enableSerialPortChipIdRequest": true,
+  "idf.openOcdConfigs": [
+    "board/esp32c5-builtin.cfg"
+  ],
+  "C_Cpp.intelliSenseEngine": "disabled",
+  "files.exclude": {
+    "**/build": true,
+    "**/managed_components": true
+  }
+}

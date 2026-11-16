@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="960" height="472" viewBox="0 0 960 472" role="img" aria-labelledby="t d" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+<title id="t">Counting: one link vs several links</title>
+<desc id="d">Two rooms, each with the same three people walking. Left, 1 link: one access point and one ESP32 node joined by a single line; only the person who crosses that line makes it flash, so the people count it gives keeps changing. Right, 4 links: four links cross the room; each person lights the links they cross, so the count is steadier. Footer: Wi-CaL (4 ESP32 TX/RX links, about 5-10 people, trained per room): median error 0.55-0.82 with 1 link vs 0.35-0.41 with 4. Illustration only: the counts shown are not data.</desc>
+<style>text{fill:#0f172a}.s{fill:#64748b}</style>
+<defs><g id="ap"><rect x="-17" y="-11" width="34" height="22" rx="5" fill="#1e3a8a"/><text x="0" y="5" text-anchor="middle" font-size="13" font-weight="700" style="fill:#ffffff">AP</text></g><g id="node"><rect x="-9" y="-9" width="18" height="18" rx="3" fill="#0f766e" stroke="#ffffff" stroke-width="2"/><circle cx="0" cy="0" r="3" fill="#ffffff"/></g><g id="person"><circle cx="0" cy="-8" r="5.5"/><path d="M-8.5,9 A8.5,8.5 0 0 1 8.5,9 Z" transform="translate(0,-2)"/></g></defs>
+<rect x="1" y="1" width="958" height="470" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+<text x="480.0" y="36" text-anchor="middle" font-size="21" font-weight="700">Counting: one link vs several links</text>
+<rect x="20" y="54" width="450" height="316" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+<text x="38" y="82" font-size="18" font-weight="700">1 link</text>
+<text x="452" y="82" text-anchor="end" font-size="14" class="s">1 AP, 1 ESP32 node</text>
+<g transform="translate(45,100)">
+<rect x="0" y="0" width="400" height="200" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+<line x1="200" y1="14" x2="200" y2="188" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="200" y1="14" x2="200" y2="188" stroke="#d97706" stroke-width="7" stroke-linecap="round" opacity="0.0"><animate attributeName="opacity" values="0;0;0.48;0.98;1;1;0.01;0;0;0.42;0.93;1;1;0.91;0.79;0.02;0;0" keyTimes="0;0.225;0.2333;0.2417;0.25;0.3;0.375;0.3833;0.75;0.7583;0.7667;0.775;0.825;0.8333;0.8417;0.9;0.9083;1" dur="6s" repeatCount="indefinite"/></line>
+<g fill="#2563eb" stroke="#ffffff" stroke-width="1.5" transform="translate(80.0,120.0)"><use href="#person" xlink:href="#person" transform="scale(1.4)"/><animateMotion path="M0.0,0.0 C-3.3,-10.8 40.0,-28.3 70.0,-35.0 C100.0,-41.7 150.0,-44.2 180.0,-40.0 C210.0,-35.8 246.7,-21.7 250.0,-10.0 C253.3,1.7 226.7,23.3 200.0,30.0 C173.3,36.7 123.3,35.0 90.0,30.0 C56.7,25.0 3.3,10.8 0.0,0.0 Z" dur="6s" repeatCount="indefinite" calcMode="paced"/></g>
+<g fill="#dc2626" stroke="#ffffff" stroke-width="1.5" transform="translate(60.0,60.0)"><use href="#person" xlink:href="#person" transform="scale(1.4)"/><animateMotion path="M0.0,0.0 C18.3,-10.0 71.7,4.2 90.0,15.0 C108.3,25.8 116.7,50.0 110.0,65.0 C103.3,80.0 71.7,103.3 50.0,105.0 C28.3,106.7 -11.7,92.5 -20.0,75.0 C-28.3,57.5 -18.3,10.0 0.0,0.0 Z" dur="6s" repeatCount="indefinite" calcMode="paced"/></g>
+<g fill="#16a34a" stroke="#ffffff" stroke-width="1.5" transform="translate(360.0,150.0)"><use href="#person" xlink:href="#person" transform="scale(1.4)"/><animateMotion path="M0.0,0.0 C-13.3,15.8 -50.0,21.7 -70.0,15.0 C-90.0,8.3 -120.0,-21.7 -120.0,-40.0 C-120.0,-58.3 -91.7,-88.3 -70.0,-95.0 C-48.3,-101.7 -1.7,-95.8 10.0,-80.0 C21.7,-64.2 13.3,-15.8 0.0,0.0 Z" dur="6s" repeatCount="indefinite" calcMode="paced"/></g>
+<use href="#ap" xlink:href="#ap" x="200" y="14"/>
+<use href="#node" xlink:href="#node" x="200" y="188"/>
+</g>
+<text x="38" y="346" font-size="15" class="s">Count estimate:</text>
+<text x="168" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#d97706" opacity="1">2<animate attributeName="opacity" values="1;0" keyTimes="0;0.125" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="168" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#d97706" opacity="0">3<animate attributeName="opacity" values="0;1;0" keyTimes="0;0.125;0.25" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="168" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#d97706" opacity="0">4<animate attributeName="opacity" values="0;1;0" keyTimes="0;0.25;0.375" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="168" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#d97706" opacity="0">2<animate attributeName="opacity" values="0;1;0" keyTimes="0;0.375;0.5" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="168" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#d97706" opacity="0">3<animate attributeName="opacity" values="0;1;0" keyTimes="0;0.5;0.625" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="168" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#d97706" opacity="0">4<animate attributeName="opacity" values="0;1;0" keyTimes="0;0.625;0.75" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="168" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#d97706" opacity="0">3<animate attributeName="opacity" values="0;1;0" keyTimes="0;0.75;0.875" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="168" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#d97706" opacity="0">2<animate attributeName="opacity" values="0;1" keyTimes="0;0.875" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="186" y="346" font-size="15">of 3 people</text>
+<text x="452" y="346" text-anchor="end" font-size="15" font-weight="600" style="fill:#d97706">jumps around</text>
+<rect x="490" y="54" width="450" height="316" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+<text x="508" y="82" font-size="18" font-weight="700">4 links</text>
+<text x="922" y="82" text-anchor="end" font-size="14" class="s">4 ESP32 TX/RX links</text>
+<g transform="translate(515,100)">
+<rect x="0" y="0" width="400" height="200" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+<line x1="200" y1="14" x2="16" y2="176" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="200" y1="14" x2="132" y2="188" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="200" y1="14" x2="268" y2="188" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="200" y1="14" x2="384" y2="176" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="200" y1="14" x2="16" y2="176" stroke="#d97706" stroke-width="7" stroke-linecap="round" opacity="0.95"><animate attributeName="opacity" values="0.95;1;1;0.91;0.36;0.24;0.02;0.15;0.65;1;1;0.97;0.86;0.74;0.08;0;0;0.03;0.53;1;1;0.99;0;0;0.45;0.95" keyTimes="0;0.0083;0.1083;0.1167;0.1583;0.1667;0.1833;0.1917;0.2;0.2083;0.2583;0.2667;0.275;0.2833;0.3333;0.3417;0.725;0.7333;0.7417;0.75;0.8;0.8083;0.8833;0.9833;0.9917;1" dur="6s" repeatCount="indefinite"/></line>
+<line x1="200" y1="14" x2="132" y2="188" stroke="#d97706" stroke-width="7" stroke-linecap="round" opacity="0.0"><animate attributeName="opacity" values="0;0;0.38;0.88;1;1;0.92;0.81;0.69;0.36;0.7;1;1;0.96;0.84;0.07;0;0;0.33;0.82;1;1;0.93;0.71;0.59;0.04;0;0;0.18;0.68;1;1;0.96;0.41;0.29;0.07;0" keyTimes="0;0.175;0.1833;0.1917;0.2;0.25;0.2583;0.2667;0.275;0.3;0.3083;0.3167;0.3667;0.375;0.3833;0.4417;0.45;0.4583;0.4667;0.475;0.4833;0.5333;0.5417;0.5583;0.5667;0.6083;0.6167;0.8417;0.85;0.8583;0.8667;0.9167;0.925;0.9667;0.975;0.9917;1" dur="6s" repeatCount="indefinite"/></line>
+<line x1="200" y1="14" x2="268" y2="188" stroke="#d97706" stroke-width="7" stroke-linecap="round" opacity="0.0"><animate attributeName="opacity" values="0;0;0.23;0.73;1;1;0.95;0.51;0.39;0.06;0;0;0.45;0.95;1;1;0.9;0.46;0.34;0.01;0;0" keyTimes="0;0.2667;0.275;0.2833;0.2917;0.3417;0.35;0.3833;0.3917;0.4167;0.425;0.65;0.6583;0.6667;0.675;0.725;0.7333;0.7667;0.775;0.8;0.8083;1" dur="6s" repeatCount="indefinite"/></line>
+<line x1="200" y1="14" x2="384" y2="176" stroke="#d97706" stroke-width="7" stroke-linecap="round" opacity="0.43"><animate attributeName="opacity" values="0.43;0.93;1;1;0.91;0.79;0.02;0;0;0.2;0.7;1;1;0.96;0.84;0.51;0.45;0.95;1;1;0.98;0.21;0.09;0;0;0.42" keyTimes="0;0.0083;0.0167;0.0667;0.075;0.0833;0.1417;0.15;0.3667;0.375;0.3833;0.3917;0.4417;0.45;0.4583;0.4833;0.4917;0.5;0.5083;0.575;0.5833;0.6417;0.65;0.6583;0.9917;1" dur="6s" repeatCount="indefinite"/></line>
+<g fill="#2563eb" stroke="#ffffff" stroke-width="1.5" transform="translate(80.0,120.0)"><use href="#person" xlink:href="#person" transform="scale(1.4)"/><animateMotion path="M0.0,0.0 C-3.3,-10.8 40.0,-28.3 70.0,-35.0 C100.0,-41.7 150.0,-44.2 180.0,-40.0 C210.0,-35.8 246.7,-21.7 250.0,-10.0 C253.3,1.7 226.7,23.3 200.0,30.0 C173.3,36.7 123.3,35.0 90.0,30.0 C56.7,25.0 3.3,10.8 0.0,0.0 Z" dur="6s" repeatCount="indefinite" calcMode="paced"/></g>
+<g fill="#dc2626" stroke="#ffffff" stroke-width="1.5" transform="translate(60.0,60.0)"><use href="#person" xlink:href="#person" transform="scale(1.4)"/><animateMotion path="M0.0,0.0 C18.3,-10.0 71.7,4.2 90.0,15.0 C108.3,25.8 116.7,50.0 110.0,65.0 C103.3,80.0 71.7,103.3 50.0,105.0 C28.3,106.7 -11.7,92.5 -20.0,75.0 C-28.3,57.5 -18.3,10.0 0.0,0.0 Z" dur="6s" repeatCount="indefinite" calcMode="paced"/></g>
+<g fill="#16a34a" stroke="#ffffff" stroke-width="1.5" transform="translate(360.0,150.0)"><use href="#person" xlink:href="#person" transform="scale(1.4)"/><animateMotion path="M0.0,0.0 C-13.3,15.8 -50.0,21.7 -70.0,15.0 C-90.0,8.3 -120.0,-21.7 -120.0,-40.0 C-120.0,-58.3 -91.7,-88.3 -70.0,-95.0 C-48.3,-101.7 -1.7,-95.8 10.0,-80.0 C21.7,-64.2 13.3,-15.8 0.0,0.0 Z" dur="6s" repeatCount="indefinite" calcMode="paced"/></g>
+<use href="#ap" xlink:href="#ap" x="200" y="14"/>
+<use href="#node" xlink:href="#node" x="16" y="176"/>
+<use href="#node" xlink:href="#node" x="132" y="188"/>
+<use href="#node" xlink:href="#node" x="268" y="188"/>
+<use href="#node" xlink:href="#node" x="384" y="176"/>
+</g>
+<text x="508" y="346" font-size="15" class="s">Count estimate:</text>
+<text x="638" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#16a34a" opacity="1">3<animate attributeName="opacity" values="1;0" keyTimes="0;0.125" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="638" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#16a34a" opacity="0">3<animate attributeName="opacity" values="0;1;0" keyTimes="0;0.125;0.25" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="638" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#16a34a" opacity="0">2<animate attributeName="opacity" values="0;1;0" keyTimes="0;0.25;0.375" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="638" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#16a34a" opacity="0">3<animate attributeName="opacity" values="0;1;0" keyTimes="0;0.375;0.5" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="638" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#16a34a" opacity="0">3<animate attributeName="opacity" values="0;1;0" keyTimes="0;0.5;0.625" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="638" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#16a34a" opacity="0">4<animate attributeName="opacity" values="0;1;0" keyTimes="0;0.625;0.75" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="638" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#16a34a" opacity="0">3<animate attributeName="opacity" values="0;1;0" keyTimes="0;0.75;0.875" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="638" y="349" text-anchor="middle" font-size="26" font-weight="700" style="fill:#16a34a" opacity="0">2<animate attributeName="opacity" values="0;1" keyTimes="0;0.875" calcMode="discrete" dur="6s" repeatCount="indefinite"/></text>
+<text x="656" y="346" font-size="15">of 3 people</text>
+<text x="922" y="346" text-anchor="end" font-size="15" font-weight="600" style="fill:#16a34a">steadier</text>
+<g font-size="14">
+<use href="#ap" xlink:href="#ap" x="48" y="390"/><text x="74" y="395" class="s">access point</text>
+<use href="#node" xlink:href="#node" x="190" y="390"/><text x="207" y="395" class="s">ESP32 node</text>
+<line x1="308" y1="390" x2="338" y2="390" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/><text x="346" y="395" class="s">link</text>
+<line x1="390" y1="390" x2="420" y2="390" stroke="#d97706" stroke-width="7" stroke-linecap="round"/><text x="428" y="395" class="s">link lit: someone is crossing it</text>
+<g fill="#64748b" stroke="#ffffff" stroke-width="1.5" transform="translate(668,392)"><use href="#person" xlink:href="#person"/></g><text x="682" y="395" class="s">person walking</text>
+</g>
+<text x="480.0" y="428" text-anchor="middle" font-size="15"><tspan font-weight="700">Wi-CaL (4 ESP32 TX/RX links, about 5-10 people, trained per room):</tspan> median error 0.55-0.82 with 1 link vs 0.35-0.41 with 4.</text>
+<text x="480.0" y="454" text-anchor="middle" font-size="14" font-style="italic" class="s">Illustration only: the counts shown are not data.</text>
+</svg>

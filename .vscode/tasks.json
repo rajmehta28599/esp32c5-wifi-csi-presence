@@ -31,6 +31,11 @@
   //    "type": "process" is used deliberately - it hands the argument
   //    list straight to the executable, so nothing gets mangled by a
   //    second round of shell quoting.
+  //
+  //  LINUX (dual boot, 2026-10-12): the seven ESP-IDF tasks carry a
+  //  "linux" override that runs tools/linux_idf.sh instead (ESP-IDF v6.1,
+  //  builds under ~/esp-build; docs/ide/README.md, DECISIONS D-170). The
+  //  Windows commands are unchanged. The three Tools tasks are Windows-only.
   // ===================================================================
   "version": "2.0.0",
 
@@ -49,7 +54,8 @@
         "step06_baseline",
         "step07_presence",
         "step08_final_human_detector",
-        "step09_espressif_sensing"
+        "step09_espressif_sensing",
+        "step10_recognise_count_vitals"
       ]
     },
     {
@@ -63,6 +69,7 @@
   "tasks": [
     {
       "label": "ESP-IDF: Doctor (run this first if anything fails)",
+      "linux": { "command": "bash", "args": ["${workspaceFolder}/tools/linux_idf.sh", "doctor"] },
       "detail": "Checks ESP-IDF, the RISC-V toolchain, connected boards, and which steps are built. Flashes nothing.",
       "type": "process",
       "command": "powershell",
@@ -78,6 +85,7 @@
 
     {
       "label": "ESP-IDF: Build",
+      "linux": { "command": "bash", "args": ["${workspaceFolder}/tools/linux_idf.sh", "build", "${input:step}"] },
       "detail": "Configure for esp32c5 (first time) and build. No board needed.",
       "type": "process",
       "group": { "kind": "build", "isDefault": true },
@@ -94,6 +102,7 @@
 
     {
       "label": "ESP-IDF: Build + Flash + Monitor",
+      "linux": { "command": "bash", "args": ["${workspaceFolder}/tools/linux_idf.sh", "flash-monitor", "${input:step}"], "options": { "cwd": "${workspaceFolder}", "env": { "ESPPORT": "${input:port}" } } },
       "detail": "The everyday one. Needs a board connected. Checks the port BEFORE building, so you find out immediately.",
       "type": "process",
       "command": "powershell",
@@ -109,6 +118,7 @@
 
     {
       "label": "ESP-IDF: Monitor only",
+      "linux": { "command": "bash", "args": ["${workspaceFolder}/tools/linux_idf.sh", "monitor", "${input:step}"], "options": { "cwd": "${workspaceFolder}", "env": { "ESPPORT": "${input:port}" } } },
       "detail": "Open the serial monitor without reflashing. Ctrl+] to quit.",
       "type": "process",
       "command": "powershell",
@@ -124,6 +134,7 @@
 
     {
       "label": "ESP-IDF: menuconfig (set WiFi SSID / password)",
+      "linux": { "command": "bash", "args": ["${workspaceFolder}/tools/linux_idf.sh", "menuconfig", "${input:step}"] },
       "detail": "The ESP-IDF configuration UI. This is where you set WiFi credentials and detection thresholds. No board needed.",
       "type": "process",
       "command": "powershell",
@@ -139,6 +150,7 @@
 
     {
       "label": "ESP-IDF: Clean rebuild",
+      "linux": { "command": "bash", "args": ["${workspaceFolder}/tools/linux_idf.sh", "clean", "${input:step}"] },
       "detail": "Deletes build/ and sdkconfig, then rebuilds. Use after editing sdkconfig.defaults.",
       "type": "process",
       "command": "powershell",
@@ -154,6 +166,7 @@
 
     {
       "label": "ESP-IDF: Erase flash (wipes the saved calibration)",
+      "linux": { "command": "bash", "args": ["${workspaceFolder}/tools/linux_idf.sh", "erase", "${input:step}"], "options": { "cwd": "${workspaceFolder}", "env": { "ESPPORT": "${input:port}" } } },
       "detail": "Full chip erase. DELETES the NVS baseline from Step 06 - you will have to recalibrate.",
       "type": "process",
       "command": "powershell",

@@ -32,6 +32,7 @@
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 #include "esp_mac.h"        /* MACSTR / MAC2STR */
 #include "esp_idf_version.h"
 #include "nvs_flash.h"
@@ -49,12 +50,39 @@ static const char *TAG = "step09";
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 
+/* How long the room must stay empty while esp_wifi_sensing trains its
+ * wander / jitter thresholds. The component's README asks for a static
+ * environment; 30 s at its default ping rate is a few hundred samples. */
+#define TRAIN_LEAVE_S   10
+#define TRAIN_S         30
+
 static EventGroupHandle_t s_wifi_events;
 static int                s_retry_count;
+static esp_timer_handle_t s_reconnect_timer;
+static bool               s_connected_once = false;
 
 /* =================================================================== */
 /*  WiFi bring-up - identical to Steps 02-08 on purpose                */
+/*                                                                     */
+/*  First join: CONFIG_CSI_WIFI_MAX_RETRY attempts, then WIFI_FAIL_BIT */
+/*  so app_main can report bad credentials and reboot.                 */
+/*  After the first join: never give up. A router reboot is off the    */
+/*  air for 1-3 minutes, and a board that stops retrying stays offline */
+/*  until someone power-cycles it. Retries back off 1, 2, 4 ... 30 s   */
+/*  and are driven by a timer, because a vTaskDelay inside this        */
+/*  handler stalls every other event on the default event loop.        */
 /* =================================================================== */
+static void reconnect_cb(void *arg)
+{
+    esp_wifi_connect();
+}
+
+static void schedule_reconnect(uint32_t delay_ms)
+{
+    esp_timer_stop(s_reconnect_timer);          /* harmless if idle */
+    esp_timer_start_once(s_reconnect_timer, (uint64_t)delay_ms * 1000);
+}
+
 static void event_handler(void *arg, esp_event_base_t base,
                           int32_t id, void *data)
 {
@@ -62,12 +90,18 @@ static void event_handler(void *arg, esp_event_base_t base,
         esp_wifi_connect();
     } else if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
         wifi_event_sta_disconnected_t *d = (wifi_event_sta_disconnected_t *)data;
-        if (s_retry_count < CONFIG_CSI_WIFI_MAX_RETRY) {
+        if (s_connected_once) {
+            uint32_t delay_s = 1u << (s_retry_count < 5 ? s_retry_count : 5);
+            if (delay_s > 30) delay_s = 30;
+            s_retry_count++;
+            ESP_LOGW(TAG, "link lost (reason %d), reconnect attempt %d in %" PRIu32 " s",
+                     d->reason, s_retry_count, delay_s);
+            schedule_reconnect(delay_s * 1000);
+        } else if (s_retry_count < CONFIG_CSI_WIFI_MAX_RETRY) {
             s_retry_count++;
             ESP_LOGW(TAG, "disconnected (reason %d), retry %d/%d",
                      d->reason, s_retry_count, CONFIG_CSI_WIFI_MAX_RETRY);
-            vTaskDelay(pdMS_TO_TICKS(1000));
-            esp_wifi_connect();
+            schedule_reconnect(1000);
         } else {
             xEventGroupSetBits(s_wifi_events, WIFI_FAIL_BIT);
         }
@@ -76,6 +110,7 @@ static void event_handler(void *arg, esp_event_base_t base,
         ESP_LOGI(TAG, "got IP " IPSTR ", gateway " IPSTR,
                  IP2STR(&e->ip_info.ip), IP2STR(&e->ip_info.gw));
         s_retry_count = 0;
+        s_connected_once = true;
         xEventGroupSetBits(s_wifi_events, WIFI_CONNECTED_BIT);
     }
 }
@@ -83,6 +118,11 @@ static void event_handler(void *arg, esp_event_base_t base,
 static void wifi_init_sta(void)
 {
     s_wifi_events = xEventGroupCreate();
+
+    const esp_timer_create_args_t rt = {
+        .callback = reconnect_cb, .name = "wifi_reconnect",
+    };
+    ESP_ERROR_CHECK(esp_timer_create(&rt, &s_reconnect_timer));
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -165,6 +205,12 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_wifi_sensing_fsm_register_event_cb(
         fsm, ESP_WIFI_SENSING_FSM_EVENT_INACTIVE, sensing_event_cb, NULL));
 
+    /* Without CTRL_START the FSM task only sleeps: create() leaves it
+     * stopped, and it never processes a sample or fires an event. This is
+     * step 4 of the workflow in esp_wifi_sensing.h, and the component's
+     * own test app calls it right here, before the router ping. */
+    ESP_ERROR_CHECK(esp_wifi_sensing_fsm_control(fsm, ESP_WIFI_SENSING_FSM_CTRL_START, NULL));
+
     /* This is the component's own equivalent of Step 02's ping task. */
     ESP_ERROR_CHECK(esp_wifi_sensing_fsm_ping_router_start(fsm));
 
@@ -178,7 +224,39 @@ void app_main(void)
                   "active_filter_ms %" PRIu32,
              ping_hz, ch.sensitivity, ch.presence_sensitivity,
              ch.active_jitter_min, ch.active_filter_ms);
-    ESP_LOGI(TAG, "leave the room - the FSM learns its own baseline first.");
+
+    /* ---- On-site training --------------------------------------------
+     * The presence side (wander_value, presence_someone) stays at 0 until
+     * the channel has been trained: esp-radar only computes wander once a
+     * training record exists. The motion side (jitter, ACTIVE/INACTIVE)
+     * runs without it. Training is NOT persisted by the library - it
+     * repeats on every boot, so leave the room each time this starts.
+     * train_stop() is deliberately not wrapped in ESP_ERROR_CHECK: it
+     * returns ESP_ERR_INVALID_STATE when too few samples arrived, and a
+     * benchmark that boot-loops on a quiet link is worse than one that
+     * reports "untrained" and keeps measuring motion. */
+    ESP_LOGW(TAG, "*** LEAVE THE ROOM. Training starts in %d s and lasts %d s. ***",
+             TRAIN_LEAVE_S, TRAIN_S);
+    vTaskDelay(pdMS_TO_TICKS(TRAIN_LEAVE_S * 1000));
+
+    esp_err_t terr = esp_wifi_sensing_fsm_train_start(fsm, ap.bssid);
+    if (terr == ESP_OK) {
+        ESP_LOGW(TAG, "training - keep the room empty for %d s", TRAIN_S);
+        vTaskDelay(pdMS_TO_TICKS(TRAIN_S * 1000));
+        float wander_thr = 0.0f, jitter_thr = 0.0f;
+        terr = esp_wifi_sensing_fsm_train_stop(fsm, ap.bssid, &wander_thr, &jitter_thr);
+        if (terr == ESP_OK) {
+            ESP_LOGW(TAG, "trained: wander threshold %.4f, jitter threshold %.4f",
+                     wander_thr, jitter_thr);
+        } else {
+            ESP_LOGE(TAG, "train_stop failed (%s) - presence stays untrained, "
+                          "motion detection still runs", esp_err_to_name(terr));
+        }
+    } else {
+        ESP_LOGE(TAG, "train_start failed (%s) - presence stays untrained",
+                 esp_err_to_name(terr));
+    }
+    ESP_LOGW(TAG, "detecting - walk in and watch for MOTION ACTIVE.");
 
     /* ---- One diagnostic line per second, same cadence as Step 08 ---- */
     while (1) {
@@ -196,13 +274,15 @@ void app_main(void)
         ESP_LOGI(TAG,
                  "%-8s | jitter %8.3f | wander %8.3f | smooth %6" PRIu32
                  " | enter %6" PRIu32 " | exit %6" PRIu32
-                 " | init_stage %d | someone %d | heap %" PRIu32 " B",
+                 " | init_stage %d | someone %d | trained %d (status %d)"
+                 " | heap %" PRIu32 " B",
                  state == ESP_WIFI_SENSING_FSM_STATE_ACTIVE   ? "ACTIVE"
                  : state == ESP_WIFI_SENSING_FSM_STATE_DEBOUNCE ? "DEBOUNCE"
                                                                 : "inactive",
                  d.jitter_value, d.wander_value, d.smooth_scaled,
                  d.enter_level_scaled, d.exit_level_scaled,
                  (int)d.init_stage, (int)d.presence_someone_status,
+                 (int)d.train_thresholds_valid, (int)d.train_status,
                  esp_get_free_heap_size());
     }
 }

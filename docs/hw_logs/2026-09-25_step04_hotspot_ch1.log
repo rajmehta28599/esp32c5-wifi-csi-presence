@@ -1,0 +1,102 @@
+   0.00 listener start
+   0.00 port open
+   0.62 I (820) wifi:11ax coex: WDEVAX_PTI0(0x55777555), WDEVAX_PTI1(0x0I (12209) step04: 
+   0.62 I (12209) step04: ===== CSI GEOMETRY HISTOGRAM (401 packets, 0 dropped) =====
+   0.62 I (12209) step04:   bytes  subcarriers  fwi  PHY format      count   share  rssi range     odd hi-nibble 0 / F / other
+   0.62 I (12209) step04:     106           53    0  11g/11a           401  100.0%  -38..-26 dBm   100.0% /   0.0% /   0.0%
+   0.62 I (12210) step04:   'other' near 0% (every odd byte is 0x0?/0xF?) = 12-bit samples in
+   0.62 I (12210) step04:   16-bit words: 4 bytes per subcarrier, so a 106 B frame holds 26, not 53.
+   0.62 I (12210) step04:   'other' well above 0% = plain int8 (imag, real) pairs. Caveat: a very
+   0.62 I (12211) step04:   weak int8 signal (all |values| < 16) can also read near 0% - check RSSI.
+   0.62 W (12211) step04: >>> DOMINANT SHAPE: 106 bytes, 53 subcarriers, 11g/11a
+   0.62 W (12211) step04: >>> Write these two numbers down. Step 05 uses them.
+   0.62 I (12211) step04: 
+   5.70 I (17227) step04: 
+   5.70 I (17227) step04: ===== CSI GEOMETRY HISTOGRAM (653 packets, 0 dropped) =====
+   5.70 I (17228) step04:   bytes  subcarriers  fwi  PHY format      count   share  rssi range     odd hi-nibble 0 / F / other
+   5.70 I (17228) step04:     106           53    0  11g/11a           653  100.0%  -38..-26 dBm   100.0% /   0.0% /   0.0%
+   5.70 I (17228) step04:   'other' near 0% (every odd byte is 0x0?/0xF?) = 12-bit samples in
+   5.70 I (17229) step04:   16-bit words: 4 bytes per subcarrier, so a 106 B frame holds 26, not 53.
+   5.70 I (17229) step04:   'other' well above 0% = plain int8 (imag, real) pairs. Caveat: a very
+   5.70 I (17229) step04:   weak int8 signal (all |values| < 16) can also read near 0% - check RSSI.
+   5.70 W (17229) step04: >>> DOMINANT SHAPE: 106 bytes, 53 subcarriers, 11g/11a
+   5.70 W (17230) step04: >>> Write these two numbers down. Step 05 uses them.
+   5.70 I (17230) step04: 
+  10.60 I (22228) step04: 
+  10.60 I (22228) step04: ===== CSI GEOMETRY HISTOGRAM (903 packets, 0 dropped) =====
+  10.60 I (22229) step04:   bytes  subcarriers  fwi  PHY format      count   share  rssi range     odd hi-nibble 0 / F / other
+  10.60 I (22229) step04:     106           53    0  11g/11a           903  100.0%  -39..-26 dBm   100.0% /   0.0% /   0.0%
+  10.60 I (22229) step04:   'other' near 0% (every odd byte is 0x0?/0xF?) = 12-bit samples in
+  10.60 I (22230) step04:   16-bit words: 4 bytes per subcarrier, so a 106 B frame holds 26, not 53.
+  10.60 I (22230) step04:   'other' well above 0% = plain int8 (imag, real) pairs. Caveat: a very
+  10.60 I (22230) step04:   weak int8 signal (all |values| < 16) can also read near 0% - check RSSI.
+  10.60 W (22230) step04: >>> DOMINANT SHAPE: 106 bytes, 53 subcarriers, 11g/11a
+  10.60 W (22231) step04: >>> Write these two numbers down. Step 05 uses them.
+  10.60 I (22231) step04: 
+  15.68 I (27255) step04: 
+  15.68 I (27255) step04: ===== CSI GEOMETRY HISTOGRAM (1155 packets, 0 dropped) =====
+  15.68 I (27256) step04:   bytes  subcarriers  fwi  PHY format      count   share  rssi range     odd hi-nibble 0 / F / other
+  15.68 I (27256) step04:     106           53    0  11g/11a          1155  100.0%  -39..-26 dBm   100.0% /   0.0% /   0.0%
+  15.68 I (27256) step04:   'other' near 0% (every odd byte is 0x0?/0xF?) = 12-bit samples in
+  15.68 I (27257) step04:   16-bit words: 4 bytes per subcarrier, so a 106 B frame holds 26, not 53.
+  15.68 I (27257) step04:   'other' well above 0% = plain int8 (imag, real) pairs. Caveat: a very
+  15.68 I (27257) step04:   weak int8 signal (all |values| < 16) can also read near 0% - check RSSI.
+  15.68 W (27258) step04: >>> DOMINANT SHAPE: 106 bytes, 53 subcarriers, 11g/11a
+  15.68 W (27258) step04: >>> Write these two numbers down. Step 05 uses them.
+  15.68 I (27258) step04: 
+  20.75 I (32267) step04: 
+  20.75 I (32268) step04: ===== CSI GEOMETRY HISTOGRAM (1407 packets, 0 dropped) =====
+  20.75 I (32268) step04:   bytes  subcarriers  fwi  PHY format      count   share  rssi range     odd hi-nibble 0 / F / other
+  20.75 I (32268) step04:     106           53    0  11g/11a          1407  100.0%  -39..-26 dBm   100.0% /   0.0% /   0.0%
+  20.75 I (32269) step04:   'other' near 0% (every odd byte is 0x0?/0xF?) = 12-bit samples in
+  20.75 I (32269) step04:   16-bit words: 4 bytes per subcarrier, so a 106 B frame holds 26, not 53.
+  20.75 I (32269) step04:   'other' well above 0% = plain int8 (imag, real) pairs. Caveat: a very
+  20.75 I (32269) step04:   weak int8 signal (all |values| < 16) can also read near 0% - check RSSI.
+  20.75 W (32270) step04: >>> DOMINANT SHAPE: 106 bytes, 53 subcarriers, 11g/11a
+  20.75 W (32270) step04: >>> Write these two numbers down. Step 05 uses them.
+  20.75 I (32270) step04: 
+  25.64 I (37287) step04: 
+  25.64 I (37288) step04: ===== CSI GEOMETRY HISTOGRAM (1660 packets, 0 dropped) =====
+  25.64 I (37288) step04:   bytes  subcarriers  fwi  PHY format      count   share  rssi range     odd hi-nibble 0 / F / other
+  25.64 I (37288) step04:     106           53    0  11g/11a          1660  100.0%  -39..-26 dBm   100.0% /   0.0% /   0.0%
+  25.64 I (37288) step04:   'other' near 0% (every odd byte is 0x0?/0xF?) = 12-bit samples in
+  25.64 I (37289) step04:   16-bit words: 4 bytes per subcarrier, so a 106 B frame holds 26, not 53.
+  25.64 I (37289) step04:   'other' well above 0% = plain int8 (imag, real) pairs. Caveat: a very
+  25.64 I (37289) step04:   weak int8 signal (all |values| < 16) can also read near 0% - check RSSI.
+  25.64 W (37290) step04: >>> DOMINANT SHAPE: 106 bytes, 53 subcarriers, 11g/11a
+  25.64 W (37290) step04: >>> Write these two numbers down. Step 05 uses them.
+  25.64 I (37290) step04: 
+  30.73 I (42309) step04: 
+  30.73 I (42309) step04: ===== CSI GEOMETRY HISTOGRAM (1909 packets, 0 dropped) =====
+  30.73 I (42309) step04:   bytes  subcarriers  fwi  PHY format      count   share  rssi range     odd hi-nibble 0 / F / other
+  30.73 I (42309) step04:     106           53    0  11g/11a          1909  100.0%  -39..-26 dBm   100.0% /   0.0% /   0.0%
+  30.73 I (42310) step04:   'other' near 0% (every odd byte is 0x0?/0xF?) = 12-bit samples in
+  30.73 I (42310) step04:   16-bit words: 4 bytes per subcarrier, so a 106 B frame holds 26, not 53.
+  30.73 I (42310) step04:   'other' well above 0% = plain int8 (imag, real) pairs. Caveat: a very
+  30.73 I (42311) step04:   weak int8 signal (all |values| < 16) can also read near 0% - check RSSI.
+  30.73 W (42311) step04: >>> DOMINANT SHAPE: 106 bytes, 53 subcarriers, 11g/11a
+  30.73 W (42311) step04: >>> Write these two numbers down. Step 05 uses them.
+  30.73 I (42311) step04: 
+  35.82 I (47332) step04: 
+  35.82 I (47333) step04: ===== CSI GEOMETRY HISTOGRAM (2163 packets, 0 dropped) =====
+  35.82 I (47333) step04:   bytes  subcarriers  fwi  PHY format      count   share  rssi range     odd hi-nibble 0 / F / other
+  35.82 I (47333) step04:     106           53    0  11g/11a          2163  100.0%  -39..-26 dBm   100.0% /   0.0% /   0.0%
+  35.82 I (47333) step04:   'other' near 0% (every odd byte is 0x0?/0xF?) = 12-bit samples in
+  35.82 I (47334) step04:   16-bit words: 4 bytes per subcarrier, so a 106 B frame holds 26, not 53.
+  35.82 I (47334) step04:   'other' well above 0% = plain int8 (imag, real) pairs. Caveat: a very
+  35.82 I (47334) step04:   weak int8 signal (all |values| < 16) can also read near 0% - check RSSI.
+  35.82 W (47334) step04: >>> DOMINANT SHAPE: 106 bytes, 53 subcarriers, 11g/11a
+  35.82 W (47335) step04: >>> Write these two numbers down. Step 05 uses them.
+  35.82 I (47335) step04: 
+  40.71 I (52350) step04: 
+  40.71 I (52350) step04: ===== CSI GEOMETRY HISTOGRAM (2416 packets, 0 dropped) =====
+  40.71 I (52351) step04:   bytes  subcarriers  fwi  PHY format      count   share  rssi range     odd hi-nibble 0 / F / other
+  40.71 I (52351) step04:     106           53    0  11g/11a          2416  100.0%  -39..-26 dBm   100.0% /   0.0% /   0.0%
+  40.71 I (52351) step04:   'other' near 0% (every odd byte is 0x0?/0xF?) = 12-bit samples in
+  40.71 I (52352) step04:   16-bit words: 4 bytes per subcarrier, so a 106 B frame holds 26, not 53.
+  40.71 I (52352) step04:   'other' well above 0% = plain int8 (imag, real) pairs. Caveat: a very
+  40.71 I (52352) step04:   weak int8 signal (all |values| < 16) can also read near 0% - check RSSI.
+  40.71 W (52353) step04: >>> DOMINANT SHAPE: 106 bytes, 53 subcarriers, 11g/11a
+  40.71 W (52353) step04: >>> Write these two numbers down. Step 05 uses them.
+  40.71 I (52353) step04: 
+  45.17 listener end

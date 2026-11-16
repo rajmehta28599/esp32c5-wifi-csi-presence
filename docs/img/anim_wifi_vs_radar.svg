@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="440" viewBox="0 0 960 440" role="img" aria-labelledby="t d" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+<title id="t">How Wi-Fi CSI and mmWave radar see a person</title>
+<desc id="d">Left: a Wi-Fi access point and an ESP32-C5 joined by one radio link drawn as an ellipse (Fresnel zone). A person walks across the link; while the person is inside the zone the link ripples and the CSI amplitude trace below wiggles, and outside the zone the trace is flat. Caption: Wi-Fi CSI: one link, sees that the channel changed, not where or who. Right: a MIMO mmWave radar (research grade) on a wall sends a fan-shaped beam divided into range bins; two people at different distances show as two separate dots with small chest-movement pulses. Caption: mmWave radar separates people by distance and angle. Consumer 60 GHz products give vitals for one person only; separating two chests is research-grade MIMO radar.</desc>
+<defs>
+  <clipPath id="traceClip"><rect x="40" y="305" width="360" height="60"/></clipPath>
+  <clipPath id="fanClip"><path d="M528,215 L824.6,70.3 A330,330 0 0 1 824.6,359.7 Z"/></clipPath>
+</defs>
+<rect x="1" y="1" width="958" height="438" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+<text x="480" y="34" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">How Wi-Fi CSI and mmWave radar see a person</text>
+<line x1="480" y1="52" x2="480" y2="420" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+
+<!-- ================= LEFT: Wi-Fi CSI ================= -->
+<text x="24" y="70" font-size="16" font-weight="700" fill="#2563eb">Wi-Fi CSI</text>
+
+<!-- Fresnel zone -->
+<ellipse cx="244.0" cy="181" rx="148.0" ry="40" fill="#2563eb" fill-opacity="0.07" stroke="#2563eb" stroke-opacity="0.55" stroke-width="1.5" stroke-dasharray="5 4"/>
+<ellipse cx="244.0" cy="181" rx="148.0" ry="40" fill="#d97706" fill-opacity="0.14" stroke="#d97706" stroke-width="2" opacity="0">
+  <animate attributeName="opacity" dur="6s" repeatCount="indefinite" keyTimes="0;0.17;0.18;0.32;0.33;0.67;0.68;0.82;0.83;1" values="0;0;1;1;0;0;1;1;0;0"/>
+</ellipse>
+<text x="318" y="133" font-size="13" fill="#64748b">Fresnel zone</text>
+
+<!-- link: straight when quiet, rippling when disturbed -->
+<line x1="96" y1="181" x2="392" y2="181" stroke="#2563eb" stroke-width="2.5">
+  <animate attributeName="opacity" dur="6s" repeatCount="indefinite" keyTimes="0;0.17;0.18;0.32;0.33;0.67;0.68;0.82;0.83;1" values="1;1;0;0;1;1;0;0;1;1"/>
+</line>
+<path d="M96,181.0 L100,180.8 L104,180.9 L108,181.3 L112,181.9 L116,182.4 L120,182.7 L124,182.5 L128,181.8 L132,180.7 L136,179.3 L140,178.2 L144,177.6 L148,177.7 L152,178.8 L156,180.5 L160,182.5 L164,184.4 L168,185.7 L172,185.9 L176,185.0 L180,183.1 L184,180.5 L188,177.9 L192,175.8 L196,174.9 L200,175.3 L204,177.1 L208,179.9 L212,183.0 L216,185.7 L220,187.5 L224,187.7 L228,186.5 L232,183.9 L236,180.7 L240,177.5 L244,175.1 L248,174.0 L252,174.6 L256,176.5 L260,179.5 L264,182.8 L268,185.6 L272,187.3 L276,187.5 L280,186.3 L284,183.9 L288,181.0 L292,178.2 L296,176.1 L300,175.2 L304,175.7 L308,177.3 L312,179.7 L316,182.1 L320,184.1 L324,185.3 L328,185.4 L332,184.5 L336,183.0 L340,181.1 L344,179.5 L348,178.5 L352,178.2 L356,178.5 L360,179.4 L364,180.4 L368,181.3 L372,181.9 L376,182.1 L380,181.9 L384,181.5 L388,181.2 L392,181.0" fill="none" stroke="#d97706" stroke-width="2.5" opacity="0">
+  <animate attributeName="d" dur="0.5s" repeatCount="indefinite" values="M96,181.0 L100,180.8 L104,180.9 L108,181.3 L112,181.9 L116,182.4 L120,182.7 L124,182.5 L128,181.8 L132,180.7 L136,179.3 L140,178.2 L144,177.6 L148,177.7 L152,178.8 L156,180.5 L160,182.5 L164,184.4 L168,185.7 L172,185.9 L176,185.0 L180,183.1 L184,180.5 L188,177.9 L192,175.8 L196,174.9 L200,175.3 L204,177.1 L208,179.9 L212,183.0 L216,185.7 L220,187.5 L224,187.7 L228,186.5 L232,183.9 L236,180.7 L240,177.5 L244,175.1 L248,174.0 L252,174.6 L256,176.5 L260,179.5 L264,182.8 L268,185.6 L272,187.3 L276,187.5 L280,186.3 L284,183.9 L288,181.0 L292,178.2 L296,176.1 L300,175.2 L304,175.7 L308,177.3 L312,179.7 L316,182.1 L320,184.1 L324,185.3 L328,185.4 L332,184.5 L336,183.0 L340,181.1 L344,179.5 L348,178.5 L352,178.2 L356,178.5 L360,179.4 L364,180.4 L368,181.3 L372,181.9 L376,182.1 L380,181.9 L384,181.5 L388,181.2 L392,181.0;M96,181.0 L100,181.2 L104,181.1 L108,180.7 L112,180.1 L116,179.6 L120,179.3 L124,179.5 L128,180.2 L132,181.3 L136,182.7 L140,183.8 L144,184.4 L148,184.3 L152,183.2 L156,181.5 L160,179.5 L164,177.6 L168,176.3 L172,176.1 L176,177.0 L180,178.9 L184,181.5 L188,184.1 L192,186.2 L196,187.1 L200,186.7 L204,184.9 L208,182.1 L212,179.0 L216,176.3 L220,174.5 L224,174.3 L228,175.5 L232,178.1 L236,181.3 L240,184.5 L244,186.9 L248,188.0 L252,187.4 L256,185.5 L260,182.5 L264,179.2 L268,176.4 L272,174.7 L276,174.5 L280,175.7 L284,178.1 L288,181.0 L292,183.8 L296,185.9 L300,186.8 L304,186.3 L308,184.7 L312,182.3 L316,179.9 L320,177.9 L324,176.7 L328,176.6 L332,177.5 L336,179.0 L340,180.9 L344,182.5 L348,183.5 L352,183.8 L356,183.5 L360,182.6 L364,181.6 L368,180.7 L372,180.1 L376,179.9 L380,180.1 L384,180.5 L388,180.8 L392,181.0;M96,181.0 L100,180.8 L104,180.9 L108,181.3 L112,181.9 L116,182.4 L120,182.7 L124,182.5 L128,181.8 L132,180.7 L136,179.3 L140,178.2 L144,177.6 L148,177.7 L152,178.8 L156,180.5 L160,182.5 L164,184.4 L168,185.7 L172,185.9 L176,185.0 L180,183.1 L184,180.5 L188,177.9 L192,175.8 L196,174.9 L200,175.3 L204,177.1 L208,179.9 L212,183.0 L216,185.7 L220,187.5 L224,187.7 L228,186.5 L232,183.9 L236,180.7 L240,177.5 L244,175.1 L248,174.0 L252,174.6 L256,176.5 L260,179.5 L264,182.8 L268,185.6 L272,187.3 L276,187.5 L280,186.3 L284,183.9 L288,181.0 L292,178.2 L296,176.1 L300,175.2 L304,175.7 L308,177.3 L312,179.7 L316,182.1 L320,184.1 L324,185.3 L328,185.4 L332,184.5 L336,183.0 L340,181.1 L344,179.5 L348,178.5 L352,178.2 L356,178.5 L360,179.4 L364,180.4 L368,181.3 L372,181.9 L376,182.1 L380,181.9 L384,181.5 L388,181.2 L392,181.0"/>
+  <animate attributeName="opacity" dur="6s" repeatCount="indefinite" keyTimes="0;0.17;0.18;0.32;0.33;0.67;0.68;0.82;0.83;1" values="0;0;1;1;0;0;1;1;0;0"/>
+</path>
+
+<!-- Wi-Fi access point -->
+<g>
+  <line x1="56" y1="174" x2="50" y2="152" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+  <line x1="84" y1="174" x2="90" y2="152" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+  <rect x="42" y="172" width="54" height="20" rx="5" fill="#334155"/>
+  <circle cx="54" cy="182" r="2.2" fill="#16a34a"/><circle cx="62" cy="182" r="2.2" fill="#16a34a"/>
+  <text x="69" y="216" text-anchor="middle" font-size="13" fill="#0f172a">Wi-Fi AP</text>
+</g>
+<!-- ESP32-C5 board -->
+<g>
+  <rect x="392" y="166" width="58" height="30" rx="3" fill="#0d9488"/>
+  <rect x="408" y="171" width="26" height="20" rx="2" fill="#cbd5e1" stroke="#64748b"/>
+  <rect x="438" y="170" width="8" height="8" rx="1" fill="#f8fafc" opacity="0.8"/>
+  <text x="421" y="216" text-anchor="middle" font-size="13" fill="#0f172a">ESP32-C5</text>
+</g>
+
+<!-- walking person crossing the link -->
+<g>
+  <animateTransform attributeName="transform" type="translate" dur="6s" repeatCount="indefinite"
+    keyTimes="0;0.1;0.4;0.6;0.9;1" values="244.0 101;244.0 101;244.0 261;244.0 261;244.0 101;244.0 101"/>
+  <g stroke="#0f172a" stroke-width="3" stroke-linecap="round" fill="none">
+    <line x1="0" y1="-6" x2="0" y2="8"/>
+    <line x1="0" y1="8" x2="0" y2="22">
+      <animateTransform attributeName="transform" type="rotate" dur="0.6s" repeatCount="indefinite" values="-22 0 8;22 0 8;-22 0 8"/>
+    </line>
+    <line x1="0" y1="8" x2="0" y2="22">
+      <animateTransform attributeName="transform" type="rotate" dur="0.6s" repeatCount="indefinite" values="22 0 8;-22 0 8;22 0 8"/>
+    </line>
+    <line x1="0" y1="-3" x2="0" y2="9">
+      <animateTransform attributeName="transform" type="rotate" dur="0.6s" repeatCount="indefinite" values="25 0 -3;-25 0 -3;25 0 -3"/>
+    </line>
+    <line x1="0" y1="-3" x2="0" y2="9">
+      <animateTransform attributeName="transform" type="rotate" dur="0.6s" repeatCount="indefinite" values="-25 0 -3;25 0 -3;-25 0 -3"/>
+    </line>
+  </g>
+  <circle cx="0" cy="-14" r="7" fill="#0f172a"/>
+</g>
+
+<!-- CSI amplitude strip chart -->
+<text x="40" y="297" font-size="13" fill="#0f172a">CSI amplitude</text>
+<text x="400" y="297" text-anchor="end" font-size="13" fill="#64748b">time &#8594;</text>
+<rect x="40" y="305" width="360" height="60" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+<line x1="40" y1="335.0" x2="400" y2="335.0" stroke="#e2e8f0" stroke-width="1"/>
+<g clip-path="url(#traceClip)">
+  <g>
+    <animateTransform attributeName="transform" type="translate" dur="6s" repeatCount="indefinite"
+      from="-80 0" to="-560 0"/>
+    <path d="M0,335.0 L2,333.9 L4,335.5 L6,335.9 L8,334.1 L10,334.7 L12,335.6 L14,335.0 L16,334.9 L18,334.9 L20,334.6 L22,335.7 L24,335.3 L26,333.9 L28,335.2 L30,336.1 L32,334.4 L34,334.4 L36,335.6 L38,335.1 L40,334.9 L42,334.9 L44,334.5 L46,335.5 L48,335.6 L50,333.9 L52,334.8 L54,336.2 L56,334.7 L58,334.2 L60,335.5 L62,335.2 L64,334.9 L66,335.0 L68,334.5 L70,335.3 L72,335.8 L74,334.1 L76,334.5 L78,336.1 L80,335.0 L82,334.0 L84,334.8 L86,335.4 L88,337.6 L90,340.4 L92,329.5 L94,332.0 L96,328.6 L98,339.2 L100,345.5 L102,336.2 L104,335.1 L106,316.2 L108,335.8 L110,343.1 L112,345.0 L114,343.2 L116,315.6 L118,329.9 L120,330.9 L122,348.6 L124,347.8 L126,327.7 L128,330.5 L130,318.2 L132,343.2 L134,345.8 L136,339.3 L138,335.0 L140,319.8 L142,335.3 L144,337.6 L146,342.4 L148,336.7 L150,330.2 L152,334.5 L154,332.7 L156,336.1 L158,335.4 L160,335.0 L162,335.2 L164,334.8 L166,334.4 L168,335.8 L170,335.4 L172,333.8 L174,335.1 L176,336.0 L178,334.5 L180,334.5 L182,335.3 L184,335.0 L186,335.3 L188,334.9 L190,334.3 L192,335.6 L194,335.7 L196,333.9 L198,334.7 L200,336.1 L202,334.8 L204,334.4 L206,335.2 L208,335.0 L210,335.2 L212,335.1 L214,334.2 L216,335.3 L218,336.0 L220,334.2 L222,334.4 L224,336.0 L226,335.1 L228,334.4 L230,335.1 L232,335.0 L234,335.2 L236,335.2 L238,334.2 L240,335.0 L242,336.1 L244,334.5 L246,334.1 L248,335.9 L250,335.3 L252,334.4 L254,335.0 L256,335.1 L258,335.1 L260,335.4 L262,334.3 L264,334.7 L266,336.1 L268,334.8 L270,333.9 L272,335.6 L274,335.6 L276,334.4 L278,334.9 L280,335.1 L282,335.1 L284,335.5 L286,334.5 L288,334.4 L290,336.1 L292,335.2 L294,333.8 L296,335.3 L298,335.8 L300,334.5 L302,334.8 L304,335.1 L306,335.0 L308,335.5 L310,334.7 L312,334.2 L314,335.9 L316,335.5 L318,333.9 L320,335.0 L322,335.8 L324,334.2 L326,334.9 L328,337.7 L330,340.2 L332,330.6 L334,331.9 L336,326.7 L338,340.4 L340,347.2 L342,334.2 L344,334.4 L346,318.0 L348,335.6 L350,342.4 L352,345.1 L354,342.9 L356,316.5 L358,330.3 L360,328.8 L362,349.1 L364,349.9 L366,326.2 L368,329.2 L370,319.9 L372,343.4 L374,345.0 L376,339.4 L378,334.6 L380,320.5 L382,336.1 L384,335.7 L386,342.2 L388,339.0 L390,329.3 L392,332.8 L394,334.0 L396,336.7 L398,334.7 L400,335.0 L402,334.8 L404,335.2 L406,335.6 L408,334.2 L410,334.6 L412,336.2 L414,334.9 L416,334.0 L418,335.5 L420,335.5 L422,334.7 L424,335.0 L426,334.7 L428,335.1 L430,335.7 L432,334.4 L434,334.3 L436,336.1 L438,335.3 L440,333.9 L442,335.2 L444,335.6 L446,334.8 L448,335.0 L450,334.8 L452,334.9 L454,335.8 L456,334.7 L458,334.0 L460,335.8 L462,335.6 L464,334.0 L466,334.9 L468,335.6 L470,334.9 L472,335.0 L474,334.8 L476,334.8 L478,335.8 L480,335.0 L482,333.9 L484,335.5 L486,335.9 L488,334.1 L490,334.7 L492,335.6 L494,335.0 L496,334.9 L498,334.9 L500,334.6 L502,335.7 L504,335.3 L506,333.9 L508,335.2 L510,336.1 L512,334.4 L514,334.4 L516,335.6 L518,335.1 L520,334.9 L522,334.9 L524,334.5 L526,335.5 L528,335.6 L530,333.9 L532,334.8 L534,336.2 L536,334.7 L538,334.2 L540,335.5 L542,335.2 L544,334.9 L546,335.0 L548,334.5 L550,335.3 L552,335.8 L554,334.1 L556,334.5 L558,336.1 L560,335.0 L562,334.0 L564,334.8 L566,335.4 L568,337.6 L570,340.4 L572,329.5 L574,332.0 L576,328.6 L578,339.2 L580,345.5 L582,336.2 L584,335.1 L586,316.2 L588,335.8 L590,343.1 L592,345.0 L594,343.2 L596,315.6 L598,329.9 L600,330.9 L602,348.6 L604,347.8 L606,327.7 L608,330.5 L610,318.2 L612,343.2 L614,345.8 L616,339.3 L618,335.0 L620,319.8 L622,335.3 L624,337.6 L626,342.4 L628,336.7 L630,330.2 L632,334.5 L634,332.7 L636,336.1 L638,335.4 L640,335.0 L642,335.2 L644,334.8 L646,334.4 L648,335.8 L650,335.4 L652,333.8 L654,335.1 L656,336.0 L658,334.5 L660,334.5 L662,335.3 L664,335.0 L666,335.3 L668,334.9 L670,334.3 L672,335.6 L674,335.7 L676,333.9 L678,334.7 L680,336.1 L682,334.8 L684,334.4 L686,335.2 L688,335.0 L690,335.2 L692,335.1 L694,334.2 L696,335.3 L698,336.0 L700,334.2 L702,334.4 L704,336.0 L706,335.1 L708,334.4 L710,335.1 L712,335.0 L714,335.2 L716,335.2 L718,334.2 L720,335.0 L722,336.1 L724,334.5 L726,334.1 L728,335.9 L730,335.3 L732,334.4 L734,335.0 L736,335.1 L738,335.1 L740,335.4 L742,334.3 L744,334.7 L746,336.1 L748,334.8 L750,333.9 L752,335.6 L754,335.6 L756,334.4 L758,334.9 L760,335.1 L762,335.1 L764,335.5 L766,334.5 L768,334.4 L770,336.1 L772,335.2 L774,333.8 L776,335.3 L778,335.8 L780,334.5 L782,334.8 L784,335.1 L786,335.0 L788,335.5 L790,334.7 L792,334.2 L794,335.9 L796,335.5 L798,333.9 L800,335.0 L802,335.8 L804,334.2 L806,334.9 L808,337.7 L810,340.2 L812,330.6 L814,331.9 L816,326.7 L818,340.4 L820,347.2 L822,334.2 L824,334.4 L826,318.0 L828,335.6 L830,342.4 L832,345.1 L834,342.9 L836,316.5 L838,330.3 L840,328.8 L842,349.1 L844,349.9 L846,326.2 L848,329.2 L850,319.9 L852,343.4 L854,345.0 L856,339.4 L858,334.6 L860,320.5 L862,336.1 L864,335.7 L866,342.2 L868,339.0 L870,329.3 L872,332.8 L874,334.0 L876,336.7 L878,334.7 L880,335.0 L882,334.8 L884,335.2 L886,335.6 L888,334.2 L890,334.6 L892,336.2 L894,334.9 L896,334.0 L898,335.5 L900,335.5 L902,334.7 L904,335.0 L906,334.7 L908,335.1 L910,335.7 L912,334.4 L914,334.3 L916,336.1 L918,335.3 L920,333.9 L922,335.2 L924,335.6 L926,334.8 L928,335.0 L930,334.8 L932,334.9 L934,335.8 L936,334.7 L938,334.0 L940,335.8 L942,335.6 L944,334.0 L946,334.9 L948,335.6 L950,334.9 L952,335.0 L954,334.8 L956,334.8 L958,335.8 L960,335.0" fill="none" stroke="#2563eb" stroke-width="2" stroke-linejoin="round"/>
+  </g>
+</g>
+<circle cx="400" cy="335.0" r="3" fill="#2563eb"/>
+
+<text x="24" y="398" font-size="14" fill="#0f172a"><tspan font-weight="700">Wi-Fi CSI:</tspan> one link, sees that the channel changed &#8212;</text>
+<text x="24" y="418" font-size="14" fill="#0f172a">not where or who</text>
+
+<!-- ================= RIGHT: mmWave radar ================= -->
+<text x="500" y="70" font-size="16" font-weight="700" fill="#0d9488">MIMO mmWave radar (research)</text>
+
+<!-- beam fan -->
+<path d="M528,215 L824.6,70.3 A330,330 0 0 1 824.6,359.7 Z" fill="#0d9488" fill-opacity="0.07" stroke="#0d9488" stroke-opacity="0.6" stroke-width="1.5"/>
+<!-- occupied range bins -->
+<path d="M587.3,186.1 L646.6,157.1 A132,132 0 0 1 646.6,272.9 L587.3,243.9 A66,66 0 0 0 587.3,186.1 Z" fill="#d97706" fill-opacity="0.13"/>
+<path d="M706.0,128.2 L765.3,99.3 A264,264 0 0 1 765.3,330.7 L706.0,301.8 A198,198 0 0 0 706.0,128.2 Z" fill="#2563eb" fill-opacity="0.12"/>
+<!-- range-bin arcs -->
+<g fill="none" stroke="#0d9488" stroke-opacity="0.55" stroke-width="1.2" stroke-dasharray="4 4">
+  <path d="M587.3,186.1 A66,66 0 0 1 587.3,243.9"/><path d="M646.6,157.1 A132,132 0 0 1 646.6,272.9"/><path d="M706.0,128.2 A198,198 0 0 1 706.0,301.8"/><path d="M765.3,99.3 A264,264 0 0 1 765.3,330.7"/>
+</g>
+<!-- outgoing wavefronts -->
+<g clip-path="url(#fanClip)" fill="none" stroke="#0d9488" stroke-width="2.5">
+  <circle cx="528" cy="215" r="10" opacity="0">
+    <animate attributeName="r" dur="2s" repeatCount="indefinite" values="10;330"/>
+    <animate attributeName="opacity" dur="2s" repeatCount="indefinite" values="0.7;0"/>
+  </circle>
+  <circle cx="528" cy="215" r="10" opacity="0">
+    <animate attributeName="r" dur="2s" begin="1s" repeatCount="indefinite" values="10;330"/>
+    <animate attributeName="opacity" dur="2s" begin="1s" repeatCount="indefinite" values="0.7;0"/>
+  </circle>
+</g>
+<text x="866" y="220" font-size="13" fill="#64748b">range bins</text>
+
+<!-- bearing lines to each person -->
+<g stroke-width="1.5" stroke-dasharray="3 4">
+  <line x1="528" y1="215" x2="625.5" y2="197.8" stroke="#d97706"/>
+  <line x1="528" y1="215" x2="754.0" y2="263.0" stroke="#2563eb"/>
+</g>
+
+<!-- person 1 (near) -->
+<circle cx="625.5" cy="197.8" r="8" fill="none" stroke="#d97706" stroke-width="2">
+  <animate attributeName="r" dur="3s" repeatCount="indefinite" values="8;22"/>
+  <animate attributeName="opacity" dur="3s" repeatCount="indefinite" values="0.8;0"/>
+</circle>
+<circle cx="625.5" cy="197.8" r="7" fill="#d97706">
+  <animate attributeName="r" dur="3s" repeatCount="indefinite" values="7;8.5;7" keyTimes="0;0.4;1"/>
+</circle>
+<text x="623.5" y="177.8" text-anchor="middle" font-size="13" font-weight="600" fill="#b45309" stroke="#f8fafc" stroke-width="4" stroke-linejoin="round">person 1</text>
+<text x="623.5" y="177.8" text-anchor="middle" font-size="13" font-weight="600" fill="#b45309">person 1</text>
+
+<!-- person 2 (far) -->
+<circle cx="754.0" cy="263.0" r="8" fill="none" stroke="#2563eb" stroke-width="2">
+  <animate attributeName="r" dur="2s" repeatCount="indefinite" values="8;22"/>
+  <animate attributeName="opacity" dur="2s" repeatCount="indefinite" values="0.8;0"/>
+</circle>
+<circle cx="754.0" cy="263.0" r="7" fill="#2563eb">
+  <animate attributeName="r" dur="2s" repeatCount="indefinite" values="7;8.5;7" keyTimes="0;0.4;1"/>
+</circle>
+<text x="754.0" y="293.0" text-anchor="middle" font-size="13" font-weight="600" fill="#1d4ed8" stroke="#f8fafc" stroke-width="4" stroke-linejoin="round">person 2</text>
+<text x="754.0" y="293.0" text-anchor="middle" font-size="13" font-weight="600" fill="#1d4ed8">person 2</text>
+
+<!-- wall + radar -->
+<rect x="506" y="150" width="8" height="130" fill="#94a3b8"/>
+<rect x="514" y="200" width="16" height="30" rx="3" fill="#334155"/>
+<circle cx="525" cy="215" r="3" fill="#0d9488"/>
+<text x="500" y="302" font-size="13" fill="#0f172a">MIMO radar</text>
+<text x="500" y="318" font-size="13" fill="#64748b">on the wall</text>
+
+<text x="500" y="398" font-size="14" fill="#0f172a"><tspan font-weight="700">mmWave radar:</tspan> separates people by</text>
+<text x="500" y="418" font-size="14" fill="#0f172a">distance and angle</text>
+</svg>

@@ -102,6 +102,10 @@ static EventGroupHandle_t s_wifi_events;
 static int                s_retry_count = 0;
 static esp_ip4_addr_t     s_gateway;
 static volatile uint32_t  s_dropped = 0;
+static esp_timer_handle_t s_reconnect_timer;
+static bool               s_connected_once = false;
+static esp_ping_handle_t  s_ping = NULL;
+static esp_ip4_addr_t     s_ping_target;
 
 static csi_baseline_t s_base;
 
@@ -110,6 +114,25 @@ static float s_na[CSI_MAX_SUBC];
 static float s_scratch[CSI_MAX_SUBC];
 static float s_fast[CSI_MAX_SUBC];
 static float s_slow[CSI_MAX_SUBC];
+
+/* ------------------------------------------------------------------ */
+/*  How the CSI bytes are packed (same as Steps 05/06)                 */
+/*  Default: HT/HE-LTF, int8 (imag, real) pairs, 2 bytes/subcarrier.   */
+/*  'Capture L-LTF only': the C5 delivers 12-bit samples in LE 16-bit  */
+/*  words, 4 bytes/subcarrier. Step 06 stored nsub already decoded.    */
+/* ------------------------------------------------------------------ */
+static inline float csi_amp(const int8_t *buf, int off, int k)
+{
+#if CONFIG_CSI_LLTF_ONLY
+    const uint8_t *u = (const uint8_t *)buf + off + 4 * k;
+    float im = (float)((int16_t)((uint16_t)(u[0] | (u[1] << 8)) << 4) >> 4);
+    float re = (float)((int16_t)((uint16_t)(u[2] | (u[3] << 8)) << 4) >> 4);
+#else
+    float im = (float)buf[off + 2 * k];
+    float re = (float)buf[off + 2 * k + 1];
+#endif
+    return sqrtf(im * im + re * re);
+}
 
 /* ------------------------------------------------------------------ */
 static void csi_rx_callback(void *ctx, wifi_csi_info_t *info)
@@ -207,7 +230,15 @@ static void detector_task(void *arg)
     bool    present       = false;
     int64_t static_since  = 0;      /* when d first crossed, 0 = not crossed */
     int64_t last_trigger  = 0;
+    int64_t present_since = 0;      /* start of the current PRESENT episode */
+    bool    freeze_expired_logged = false;
     uint32_t accepted = 0, rejected = 0;
+
+    /* no-CSI watchdog: without it a dropped link freezes the last
+     * decision - possibly PRESENT, LED on - until packets come back. */
+    int64_t last_accepted = esp_timer_get_time();
+    bool    no_csi        = false;
+    bool    reseed_fast   = false;
 
     int64_t next_print = esp_timer_get_time() + 250000;
     int64_t next_stat  = esp_timer_get_time() + 10000000;
@@ -218,7 +249,22 @@ static void detector_task(void *arg)
              THR_MOTION, THR_RELEASE, THR_STATIC, CONFIG_CSI_STATIC_SUSTAIN_MS);
 
     while (1) {
-        if (xQueueReceive(s_raw_q, &r, pdMS_TO_TICKS(200)) != pdTRUE) {
+        bool    got = xQueueReceive(s_raw_q, &r, pdMS_TO_TICKS(200)) == pdTRUE;
+        int64_t now = esp_timer_get_time();
+
+        if (!no_csi && (now - last_accepted) / 1000 >= CONFIG_CSI_NO_CSI_TIMEOUT_MS) {
+            no_csi       = true;
+            motion_flag  = false;
+            static_since = 0;
+            last_trigger = 0;
+            if (present) {
+                present = false;
+                led_set(false);
+            }
+            ESP_LOGW(TAG, ">>> no usable CSI for %d ms - link down or CSI shape changed. "
+                          "Presence UNKNOWN, reporting clear.", CONFIG_CSI_NO_CSI_TIMEOUT_MS);
+        }
+        if (!got) {
             continue;
         }
 
@@ -235,14 +281,19 @@ static void detector_task(void *arg)
         }
         shape_ok = true;
         accepted++;
+        last_accepted = now;
+        if (no_csi) {
+            no_csi      = false;
+            reseed_fast = true;     /* s_fast is stale after the gap */
+            live_init   = false;
+            ESP_LOGW(TAG, "CSI flowing again - detecting");
+        }
 
         /* ---- amplitude, normalise (identical to Steps 05/06) ---- */
         int off  = s_base.fwi ? 4 : 0;
         int nsub = s_base.nsub;
         for (int k = 0; k < nsub; k++) {
-            float im = (float)r.buf[off + 2 * k];
-            float re = (float)r.buf[off + 2 * k + 1];
-            s_amp[k] = sqrtf(im * im + re * re);
+            s_amp[k] = csi_amp(r.buf, off, k);
         }
         float med = median_of(s_amp, nsub, s_scratch);
         if (med < 1.0f) med = 1.0f;
@@ -250,14 +301,45 @@ static void detector_task(void *arg)
             s_na[k] = s_amp[k] / med;
         }
 
+        /* The fast EMA starts from the first packet; the slow one starts
+         * from the stored EMPTY-ROOM mean, not from whatever the room looks
+         * like at boot. Seeding it from the first packet meant a boot with
+         * someone in the room took that person as "empty", and even an
+         * empty boot left D inflated for minutes while a single-packet
+         * seed decayed on a 60 s time constant. Step 06 seeds the same way
+         * before measuring d_mean/d_std, so the thresholds match. */
         if (!ema_init) {
-            for (int k = 0; k < nsub; k++) { s_fast[k] = s_na[k]; s_slow[k] = s_na[k]; }
+            for (int k = 0; k < nsub; k++) { s_fast[k] = s_na[k]; s_slow[k] = s_base.mu[k]; }
             ema_init = true;
             continue;
         }
+        if (reseed_fast) {
+            for (int k = 0; k < nsub; k++) { s_fast[k] = s_na[k]; }
+            reseed_fast = false;
+            continue;
+        }
+
+        /* Freeze the slow reference while PRESENT. If it keeps adapting,
+         * it absorbs a person within about a minute (a still person then
+         * reads "clear") and, worse, reports their DEPARTURE as a change
+         * of the same size as their arrival - PRESENT for 1-2 minutes in
+         * an empty room. The cap stops a genuine change made while someone
+         * was present (a moved chair) from holding PRESENT forever.
+         * Residual: a still person who never crosses a threshold is still
+         * absorbed, on the 60 s time constant. */
+        bool freeze_slow = present &&
+            (CONFIG_CSI_SLOW_FREEZE_MAX_S == 0 ||
+             (now - present_since) < (int64_t)CONFIG_CSI_SLOW_FREEZE_MAX_S * 1000000);
+        if (present && !freeze_slow && !freeze_expired_logged) {
+            freeze_expired_logged = true;
+            ESP_LOGW(TAG, "PRESENT for over %d s - letting the empty-room reference adapt again",
+                     CONFIG_CSI_SLOW_FREEZE_MAX_S);
+        }
         for (int k = 0; k < nsub; k++) {
             s_fast[k] += alpha_fast * (s_na[k] - s_fast[k]);
-            s_slow[k] += alpha_slow * (s_na[k] - s_slow[k]);
+            if (!freeze_slow) {
+                s_slow[k] += alpha_slow * (s_na[k] - s_slow[k]);
+            }
         }
 
         /* ---- the two metrics ---- */
@@ -281,8 +363,6 @@ static void detector_task(void *arg)
 
         float m_sigma = (s_base.m_std > 0) ? (live_m - s_base.m_mean) / s_base.m_std : 0.0f;
         float d_sigma = (s_base.d_std > 0) ? (live_d - s_base.d_mean) / s_base.d_std : 0.0f;
-
-        int64_t now = esp_timer_get_time();
 
         /* ---- MOTION branch, with hysteresis ---- */
         if (!motion_flag && m_sigma >= THR_MOTION) {
@@ -314,6 +394,10 @@ static void detector_task(void *arg)
 
         if (new_present != present) {
             present = new_present;
+            if (present) {
+                present_since = now;
+                freeze_expired_logged = false;
+            }
             led_set(present);
             ESP_LOGW(TAG, ">>> %s   (motion %.1f sd, deviation %.1f sd)",
                      present ? "HUMAN DETECTED" : "room clear",
@@ -363,12 +447,14 @@ static void csi_start(void)
         .val_scale_cfg = 0, .dump_ack_en = 1, .reserved = 0,
     };
 #else
+    /* HT/HE-LTF only - no 11g L-LTF, no ACKs (12-bit packed on the C5,
+     * see Step 05). */
     wifi_csi_config_t csi_cfg = {
-        .enable = 1, .acquire_csi_legacy = 1, .acquire_csi_force_lltf = 0,
+        .enable = 1, .acquire_csi_legacy = 0, .acquire_csi_force_lltf = 0,
         .acquire_csi_ht20 = 1, .acquire_csi_ht40 = 0, .acquire_csi_vht = 0,
         .acquire_csi_su = 1, .acquire_csi_mu = 1, .acquire_csi_dcm = 0,
         .acquire_csi_beamformed = 0, .acquire_csi_he_stbc_mode = 2,
-        .val_scale_cfg = 0, .dump_ack_en = 1, .reserved = 0,
+        .val_scale_cfg = 0, .dump_ack_en = 0, .reserved = 0,
     };
 #endif
     ESP_ERROR_CHECK(esp_wifi_set_csi_config(&csi_cfg));
@@ -378,8 +464,21 @@ static void csi_start(void)
 
 static void ping_noop(esp_ping_handle_t hdl, void *args) { }
 
+/* Called on every GOT_IP (see Step 03): resume, or re-aim if the gateway
+ * changed. */
 static void ping_start(esp_ip4_addr_t target)
 {
+    if (s_ping) {
+        if (s_ping_target.addr == target.addr) {
+            esp_ping_start(s_ping);
+            ESP_LOGI(TAG, "ping resumed");
+            return;
+        }
+        esp_ping_stop(s_ping);
+        esp_ping_delete_session(s_ping);
+        s_ping = NULL;
+    }
+
     ip_addr_t target_addr = { 0 };
     target_addr.type = IPADDR_TYPE_V4;
     target_addr.u_addr.ip4.addr = target.addr;
@@ -396,9 +495,27 @@ static void ping_start(esp_ip4_addr_t target)
         .on_ping_success = ping_noop, .on_ping_timeout = ping_noop,
         .on_ping_end = ping_noop, .cb_args = NULL,
     };
-    esp_ping_handle_t ping;
-    ESP_ERROR_CHECK(esp_ping_new_session(&cfg, &cbs, &ping));
-    ESP_ERROR_CHECK(esp_ping_start(ping));
+    esp_err_t err = esp_ping_new_session(&cfg, &cbs, &s_ping);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "ping session failed: %s", esp_err_to_name(err));
+        s_ping = NULL;
+        return;
+    }
+    s_ping_target = target;
+    esp_ping_start(s_ping);
+}
+
+/* Reconnection policy as in Step 03: bounded retries for the first join,
+ * forever (1, 2, 4 ... 30 s, timer-driven) after it. */
+static void reconnect_cb(void *arg)
+{
+    esp_wifi_connect();
+}
+
+static void schedule_reconnect(uint32_t delay_ms)
+{
+    esp_timer_stop(s_reconnect_timer);          /* harmless if idle */
+    esp_timer_start_once(s_reconnect_timer, (uint64_t)delay_ms * 1000);
 }
 
 static void event_handler(void *arg, esp_event_base_t base, int32_t id, void *data)
@@ -407,12 +524,21 @@ static void event_handler(void *arg, esp_event_base_t base, int32_t id, void *da
         esp_wifi_connect();
     } else if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
         wifi_event_sta_disconnected_t *d = (wifi_event_sta_disconnected_t *)data;
-        if (s_retry_count < CONFIG_CSI_WIFI_MAX_RETRY) {
+        if (s_ping) {
+            esp_ping_stop(s_ping);
+        }
+        if (s_connected_once) {
+            uint32_t delay_s = 1u << (s_retry_count < 5 ? s_retry_count : 5);
+            if (delay_s > 30) delay_s = 30;
+            s_retry_count++;
+            ESP_LOGW(TAG, "link lost (reason %d), reconnect attempt %d in %" PRIu32 " s",
+                     d->reason, s_retry_count, delay_s);
+            schedule_reconnect(delay_s * 1000);
+        } else if (s_retry_count < CONFIG_CSI_WIFI_MAX_RETRY) {
             s_retry_count++;
             ESP_LOGW(TAG, "disconnected (reason %d), retry %d/%d",
                      d->reason, s_retry_count, CONFIG_CSI_WIFI_MAX_RETRY);
-            vTaskDelay(pdMS_TO_TICKS(1000));
-            esp_wifi_connect();
+            schedule_reconnect(1000);
         } else {
             xEventGroupSetBits(s_wifi_events, WIFI_FAIL_BIT);
         }
@@ -422,6 +548,8 @@ static void event_handler(void *arg, esp_event_base_t base, int32_t id, void *da
         ESP_LOGI(TAG, "got IP " IPSTR ", gateway " IPSTR,
                  IP2STR(&e->ip_info.ip), IP2STR(&e->ip_info.gw));
         s_retry_count = 0;
+        s_connected_once = true;
+        ping_start(s_gateway);
         xEventGroupSetBits(s_wifi_events, WIFI_CONNECTED_BIT);
     }
 }
@@ -429,6 +557,12 @@ static void event_handler(void *arg, esp_event_base_t base, int32_t id, void *da
 static void wifi_init_sta(void)
 {
     s_wifi_events = xEventGroupCreate();
+
+    const esp_timer_create_args_t rt = {
+        .callback = reconnect_cb, .name = "wifi_reconnect",
+    };
+    ESP_ERROR_CHECK(esp_timer_create(&rt, &s_reconnect_timer));
+
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     esp_netif_create_default_wifi_sta();
@@ -512,7 +646,7 @@ void app_main(void)
     }
 
     csi_start();
-    ping_start(s_gateway);
+    /* The ping was already started by the GOT_IP handler. */
 
     xTaskCreate(detector_task, "detect", 10240, NULL, 4, NULL);
 }

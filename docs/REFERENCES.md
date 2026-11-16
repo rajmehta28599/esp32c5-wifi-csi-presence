@@ -4,6 +4,12 @@
 date. Nothing is quoted from memory — if a version number, byte count or rate
 appears here, it appeared verbatim on the page cited next to it.
 
+**Addendum sweep: 2026-09-24** — §3.4 (identity, counting, vital signs: the
+literature Step 10 is held to) and the RF-coexistence entry in §4.1, same
+rule. Where only an abstract could be read, the entry says so; where a figure
+circulating about a paper could not be found in the paper, the entry says that
+too, rather than repeating it.
+
 Every entry carries a tag, because on this chip the difference matters more
 than the topic does:
 
@@ -451,6 +457,136 @@ The maths transfers; none of this code compiles on C5.
 * *"WiFi CSI-Based Long-Range Through-Wall Human Activity Recognition with the
   ESP32"* — <https://link.springer.com/chapter/10.1007/978-3-031-44137-0_4>
 
+### 3.4 Recognise, count, vital signs — the ceilings Step 10 is held to
+
+*Swept 2026-09-24.* Step 10 adds person recognition, 1-vs-2+ counting,
+breathing and an experimental heart rate. These are the best **verified**
+results found for each, on ESP32 wherever one exists. Every one was obtained under easier conditions
+than one C5 pinging a router: controlled rooms and, where the paper was read
+and says so, dedicated transmitters, several links or trained models. (For
+Gaiba only the abstract was read, so beyond "a controlled environment" its
+setup - including how many links - is unverified.) **Treat them as ceilings, not as what Step 10
+achieves.** None of them is a measurement of this repo, and nothing in this
+repo has run on hardware.
+
+| Task | Best verified result | Under what conditions | What Step 10 does instead |
+|---|---|---|---|
+| Who is it | **95 %** of 2 people, **74 %** of 3 (Gaiba 2024) | controlled environment; abstract only | nearest-centroid on 18 gait features, ≤ 4 enrolled, one walker at a time |
+| Who, with several people | **39–56 %** (Custance 2026) | 1–10 people, six separation methods | refuses: `person:"multiple"` whenever count ≥ 2 — which needs the trained counter |
+| How many | median error **0.35**, **89.8 %** within ±1, 0–5 people (Wi-CaL 2022) | **four** crossing ESP32 links at 100 Hz, trained per room, people walking | one link, 1 vs 2+ movers, trained on site |
+| Heart rate | MAE **0.46 bpm** (Pulse-Fi 2025) | dedicated ESP32 transmitter, 80 Hz, 7 seated people, trained LSTM, optimistic split | FFT peak picking, no training, router pings — `hr_bpm_exp`, unvalidated |
+| Human vs pet/robot | non-human false alarms **63.1 % → 8.4 %** (Zhu 2025) | **not ESP32-specific**: commercial routers and IoT devices, gait/speed features + SVM | not implemented |
+
+* **Gaiba, Bedogni, Gori, Melis & Prandini, "Wi-Fi Sensing for Human
+  Identification Through ESP32 Devices: An Experimental Study"**, *IEEE CCNC
+  2024*, pp. 206–209, DOI `10.1109/CCNC51664.2024.10454655`. Record with
+  abstract: <https://unimore.unifind.cineca.it/resource/item/441836> 🟡
+
+  The abstract reports *"an accuracy of 95% in distinguishing two users while
+  74% in"* distinguishing three, from a data collection *"in a controlled
+  environment"*. **Abstract only:** the full text is behind IEEE Xplore and was
+  not read, so whether the subjects walked or stood, how many ESP32s were
+  used, and which classifier ran are all unverified here. A search-engine
+  summary attributes *"88.9% to 94.5% … from 6 to 2"* users to this paper; that
+  figure appears on no page read in this sweep and is not repeated.
+
+  **How to apply:** this is the ceiling for Step 10's recognition — two or
+  three people, one at a time, one room. Note how fast it falls: 95 % → 74 %
+  from two people to three. That is why Step 10 caps enrolment at four slots,
+  answers `"unknown"` readily, and needs several agreeing windows before it
+  names anyone.
+
+* **Custance, Khan & Parkinson, "Why Commodity WiFi Sensors Fail at
+  Multi-Person Gait Identification: A Systematic Analysis Using ESP32"**,
+  arXiv [2601.02177](https://arxiv.org/abs/2601.02177) (Jan 2026, revised
+  Jun 2026). 🟡 *Abstract only.* Six signal-separation methods, 1–10 people:
+  *"performance remains moderate (39%-56% accuracy)"*, the best (NMF) at 56 %,
+  with 97–99 % feature-space overlap between people. The authors put the limit
+  on *"sensing quality and spatial diversity"* rather than the algorithm.
+  **How to apply:** the reason Step 10 never tries to recognise anyone while
+  its counter says two or more people are moving. That guard only works once
+  the counter has been trained on site: untrained, `count` is 1 whenever
+  anyone is present, so two people walking together are classified as one.
+
+* **Choi, Fujimoto, Matsui, Misaki & Yasumoto, "Wi-CaL: WiFi Sensing and
+  Machine Learning Based Device-Free Crowd Counting and Localization"**,
+  *IEEE Access* **10:24395–24410 (2022)**, DOI `10.1109/ACCESS.2022.3155812`,
+  open access (CC BY 4.0):
+  <https://catalog.lib.kyushu-u.ac.jp/opac_download_md/7161171/7161171.pdf> 🟡
+  * **Four** ESP32 transmitter/receiver pairs, i.e. four links crossing the area
+    *"vertically, horizontally, and diagonally"*, each at 100 packets/s.
+  * 5.5 × 5.5 m meeting room, 0–5 people walking freely: **0.35** error and
+    *"89.8% of counting predictions occurred within-1-person error"*.
+    11 × 5.5 m seminar room, 0–10 people: 0.41 and 81.8 %.
+  * ⚠️ The paper's "MAE" is the **median** absolute error —
+    *"MAE is the median value of the absolute crowd counting errors"*, chosen
+    because of outliers. Do not compare it with a mean absolute error.
+  * Leave-one-session-out cross-validation, LightGBM on per-link features. With
+    fewer links *"the system performance drops when we include only a single
+    link data"* (§V-C6); the per-link figures were not transcribed here.
+
+  **How to apply:** real counting is a multi-link problem. One link can at
+  best separate one mover from several, which is all Step 10 attempts. The
+  second C5 is the first step toward this topology.
+
+* **Kocheta, Bhatia & Obraczka, "Pulse-Fi: A Low-Cost System for Accurate
+  Heart Rate Monitoring Using Wi-Fi Channel State Information"**,
+  *DCOSS-IoT 2025*, DOI `10.1109/DCOSS-IoT65416.2025.00037`. UC Santa Cruz.
+  Author PDF, read in full:
+  <https://inrg.engineering.ucsc.edu/files/2025/05/Pulse_Fi_short_paper_iotdcoss.pdf>
+  · press release: <https://news.ucsc.edu/2025/09/pulse-fi-wifi-heart-rate/> 🟡
+  * ESP32 dataset: **two** ESP32s (a dedicated transmitter and a receiver),
+    80 Hz, 20 MHz / 64 sub-carriers, **seven participants seated** in a chair
+    between them at 1, 2 and 3 m for 5 minutes each, with a finger **pulse
+    oximeter** as ground truth.
+  * Method: band-pass 0.8–2.17 Hz, then a **trained LSTM** — not a
+    spectral-peak picker.
+  * Result: **MAE 0.46 bpm** with 30 s windows (0.43 / 0.48 / 0.49 at
+    1 / 2 / 3 m).
+  * ⚠️ **Read the evaluation before quoting that number.** Windows overlap by
+    all but one packet (*"the first window is packets 1–100, the next is
+    2–101"*) and are split 64/16/20 into train/validation/test *"ensuring
+    generalization by shuffling"*. Test windows therefore have near-identical
+    neighbours in the training set. That is not a held-out-person test, and
+    0.46 bpm should be read as optimistic.
+  * ⚠️ **The press coverage mixes the two datasets.** *"118 participants"* and
+    *"sitting, standing, lying down, or walking"* describe the second dataset
+    (EHealth: a Raspberry Pi 4B with Nexmon at 5 GHz / 80 MHz, a Galaxy Watch
+    as reference), not the ESP32 one. The lab page's *"0.08 BPM"* appears
+    nowhere in the paper. The nearest figure, 0.07 bpm, is a *prior* work's
+    best single position on EHealth.
+
+  **How to apply:** this is the most credible ESP32 heart-rate result found.
+  It still needed a dedicated transmitter, a seated subject, a trained model
+  and a reference device. Step 10 has no training and runs off a router's ping
+  replies. That is why its output is called `hr_bpm_exp` and why the README
+  tells you to check it with `tools/vitals_validate.py` before believing it.
+  It is the same standard §5 applies to RuView.
+
+* **Zhu, Hu, Wu, Wang, Wang & Liu, "Scaling WiFi Sensing for Ubiquitous Home
+  Monitoring: Lessons from Real-World Deployment on Millions of Devices"**,
+  arXiv [2506.04322](https://arxiv.org/abs/2506.04322) (v1 Jun 2025, v2 Aug
+  2026). Authors at ADT Research (Rockville, MD) and the University of Hong
+  Kong. ⚪
+  * 280 edge devices in 15 homes over two years, > 4 M motion samples. CSI at
+    100 Hz from commercial routers and IoT devices (Qualcomm, Broadcom,
+    MediaTek and Espressif ESP8266 among the chipsets). **Per-device antenna
+    counts are not stated** in the parts read, so do not assume this is a
+    single-antenna result.
+  * Pets, robot vacuums and oscillating appliances *"generated false positives
+    in 63.1% of detection events"*. An SVM on *"gait existence, stride length,
+    cycle time, average speed, speed variance, and speed percentiles"* plus six
+    statistical features cut that to **8.4 %**.
+  * On identity, verbatim: *"our system does not currently identify individual
+    users; when multiple people are near the same device, overlapping motion
+    signals limit differentiation, leaving the single-link multi-user sensing
+    problem an open challenge."*
+
+  **How to apply:** two things. Gait/speed features are the route to the
+  README's "not human-specific" row, which Step 10 does **not** attempt. And a
+  team shipping on routers at scale calls single-link multi-user sensing
+  unsolved. Step 10 documents the same limit rather than claiming past it.
+
 ---
 
 ## 4. Platform, standards, datasets ⚪
@@ -466,6 +602,16 @@ The maths transfers; none of this code compiles on C5.
   buffer shared between the TX and RX chips to eliminate frequency offset** (the
   reason their phase-based work is possible and single-board phase work is not),
   and copper sheets to shape the sensing range.
+* **ESP-IDF "RF Coexistence" guide, `esp32c5` page** —
+  <https://docs.espressif.com/projects/esp-idf/en/latest/esp32c5/api-guides/coexist.html>
+  *(added 2026-09-24)*. *"Each chip has only one RF path, shared by these two
+  or three modules … time-division multiplexing is used"* between the chip's
+  radios, Wi-Fi and Bluetooth LE among them. Wi-Fi STA connected + BLE scan is
+  listed as a supported combination. **Relevant to Step 10's next steps:** BLE
+  (a phone or watch as the identity token) is the practical route to *who*, but
+  every millisecond the radio spends on BLE is one it is not receiving the CSI
+  this project runs on. Measure the CSI rate with BLE on before relying on
+  both.
 * **ESP-IDF Workshop: ESP32-C5** —
   <https://developer.espressif.com/workshops/esp-idf-with-esp32-c5/>
   Dual-band Wi-Fi 6, partition tables, OTA, low-power/ULP. Not CSI, but the
@@ -534,6 +680,12 @@ self-reported; none are independently validated.
   figures or peer review are presented on the site.** The heartbeat claim in
   particular is far beyond what any of the peer-reviewed work in §3 demonstrates
   on single-antenna commodity hardware — treat it as unsubstantiated.
+  *(2026-09-24)* This repo holds its own Step 10 to the same standard. Its heart
+  rate is named `hr_bpm_exp` in the JSON and stays **experimental and
+  unvalidated** until someone checks it against a chest strap or pulse oximeter
+  with `tools/vitals_validate.py`. §3.4 shows what the best verified ESP32
+  heart-rate result took: a dedicated transmitter, a seated subject, a trained
+  model and a reference device.
 * **Espressif video: "ESP-CSI: Transforming Wi-Fi into a Sensing Platform"** —
   <https://www.youtube.com/watch?v=JjdpzM6zVJ8>
 * **Espressif video: "ESP-WIFI-CSI: Espressif's Human-Detection Solution"** —
@@ -569,9 +721,44 @@ Ordered by value per hour, given that **no step has run on silicon yet**:
 7. **Then, if you want a real accuracy jump:** the PADS correlation-matrix
    eigenvalue (§3.2) as the motion score, and DeMan's breathing model (§3.2)
    for the static-presence branch.
+   🧪 *Partly implemented, experimental and unvalidated — Step 10
+   (2026-09-24):*
+   * **DeMan-style breathing** is in `step10_recognise_count_vitals/main/vitals.c`.
+     It takes DeMan's frequency diversity: the spectra of 12 sub-carriers,
+     each normalised to unit power in the band, are summed with equal weight
+     (a power sum, so channels in opposite phase cannot cancel). It uses an
+     FFT peak rather than DeMan's sinusoidal fit. Confident breathing can
+     hold a still person PRESENT (`CSI_VITALS_HOLDS_PRESENCE`), but only in a
+     still spell that began while PRESENT.
+   * **Stillness for it comes from a separate motion gate**
+     (`motion_gate.c`), not from Step 08's `M`. Step 08's 0.5 s fast EMA has
+     its corner at ~0.32 Hz, inside the breathing band, so breathing itself
+     held Step 08's motion flag on in Step 10's synthetic end-to-end test and
+     starved the breathing analysis. The gate high-passes the sub-carrier-group
+     signals at ~1.6 Hz and compares their energy with the empty-room level
+     (JSON `hf`). This is this repo's design, not a published method.
+   * **The PADS eigenvalue idea** is used for 1-vs-2+ counting in
+     `count_est.c`, on the 8 × 8 sub-carrier-group covariance, without a full
+     eigen-decomposition. The participation ratio (Σλ)² / Σλ² is computed
+     exactly as trace(C)² / ‖C‖²_F. λ₂/λ₁ and λ₁/Σλ come from power iteration
+     (`dsp_top_eig`), with deflation and a 2 × 2 Rayleigh–Ritz step for λ₂.
+     The top eigenvector, also found by power iteration, drives the gait
+     features in `gait_id.c`. The Jacobi solver `dsp_sym_eig` remains for the
+     host tests only: the firmware's linker map lists it among the discarded
+     sections. None of this is the motion score: Step 10's presence still
+     triggers on Step 08's `M`. The "motion score" half of this item is still
+     open.
+
+   All of it is host-tested on synthetic signals only. Nothing has been
+   checked in a real room.
 8. **Benchmark against Espressif's stack.** ✅ *Done — `step09_espressif_sensing/`
    builds and runs `esp_wifi_sensing` against the same board, router and room.
    Flash it and Step 08 alternately and compare the numbers directly.*
+9. **Before believing Step 10's heart rate, validate it.** Record
+   `presence_monitor.py --csv` next to a chest strap or pulse oximeter and run
+   `tools/vitals_validate.py` (§3.4 explains why this is not optional). Do the
+   same for recognition: enrol two people, then log who walked past and when,
+   and count the hits yourself.
 
 ---
 
@@ -623,5 +810,7 @@ headroom is real *and* the rate is short of the 90–290/s bracket in §1.2.
 
 ---
 
-*Compiled 2026-09-07. Versions, issue states and figures were current on that
-date; re-check §2 component versions before depending on them.*
+*Compiled 2026-09-07; §3.4 and the §4.1 coexistence entry added 2026-09-24;
+§6 item 7 brought in line with the final Step 10 code the same day.
+Versions, issue states and figures were current on those dates; re-check §2
+component versions before depending on them.*

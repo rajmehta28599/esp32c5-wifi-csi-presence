@@ -1,0 +1,45 @@
+   0.21 I (314) csi-human: =========================================
+   0.21 I (314) csi-human:  ESP32-C5 Wi-Fi CSI human detector
+   0.21 I (315) csi-human:  Step 10: + recognise / count / vitals (EXPERIMENTAL)
+   0.21 I (315) csi-human: =========================================
+   0.21 I (318) csi-human: baseline found: 106 bytes CSI, 26/26 subcarriers, ch 1, 50.2 Hz
+   0.21 I (319) csi-human: motion gate: moving at hf >= 4.00, 624 bytes static
+   0.21 I (319) csi-human: vitals: breathing + EXPERIMENTAL heart rate, 30984 bytes static
+   0.21 I (320) csi-human: no recognition model yet - enrol people with 'enroll <slot> <name>'
+   0.21 I (320) csi-human: no vitals log yet - it fills as recognised people sit still
+   0.21 I (320) csi-human: no count model yet - 'count-train 1', then 'count-train 2'
+   0.21 I (321) pp: pp rom version: 78a72e9d5
+   0.21 I (322) net80211: net80211 rom version: 78a72e9d5
+   0.21 I (323) wifi:wifi driver task: 40838ca4, prio:23, stack:6656, core=0
+   0.21 I (328) wifi:wifi firmware version: 00ad238
+   0.21 I (328) wifi:wifi certification version: v7.0
+   0.21 I (329) wifi:config NVS flash: enabled
+   0.21 I (329) wifi:config nano formatting: disabled
+   0.21 I (329) wifi:mac_version:HAL_MAC_ESP32AX_752MP_ECO2,ut_version:N, band mode:0x1
+   0.21 I (329) wifi:Init data frame dynamic rx buffer num: 32
+   0.21 I (330) wifi:Init static rx mgmt buffer num: 5
+   0.21 I (330) wifi:Init management short buffer num: 32
+   0.21 I (330) wifi:Init dynamic tx buffer num: 32
+   0.21 I (330) wifi:Init static tx FG buffer num: 2
+   0.21 I (331) wifi:Init static rx buffer size: 2212 (rxctrl:64, csi:512)
+   0.21 I (331) wifi:Init static rx buffer num: 16
+   0.21 I (331) wifi:Init dynamic rx buffer num: 32
+   0.21 I (332) wifi_init: rx ba win: 6
+   0.21 I (332) wifi_init: accept mbox: 6
+   0.21 I (332) wifi_init: tcpip mbox: 32
+   0.21 I (332) wifi_init: udp mbox: 6
+   0.21 I (332) wifi_init: tcp mbox: 6
+   0.21 I (332) wifi_init: tcp tx win: 5760
+   0.21 I (333) wifi_init: tcp rx win: 5760
+   0.21 I (333) wifi_init: tcp mss: 1440
+   0.21 I (333) wifi_init: WiFi IRAM OP enabled
+   0.21 I (333) wifi_init: WiFi RX IRAM OP enabled
+   0.21 I (333) wifi_init: WiFi SLP IRAM OP enabled
+   1.03 W (334) wifi:Password length matches WPA2 standards, authmode threshold changes W (3397) csi-human: disconnected (reason 201), retry 1/10
+   4.47 W (6809) csi-human: disconnected (reason 201), retry 2/10
+   7.93 W (10222) csi-human: disconnected (reason 201), retry 3/10
+  11.17 W (13634) csi-human: disconnected (reason 201), retry 4/10
+  14.64 W (17047) csi-human: disconnected (reason 201), retry 5/10
+  18.12 W (20459) csi-human: disconnected (reason 201), retry 6/10
+  21.57 W (23872) csi-human: disconnected (reason 201), retry 7/10
+  24.83 W (27284) csi-human: disconnected (reason 201), retry 8/10

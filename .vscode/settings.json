@@ -16,56 +16,26 @@
     "**/sdkconfig.old": true
   },
   "C_Cpp.intelliSenseEngine": "disabled",
-  "clangd.arguments": [
-    "--background-index",
-    "--query-driver=**",
-    "--compile-commands-dir=d:\\ESP32C5_CSI\\build"
-  ],
-  "clangd.path": "C:\\Espressif\\tools\\esp-clang\\esp-20.1.1_20250829\\esp-clang\\bin\\clangd.exe",
   // -----------------------------------------------------------------
-  //  DEAD KEYS. idf.espIdfPath, idf.toolsPath, idf.pythonBinPath and
-  //  idf.customExtraPaths are absent from the ESP-IDF extension schema
-  //  in BOTH versions installed on this machine (2.1.0 and 2.2.0), so
-  //  they are read by nothing. Kept only to record which ESP-IDF this
-  //  project wants - delete them freely.
-  //
-  //  The key the extension actually reads is idf.currentSetup, and it
-  //  must equal one of the "path" entries in the EIM registry, which on
-  //  Windows defaults to C:/Espressif/tools/eim_idf.json. When it does
-  //  not resolve, the extension falls back to %USERPROFILE%/esp/esp-idf
-  //  - which does not exist here - so the include() on line 22 of the
-  //  root CMakeLists.txt fails, CMake then configures a HOST build, and
-  //  esp-clang reports "compiler is broken". Let the extension write
-  //  idf.currentSetup through its own setup picker; do not hand-edit it.
+  //  2026-10-12 - NO MACHINE PATHS IN THIS FILE (or any step's).
+  //  This repo is opened from Windows (D:\ESP32C5_CSI) AND from Ubuntu
+  //  (/mnt/vol1/ESP32C5_CSI) on the same dual-boot disk. Folder settings
+  //  beat user settings, so a C:\ path here (idf.currentSetup,
+  //  idf.customExtraVars IDF_PATH, clangd.path, --compile-commands-dir)
+  //  broke the extension on Linux. Those keys, and idf.port, now live in
+  //  each OS's Antigravity USER settings; templates and the reasoning are
+  //  in docs/ide/ (README.md there). After pulling this on Windows, paste
+  //  docs/ide/windows-user-settings.jsonc into the user settings once.
   // -----------------------------------------------------------------
-  "idf.espIdfPath": "C:\\esp\\v6.0.2\\esp-idf",
-  "idf.currentSetup": "C:\\esp\\v6.0.2\\esp-idf",
-  "idf.toolsPath": "C:\\Espressif\\tools",
-  "idf.pythonBinPath": "C:\\Espressif\\tools\\python\\v6.0.2\\venv\\Scripts\\python.exe",
-  "idf.customExtraPaths": "C:\\Espressif\\tools\\riscv32-esp-elf\\esp-15.2.0_20251204\\riscv32-esp-elf\\bin;C:\\Espressif\\tools\\riscv32-esp-elf-gdb\\17.1_20260402\\riscv32-esp-elf-gdb\\bin;C:\\Espressif\\tools\\xtensa-esp-elf\\esp-15.2.0_20251204\\xtensa-esp-elf\\bin;C:\\Espressif\\tools\\xtensa-esp-elf-gdb\\17.1_20260402\\xtensa-esp-elf-gdb\\bin;C:\\Espressif\\tools\\esp32ulp-elf\\2.38_20240113\\esp32ulp-elf\\bin;C:\\Espressif\\tools\\cmake\\4.0.3\\bin;C:\\Espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20260424\\openocd-esp32\\bin;C:\\Espressif\\tools\\ninja\\1.12.1;C:\\Espressif\\tools\\idf-exe\\1.0.3;C:\\Espressif\\tools\\ccache\\4.12.1\\ccache-4.12.1-windows-x86_64;C:\\Espressif\\tools\\dfu-util\\0.11\\dfu-util-0.11-win64;C:\\Espressif\\tools\\python\\v6.0.2\\venv\\Scripts",
-  "idf.customExtraVars": {
-    "OPENOCD_SCRIPTS": "C:\\Espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20260424\\openocd-esp32\\share\\openocd\\scripts",
-    "ESP_ROM_ELF_DIR": "C:\\Espressif\\tools\\esp-rom-elfs\\20241011",
-    "IDF_CCACHE_ENABLE": "1"
-  },
   "idf.flashBaudRate": "460800",
   "idf.monitorBaudRate": "115200",
   "idf.enableCCache": true,
   "idf.saveBeforeBuild": true,
   "idf.notificationMode": "All",
-  // Serial port for the ESP-IDF extension. COM37 is the C5 built-in
-  // USB-Serial-JTAG (VID_303A PID_1001).
-  //
-  // "detect", the value that used to be here, was NOT wrong - it is the
-  // extension's own documented default for idf.port/idf.portWin. The
-  //     [Serial port] The "path" argument must be of type string.
-  // errors are a SYMPTOM of the ESP-IDF setup below not resolving: with no
-  // setup there is no esptool to run detection with, so detection yields
-  // undefined. Naming the port explicitly sidesteps detection entirely.
-  "idf.port": "COM37",
-  "idf.portWin": "COM37",
   "idf.enableSerialPortChipIdRequest": true,
   "idf.openOcdConfigs": [
     "board/esp32c5-builtin.cfg"
-  ]
+  ],
+  "idf.flashType": "UART",
+  "idf.currentSetup": "/home/rajmehta/.espressif/v6.1/esp-idf"
 }

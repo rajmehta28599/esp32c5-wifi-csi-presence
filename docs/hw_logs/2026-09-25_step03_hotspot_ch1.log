@@ -1,0 +1,138 @@
+   0.00 listener start
+   0.00 port open
+   1.02 E (37458) step03: WiFi failed - rerun Step 02 and fix credentialI (44459) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+   1.02 E (44459) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+   1.02 E (44459) step03: (b) you are associated, (c) the ping target is reachable.
+   2.03 I (45459) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+   2.03 E (45459) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+   2.03 E (45459) step03: (b) you are associated, (c) the ping target is reachable.
+   3.05 I (46460) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 190808 B
+   3.05 E (46460) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+   3.05 E (46460) step03: (b) you are associated, (c) the ping target is reachable.
+   4.07 I (47460) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 190808 B
+   4.07 E (47460) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+   4.07 E (47460) step03: (b) you are associated, (c) the ping target is reachable.
+   5.08 I (48460) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+   5.08 E (48460) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+   5.08 E (48460) step03: (b) you are associated, (c) the ping target is reachable.
+   6.10 I (49460) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+   6.10 E (49460) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+   6.10 E (49460) step03: (b) you are associated, (c) the ping target is reachable.
+   7.12 I (50460) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 190808 B
+   7.12 E (50460) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+   7.12 E (50460) step03: (b) you are associated, (c) the ping target is reachable.
+   7.94 I (51460) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+   7.94 E (51460) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+   7.94 E (51460) step03: (b) you are associated, (c) the ping target is reachable.
+   8.95 I (52460) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+   8.95 E (52460) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+   8.95 E (52460) step03: (b) you are associated, (c) the ping target is reachable.
+   9.98 I (53460) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+   9.98 E (53460) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+   9.98 E (53460) step03: (b) you are associated, (c) the ping target is reachable.
+  11.00 I (54460) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 190808 B
+  11.00 E (54460) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  11.00 E (54460) step03: (b) you are associated, (c) the ping target is reachable.
+  12.01 I (55460) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  12.01 E (55460) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  12.01 E (55460) step03: (b) you are associated, (c) the ping target is reachable.
+  13.03 I (56461) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  13.03 E (56461) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  13.03 E (56461) step03: (b) you are associated, (c) the ping target is reachable.
+  14.04 I (57461) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 190808 B
+  14.04 E (57461) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  14.04 E (57461) step03: (b) you are associated, (c) the ping target is reachable.
+  15.06 I (58461) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 190808 B
+  15.06 E (58461) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  15.06 E (58461) step03: (b) you are associated, (c) the ping target is reachable.
+  16.08 I (59461) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  16.08 E (59461) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  16.08 E (59461) step03: (b) you are associated, (c) the ping target is reachable.
+  17.10 I (60461) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  17.10 E (60461) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  17.10 E (60461) step03: (b) you are associated, (c) the ping target is reachable.
+  18.11 I (61461) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 190808 B
+  18.11 E (61461) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  18.11 E (61461) step03: (b) you are associated, (c) the ping target is reachable.
+  19.13 I (62462) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  19.13 E (62462) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  19.13 E (62462) step03: (b) you are associated, (c) the ping target is reachable.
+  19.94 I (63462) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 190808 B
+  19.94 E (63462) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  19.94 E (63462) step03: (b) you are associated, (c) the ping target is reachable.
+  20.96 I (64462) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  20.96 E (64462) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  20.96 E (64462) step03: (b) you are associated, (c) the ping target is reachable.
+  21.97 I (65462) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  21.97 E (65462) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  21.97 E (65462) step03: (b) you are associated, (c) the ping target is reachable.
+  22.99 I (66462) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  22.99 E (66462) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  22.99 E (66462) step03: (b) you are associated, (c) the ping target is reachable.
+  24.02 I (67462) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 190808 B
+  24.02 E (67462) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  24.02 E (67462) step03: (b) you are associated, (c) the ping target is reachable.
+  25.03 I (68463) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  25.03 E (68463) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  25.03 E (68463) step03: (b) you are associated, (c) the ping target is reachable.
+  26.05 I (69464) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  26.05 E (69464) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  26.05 E (69464) step03: (b) you are associated, (c) the ping target is reachable.
+  27.06 I (70465) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  27.06 E (70465) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  27.06 E (70465) step03: (b) you are associated, (c) the ping target is reachable.
+  28.08 I (71465) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  28.08 E (71465) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  28.08 E (71465) step03: (b) you are associated, (c) the ping target is reachable.
+  29.11 I (72465) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  29.11 E (72465) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  29.11 E (72465) step03: (b) you are associated, (c) the ping target is reachable.
+  30.13 I (73465) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  30.13 E (73465) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  30.13 E (73465) step03: (b) you are associated, (c) the ping target is reachable.
+  30.94 I (74465) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  30.94 E (74465) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  30.94 E (74465) step03: (b) you are associated, (c) the ping target is reachable.
+  31.95 I (75465) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  31.95 E (75465) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  31.95 E (75465) step03: (b) you are associated, (c) the ping target is reachable.
+  32.96 I (76466) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 190808 B
+  32.96 E (76466) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  32.96 E (76467) step03: (b) you are associated, (c) the ping target is reachable.
+  33.98 I (77467) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  33.98 E (77467) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  33.98 E (77467) step03: (b) you are associated, (c) the ping target is reachable.
+  34.99 I (78467) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  34.99 E (78467) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  34.99 E (78467) step03: (b) you are associated, (c) the ping target is reachable.
+  36.01 I (79468) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  36.01 E (79468) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  36.01 E (79468) step03: (b) you are associated, (c) the ping target is reachable.
+  37.02 I (80469) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 190808 B
+  37.02 E (80469) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  37.02 E (80469) step03: (b) you are associated, (c) the ping target is reachable.
+  38.04 I (81470) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  38.04 E (81470) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  38.04 E (81470) step03: (b) you are associated, (c) the ping target is reachable.
+  39.06 I (82470) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  39.06 E (82470) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  39.06 E (82470) step03: (b) you are associated, (c) the ping target is reachable.
+  40.07 I (83470) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  40.07 E (83470) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  40.07 E (83470) step03: (b) you are associated, (c) the ping target is reachable.
+  41.09 I (84470) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  41.09 E (84470) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  41.09 E (84470) step03: (b) you are associated, (c) the ping target is reachable.
+  42.11 I (85470) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  42.11 E (85470) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  42.11 E (85470) step03: (b) you are associated, (c) the ping target is reachable.
+  43.13 I (86470) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  43.13 E (86470) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  43.13 E (86470) step03: (b) you are associated, (c) the ping target is reachable.
+  44.14 I (87470) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 190808 B
+  44.14 E (87470) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  44.14 E (87470) step03: (b) you are associated, (c) the ping target is reachable.
+  44.96 I (88470) step03: CSI packets:      0 total |   0.0 /s | last len 0 B | rssi 0 dBm | ch 1 | heap 191084 B
+  44.96 E (88470) step03: NO CSI YET. Check: (a) CONFIG_ESP_WIFI_CSI_ENABLED=y,
+  44.96 E (88470) step03: (b) you are associated, (c) the ping target is reachable.
+  45.17 listener end

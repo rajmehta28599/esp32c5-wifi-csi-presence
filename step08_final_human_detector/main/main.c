@@ -103,6 +103,10 @@ static EventGroupHandle_t s_wifi_events;
 static int                s_retry_count = 0;
 static esp_ip4_addr_t     s_gateway;
 static volatile uint32_t  s_dropped = 0;
+static esp_timer_handle_t s_reconnect_timer;
+static bool               s_connected_once = false;
+static esp_ping_handle_t  s_ping = NULL;
+static esp_ip4_addr_t     s_ping_target;
 
 static csi_baseline_t s_base;
 static bool           s_have_baseline = false;
@@ -137,6 +141,45 @@ static void csi_rx_callback(void *ctx, wifi_csi_info_t *info)
     if (xQueueSend(s_raw_q, &r, 0) != pdTRUE) {
         s_dropped++;
     }
+}
+
+/* ------------------------------------------------------------------ */
+/*  How the CSI bytes are packed                                       */
+/*                                                                     */
+/*  Default mode captures only HT-LTF / HE-LTF (11n / 11ax ping        */
+/*  replies): int8 (imag, real) pairs, 2 bytes per subcarrier.         */
+/*  'Capture L-LTF only' forces the L-LTF, which the C5 delivers as    */
+/*  12-bit samples in little-endian 16-bit words: 4 bytes per          */
+/*  subcarrier, 26 subcarriers in the 104 valid bytes of a 106-byte    */
+/*  frame. Read as int8 pairs, those bytes give numbers of plausible   */
+/*  size that mean nothing. esp-radar decodes C5 L-LTF the same way;   */
+/*  lltf_bit_mode stays at its 12-bit default (see Step 05).           */
+/* ------------------------------------------------------------------ */
+#if CONFIG_CSI_LLTF_ONLY
+#define CSI_BYTES_PER_SUBC 4
+#else
+#define CSI_BYTES_PER_SUBC 2
+#endif
+
+static int csi_nsub(uint16_t len, uint8_t fwi)
+{
+    int off   = fwi ? 4 : 0;
+    int valid = (CSI_BYTES_PER_SUBC == 4) ? (len & ~3) : len;
+    int n     = (valid - off) / CSI_BYTES_PER_SUBC;
+    return n > 0 ? n : 0;
+}
+
+static inline float csi_amp(const int8_t *buf, int off, int k)
+{
+#if CONFIG_CSI_LLTF_ONLY
+    const uint8_t *u = (const uint8_t *)buf + off + 4 * k;
+    float im = (float)((int16_t)((uint16_t)(u[0] | (u[1] << 8)) << 4) >> 4);
+    float re = (float)((int16_t)((uint16_t)(u[2] | (u[3] << 8)) << 4) >> 4);
+#else
+    float im = (float)buf[off + 2 * k];
+    float re = (float)buf[off + 2 * k + 1];
+#endif
+    return sqrtf(im * im + re * re);
 }
 
 /* ------------------------------------------------------------------ */
@@ -282,7 +325,7 @@ static float shape_lock(const csi_raw_t *r)
     s_locked_len  = s_shape_len[best];
     s_locked_fwi  = r->fwi;
     s_locked_ch   = r->channel;
-    s_locked_nsub = (s_locked_len - (s_locked_fwi ? 4 : 0)) / 2;
+    s_locked_nsub = csi_nsub(s_locked_len, s_locked_fwi);
     if (s_locked_nsub > CSI_MAX_SUBC) s_locked_nsub = CSI_MAX_SUBC;
     return total ? (100.0f * s_shape_cnt[best] / total) : 0.0f;
 }
@@ -334,7 +377,14 @@ static void pipeline_task(void *arg)
 
     bool     motion_flag = false, present = false;
     int64_t  static_since = 0, last_trigger = 0;
+    int64_t  present_since = 0;         /* start of the current PRESENT episode */
+    bool     freeze_expired_logged = false;
     uint32_t accepted = 0, wrong_shape = 0;
+
+    /* no-CSI watchdog: without it a dropped link or a CSI shape change
+     * freezes the last decision - possibly PRESENT, LED on - forever. */
+    int64_t  last_accepted = esp_timer_get_time();
+    bool     no_csi = false, reseed_fast = false;
 
     int64_t next_json  = esp_timer_get_time() + 1000000;
     int64_t next_human = esp_timer_get_time() + 250000;
@@ -379,13 +429,19 @@ static void pipeline_task(void *arg)
                     ESP_LOGE(TAG, "Only %.1f%% dominant - enable 'Capture L-LTF only'.", share);
                 }
 
-                /* Does the stored baseline still apply? */
-                bool usable = s_have_baseline &&
-                              s_base.csi_len == s_locked_len &&
-                              s_base.nsub    == (uint16_t)s_locked_nsub &&
-                              s_base.fwi     == s_locked_fwi &&
-                              s_base.n_selected >= 8 &&
-                              s_base.m_std > 0.0f;
+                /* Does the stored baseline still apply? A baseline pictures
+                 * one channel's subcarriers, so one from another channel is
+                 * stale even when the shape matches (docs/DECISIONS.md D-168;
+                 * channel 0 on either side = not known, accepted). */
+                bool shape_ok = s_have_baseline &&
+                                s_base.csi_len == s_locked_len &&
+                                s_base.nsub    == (uint16_t)s_locked_nsub &&
+                                s_base.fwi     == s_locked_fwi &&
+                                s_base.n_selected >= 8 &&
+                                s_base.m_std > 0.0f;
+                bool same_ch  = s_base.channel == 0 || s_locked_ch == 0 ||
+                                s_base.channel == s_locked_ch;
+                bool usable   = shape_ok && same_ch;
 
 #if CONFIG_CSI_FORCE_RECALIBRATE
                 if (usable) {
@@ -401,10 +457,16 @@ static void pipeline_task(void *arg)
                              s_base.n_selected, rate_hz);
                     phase = PH_SETTLE;
                 } else {
-                    if (s_have_baseline) {
-                        ESP_LOGW(TAG, "stored baseline does not match this CSI shape - recalibrating");
-                    } else {
+                    if (!s_have_baseline) {
                         ESP_LOGW(TAG, "no stored baseline - calibrating");
+                    } else if (shape_ok && !same_ch) {
+                        ESP_LOGW(TAG, "stored baseline was calibrated on channel %u, now channel %u - "
+                                      "recalibrating", s_base.channel, s_locked_ch);
+                    } else if (shape_ok) {
+                        /* Only reachable with CONFIG_CSI_FORCE_RECALIBRATE. */
+                        ESP_LOGW(TAG, "recalibrating (CSI_FORCE_RECALIBRATE)");
+                    } else {
+                        ESP_LOGW(TAG, "stored baseline does not match this CSI shape - recalibrating");
                     }
                     phase = PH_LEAVE;
                 }
@@ -421,15 +483,20 @@ static void pipeline_task(void *arg)
         }
         accepted++;
         phase_packets++;
+        last_accepted = esp_timer_get_time();
+        if (no_csi) {
+            no_csi      = false;
+            reseed_fast = true;     /* s_fast is stale after the gap */
+            live_init   = false;
+            ESP_LOGW(TAG, "CSI flowing again - detecting");
+        }
 
         /* ---- amplitude + normalise ---- */
         {
             int off  = s_locked_fwi ? 4 : 0;
             int nsub = s_locked_nsub;
             for (int k = 0; k < nsub; k++) {
-                float im = (float)r.buf[off + 2 * k];
-                float re = (float)r.buf[off + 2 * k + 1];
-                s_amp[k] = sqrtf(im * im + re * re);
+                s_amp[k] = csi_amp(r.buf, off, k);
             }
             float med = median_of(s_amp, nsub, s_scratch);
             if (med < 1.0f) med = 1.0f;
@@ -437,13 +504,48 @@ static void pipeline_task(void *arg)
                 s_na[k] = s_amp[k] / med;
             }
 
+            /* Seeding: the fast EMA always starts from the first packet.
+             * The slow EMA - the empty-room reference the static branch
+             * compares against - starts from the STORED empty-room mean
+             * when a baseline was just accepted (PH_SETTLE). Seeding it
+             * from the first packet meant a boot with someone in the room
+             * took that person as "empty", and even an empty boot left D
+             * inflated for minutes while a one-packet seed decayed on a
+             * 60 s time constant. A fresh calibration re-seeds it from the
+             * new mu in PH_SELECT, before phase B measures d_mean/d_std. */
             if (!ema_init) {
-                for (int k = 0; k < nsub; k++) { s_fast[k] = s_na[k]; s_slow[k] = s_na[k]; }
+                for (int k = 0; k < nsub; k++) {
+                    s_fast[k] = s_na[k];
+                    s_slow[k] = (phase == PH_SETTLE) ? s_base.mu[k] : s_na[k];
+                }
                 ema_init = true;
+            } else if (reseed_fast) {
+                for (int k = 0; k < nsub; k++) { s_fast[k] = s_na[k]; }
+                reseed_fast = false;
             } else {
+                /* Freeze the slow reference while PRESENT. If it keeps
+                 * adapting, it absorbs a person within about a minute (a
+                 * still person then reads "clear") and reports their
+                 * DEPARTURE as a change as large as their arrival -
+                 * PRESENT for 1-2 minutes in an empty room. The cap stops
+                 * a genuine change made while someone was present (a moved
+                 * chair) from holding PRESENT forever. Residual: a still
+                 * person who never crosses a threshold is still absorbed,
+                 * on the 60 s time constant. */
+                int64_t now_us = esp_timer_get_time();
+                bool freeze_slow = (phase == PH_DETECT) && present &&
+                    (CONFIG_CSI_SLOW_FREEZE_MAX_S == 0 ||
+                     (now_us - present_since) < (int64_t)CONFIG_CSI_SLOW_FREEZE_MAX_S * 1000000);
+                if (phase == PH_DETECT && present && !freeze_slow && !freeze_expired_logged) {
+                    freeze_expired_logged = true;
+                    ESP_LOGW(TAG, "PRESENT for over %d s - letting the empty-room reference adapt again",
+                             CONFIG_CSI_SLOW_FREEZE_MAX_S);
+                }
                 for (int k = 0; k < nsub; k++) {
                     s_fast[k] += alpha_fast * (s_na[k] - s_fast[k]);
-                    s_slow[k] += alpha_slow * (s_na[k] - s_slow[k]);
+                    if (!freeze_slow) {
+                        s_slow[k] += alpha_slow * (s_na[k] - s_slow[k]);
+                    }
                 }
             }
         }
@@ -507,6 +609,15 @@ static void pipeline_task(void *arg)
                 if (s_base.selected[k]) n_sel++;
             }
             s_base.n_selected = n_sel;
+
+            /* Re-seed the slow EMA at the empty-room mean before phase B.
+             * Until now it has been dragging along whatever it saw first -
+             * often the user, still walking out - and on a 60 s time
+             * constant that leftover would inflate D through phase B and
+             * bake a too-high d_mean/d_std into the baseline. */
+            for (int k = 0; k < nsub; k++) {
+                s_slow[k] = s_base.mu[k];
+            }
             ESP_LOGI(TAG, "using %d of %d subcarriers", n_sel, nsub);
             if (n_sel < 8) {
                 ESP_LOGE(TAG, "only %d usable subcarriers - lower CSI_SELECT_MIN_AMP", n_sel);
@@ -555,7 +666,10 @@ static void pipeline_task(void *arg)
             s_base.csi_len = s_locked_len;
             s_base.nsub    = nsub;
             s_base.fwi     = s_locked_fwi;
-            s_base.channel = s_locked_ch;
+            /* The channel this calibration ran on. s_locked_ch is only the
+             * boot channel: Step 08 does not follow a channel change after
+             * lock, and PH_LOCK compares this stamp (D-168). */
+            s_base.channel = r.channel ? r.channel : s_locked_ch;
             s_base.rate_hz = rate_hz;
             s_base.m_mean  = (float)s_m_mean;
             s_base.m_std   = (s_b_n > 1) ? sqrtf((float)(s_m_m2 / (s_b_n - 1))) : 0.0f;
@@ -643,6 +757,10 @@ static void pipeline_task(void *arg)
 
             if (new_present != present) {
                 present = new_present;
+                if (present) {
+                    present_since = now;
+                    freeze_expired_logged = false;
+                }
                 led_set(present);
                 ESP_LOGW(TAG, ">>> %s  (motion %.1f sd, deviation %.1f sd)",
                          present ? "HUMAN DETECTED" : "room clear", m_sigma, d_sigma);
@@ -685,6 +803,28 @@ static void pipeline_task(void *arg)
         }
 
 periodic:
+        /* ---- no-CSI watchdog (detect phase only) ---- */
+        if (phase == PH_DETECT && !no_csi &&
+            (esp_timer_get_time() - last_accepted) / 1000 >= CONFIG_CSI_NO_CSI_TIMEOUT_MS) {
+            no_csi       = true;
+            motion_flag  = false;
+            static_since = 0;
+            last_trigger = 0;
+            if (present) {
+                present = false;
+                led_set(false);
+            }
+            ESP_LOGW(TAG, ">>> no usable CSI for %d ms - link down or CSI shape changed. "
+                          "Presence UNKNOWN, reporting clear.", CONFIG_CSI_NO_CSI_TIMEOUT_MS);
+        }
+#if CONFIG_CSI_JSON_PERIOD_MS > 0
+        if (no_csi && esp_timer_get_time() >= next_json) {
+            next_json = esp_timer_get_time() + CONFIG_CSI_JSON_PERIOD_MS * 1000LL;
+            printf("JSON {\"t_ms\":%" PRIu32 ",\"state\":\"no_csi\",\"present\":0}\n",
+                   (uint32_t)(esp_timer_get_time() / 1000));
+        }
+#endif
+
         if (esp_timer_get_time() >= next_log) {
             next_log = esp_timer_get_time() + 1000000;
             if (phase != PH_DETECT) {
@@ -733,16 +873,22 @@ static void csi_start(void)
         .acquire_csi_beamformed = 0, .acquire_csi_he_stbc_mode = 0,
         .val_scale_cfg = 0, .dump_ack_en = 1, .reserved = 0,
     };
-    ESP_LOGI(TAG, "CSI: L-LTF only");
+    ESP_LOGI(TAG, "CSI: L-LTF only (12-bit samples)");
 #else
+    /* HT-LTF / HE-LTF only, both plain int8. Legacy (11g) frames and ACKs
+     * are left out: on the C5 their L-LTF is 12-bit packed, and mixing
+     * them in gave a ~50/50 two-shape stream in which the lock often
+     * picked the 106-byte ACK shape. Trade-off: a router that answers
+     * pings with 11g frames now yields no CSI - Step 03 shows that, and
+     * 'Capture L-LTF only' is the fallback. */
     wifi_csi_config_t csi_cfg = {
-        .enable = 1, .acquire_csi_legacy = 1, .acquire_csi_force_lltf = 0,
+        .enable = 1, .acquire_csi_legacy = 0, .acquire_csi_force_lltf = 0,
         .acquire_csi_ht20 = 1, .acquire_csi_ht40 = 0, .acquire_csi_vht = 0,
         .acquire_csi_su = 1, .acquire_csi_mu = 1, .acquire_csi_dcm = 0,
         .acquire_csi_beamformed = 0, .acquire_csi_he_stbc_mode = 2,
-        .val_scale_cfg = 0, .dump_ack_en = 1, .reserved = 0,
+        .val_scale_cfg = 0, .dump_ack_en = 0, .reserved = 0,
     };
-    ESP_LOGI(TAG, "CSI: all LTFs, auto-lock");
+    ESP_LOGI(TAG, "CSI: HT/HE-LTF, auto-lock");
 #endif
     ESP_ERROR_CHECK(esp_wifi_set_csi_config(&csi_cfg));
     ESP_ERROR_CHECK(esp_wifi_set_csi_rx_cb(&csi_rx_callback, NULL));
@@ -751,8 +897,22 @@ static void csi_start(void)
 
 static void ping_noop(esp_ping_handle_t hdl, void *args) { }
 
+/* Called on every GOT_IP: resume the session, or re-aim it if the gateway
+ * changed. Errors are logged, not ESP_ERROR_CHECKed - this runs from the
+ * event handler, and aborting there on a transient failure would reboot. */
 static void ping_start(esp_ip4_addr_t target)
 {
+    if (s_ping) {
+        if (s_ping_target.addr == target.addr) {
+            esp_ping_start(s_ping);
+            ESP_LOGI(TAG, "ping resumed");
+            return;
+        }
+        esp_ping_stop(s_ping);
+        esp_ping_delete_session(s_ping);    /* its task exits by itself */
+        s_ping = NULL;
+    }
+
     ip_addr_t target_addr = { 0 };
     target_addr.type = IPADDR_TYPE_V4;
     target_addr.u_addr.ip4.addr = target.addr;
@@ -769,10 +929,38 @@ static void ping_start(esp_ip4_addr_t target)
         .on_ping_success = ping_noop, .on_ping_timeout = ping_noop,
         .on_ping_end = ping_noop, .cb_args = NULL,
     };
-    esp_ping_handle_t ping;
-    ESP_ERROR_CHECK(esp_ping_new_session(&cfg, &cbs, &ping));
-    ESP_ERROR_CHECK(esp_ping_start(ping));
+    esp_err_t err = esp_ping_new_session(&cfg, &cbs, &s_ping);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "ping session failed: %s", esp_err_to_name(err));
+        s_ping = NULL;
+        return;
+    }
+    s_ping_target = target;
+    esp_ping_start(s_ping);
     ESP_LOGI(TAG, "ping -> " IPSTR " every %d ms", IP2STR(&target), CONFIG_CSI_PING_INTERVAL_MS);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Reconnection policy                                                */
+/*  First join: CONFIG_CSI_WIFI_MAX_RETRY attempts, then WIFI_FAIL_BIT */
+/*  so app_main can report bad credentials and reboot.                 */
+/*  After the first join: never give up. A router reboot or firmware   */
+/*  update is off the air for 1-3 minutes, and a board that stops      */
+/*  retrying stays offline until someone power-cycles it. Retries back */
+/*  off 1, 2, 4 ... 30 s and run from a timer, because a vTaskDelay in */
+/*  this handler stalls every other event on the default loop. The     */
+/*  ping pauses while the link is down (no send-error flood) and is    */
+/*  resumed or re-aimed on the next GOT_IP.                            */
+/* ------------------------------------------------------------------ */
+static void reconnect_cb(void *arg)
+{
+    esp_wifi_connect();
+}
+
+static void schedule_reconnect(uint32_t delay_ms)
+{
+    esp_timer_stop(s_reconnect_timer);          /* harmless if idle */
+    esp_timer_start_once(s_reconnect_timer, (uint64_t)delay_ms * 1000);
 }
 
 static void event_handler(void *arg, esp_event_base_t base, int32_t id, void *data)
@@ -781,12 +969,21 @@ static void event_handler(void *arg, esp_event_base_t base, int32_t id, void *da
         esp_wifi_connect();
     } else if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
         wifi_event_sta_disconnected_t *d = (wifi_event_sta_disconnected_t *)data;
-        if (s_retry_count < CONFIG_CSI_WIFI_MAX_RETRY) {
+        if (s_ping) {
+            esp_ping_stop(s_ping);
+        }
+        if (s_connected_once) {
+            uint32_t delay_s = 1u << (s_retry_count < 5 ? s_retry_count : 5);
+            if (delay_s > 30) delay_s = 30;
+            s_retry_count++;
+            ESP_LOGW(TAG, "link lost (reason %d), reconnect attempt %d in %" PRIu32 " s",
+                     d->reason, s_retry_count, delay_s);
+            schedule_reconnect(delay_s * 1000);
+        } else if (s_retry_count < CONFIG_CSI_WIFI_MAX_RETRY) {
             s_retry_count++;
             ESP_LOGW(TAG, "disconnected (reason %d), retry %d/%d",
                      d->reason, s_retry_count, CONFIG_CSI_WIFI_MAX_RETRY);
-            vTaskDelay(pdMS_TO_TICKS(1000));
-            esp_wifi_connect();
+            schedule_reconnect(1000);
         } else {
             xEventGroupSetBits(s_wifi_events, WIFI_FAIL_BIT);
         }
@@ -796,6 +993,8 @@ static void event_handler(void *arg, esp_event_base_t base, int32_t id, void *da
         ESP_LOGI(TAG, "got IP " IPSTR ", gateway " IPSTR,
                  IP2STR(&e->ip_info.ip), IP2STR(&e->ip_info.gw));
         s_retry_count = 0;
+        s_connected_once = true;
+        ping_start(s_gateway);
         xEventGroupSetBits(s_wifi_events, WIFI_CONNECTED_BIT);
     }
 }
@@ -803,6 +1002,12 @@ static void event_handler(void *arg, esp_event_base_t base, int32_t id, void *da
 static void wifi_init_sta(void)
 {
     s_wifi_events = xEventGroupCreate();
+
+    const esp_timer_create_args_t rt = {
+        .callback = reconnect_cb, .name = "wifi_reconnect",
+    };
+    ESP_ERROR_CHECK(esp_timer_create(&rt, &s_reconnect_timer));
+
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     esp_netif_create_default_wifi_sta();
@@ -817,6 +1022,15 @@ static void wifi_init_sta(void)
     wifi_config_t wc = { 0 };
     strncpy((char *)wc.sta.ssid, CONFIG_CSI_WIFI_SSID, sizeof(wc.sta.ssid) - 1);
     strncpy((char *)wc.sta.password, CONFIG_CSI_WIFI_PASSWORD, sizeof(wc.sta.password) - 1);
+    /* Do not offer to be a beamformee (DECISIONS D-177). An 11ax AP that
+     * may beamform to us steers every frame, and the CSI config below drops
+     * beamformed frames (acquire_csi_beamformed = 0): on an office AP on
+     * 2026-11-05 that left ~0 CSI/s, and with these bits ~46/s. Capturing
+     * beamformed frames instead would mix the AP's steering matrix into the
+     * channel, and it changes whenever the AP re-sounds. */
+    wc.sta.he_su_beamformee_disabled  = 1;
+    wc.sta.vht_su_beamformee_disabled = 1;
+    wc.sta.vht_mu_beamformee_disabled = 1;
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wc));
@@ -875,7 +1089,7 @@ void app_main(void)
     }
 
     csi_start();
-    ping_start(s_gateway);
+    /* The ping was already started by the GOT_IP handler. */
 
     xTaskCreate(pipeline_task, "csi_pipeline", 12288, NULL, 4, NULL);
 }

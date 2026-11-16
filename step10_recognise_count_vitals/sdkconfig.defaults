@@ -1,0 +1,102 @@
+# ---- Step 10: Step 08's human detector + EXPERIMENTAL recognise / count / vitals ----
+# Same settings as Step 08's defaults; the Step 10 features are configured
+# in menuconfig ("Recognise / count / vitals"), not here.
+
+# The target. With no sdkconfig yet (a fresh clone: sdkconfig is
+# gitignored), ESP-IDF guesses the target from this file
+# (tools/cmake/targets.cmake, __target_guess) - without this line it falls
+# back to esp32, so an 'idf.py menuconfig' run before 'set-target' would
+# write an esp32 sdkconfig, build.ps1 would then skip its set-target, and
+# csi_start()'s C5-only CSI config would not compile.
+CONFIG_IDF_TARGET="esp32c5"
+
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=6144
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
+
+# *** THE SWITCH THAT MAKES CSI EXIST ***
+# Without this, esp_wifi_set_csi() returns ESP_ERR_NOT_SUPPORTED at runtime.
+# It defaults to 'n' in ESP-IDF, which is why so many people get stuck here.
+CONFIG_ESP_WIFI_CSI_ENABLED=y
+
+# NOTE: there is no Kconfig symbol for WiFi power save in ESP-IDF - it is a
+# runtime setting only. The firmware calls esp_wifi_set_ps(WIFI_PS_NONE)
+# right after esp_wifi_start(). That matters for CSI: with power save on the
+# radio sleeps between beacons, frames are missed and RX timestamps drift.
+
+# WiFi + CSI needs more RX buffers than the default.
+CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=16
+CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=32
+
+# 2 MB app partition - the default 1 MB gets tight once CSI + the
+# detector + the web UI are all in the image.
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+
+# Faster console so high-rate CSI logging does not stall the app.
+CONFIG_ESP_CONSOLE_UART_BAUDRATE=921600
+
+# =====================================================================
+#  MAXIMUM-PERFORMANCE BUILD  (added 2026-09-07)
+# =====================================================================
+# Everything below was verified against the Kconfig sources in
+# C:\esp\v6.0.2\esp-idf before being written here. Symbol names differ
+# between IDF major versions - do not copy these into a v5.x project
+# without re-checking.
+
+# --- The big one: the app was being built at -Og (debug) ---------------
+# CONFIG_COMPILER_OPTIMIZATION_DEBUG was set, i.e. -Og. The CSI amplitude
+# loop runs inside the Wi-Fi task callback, once per packet, at up to
+# ~290 packets/s on this chip - it is the hot path of the whole project
+# and it was not being optimised at all.
+#   esp-idf/Kconfig:366  COMPILER_OPTIMIZATION_PERF  "Optimize for performance (-O2)"
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+# NOT the bootloader. BOOTLOADER_COMPILER_OPTIMIZATION_PERF was tried on
+# 2026-09-07 and it FAILS the build:
+#   "Bootloader binary size 0x6280 bytes is too large for partition table
+#    offset 0x8000 ... Bootloader binary can be maximum 0x6000 (24576) bytes"
+# -O2 adds ~640 bytes the bootloader has nowhere to put, and buys nothing:
+# it executes once, before the app, and is not on the CSI path. Keep -Os.
+CONFIG_BOOTLOADER_COMPILER_OPTIMIZATION_SIZE=y
+
+# --- Assertions stay ON, deliberately ----------------------------------
+# This board has never been flashed. During first bringup a named assert
+# with a file and line beats a silent hang. Once Step 04 runs clean and
+# you want the last few percent, swap these two lines for:
+#   CONFIG_COMPILER_OPTIMIZATION_ASSERTIONS_DISABLE=y
+#   CONFIG_COMPILER_OPTIMIZATION_ASSERTION_LEVEL=0
+CONFIG_COMPILER_OPTIMIZATION_ASSERTIONS_ENABLE=y
+CONFIG_COMPILER_OPTIMIZATION_ASSERTION_LEVEL=2
+
+# --- 1 ms scheduler tick instead of 10 ms ------------------------------
+# At 100-290 CSI packets/s the inter-packet interval is 3.4-10 ms. A
+# 100 Hz tick quantises every vTaskDelay and every timeout to +-10 ms,
+# which is the same size as the thing being measured. 1000 Hz costs a
+# little more interrupt overhead and buys usable timing resolution.
+CONFIG_FREERTOS_HZ=1000
+
+# --- Flash: QIO instead of DIO -----------------------------------------
+# Doubles flash read bandwidth, which matters for XIP cache misses on the
+# CSI path. NOT a flashing risk: components/esptool_py/Kconfig.projbuild
+# line 81 sets ESPTOOLPY_FLASHMODE to "dio" even when QIO is chosen - the
+# image is written in DIO and the second-stage bootloader upgrades the
+# mode at runtime.
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+
+# 80 MHz is already the ceiling on ESP32-C5: the 120M option resolves to
+# '80m' on this target (same Kconfig, line 97). There is nothing above
+# this to reach for - do not go looking for it.
+CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
+
+# --- Wi-Fi RX buffers: deliberately NOT raised -------------------------
+# The obvious "more performance" move is to raise these. Resisted on
+# purpose: 16 static RX buffers is already ~26 KB of DRAM on a
+# single-core part with no PSRAM, and nothing has ever run on this board,
+# so there is no free-heap measurement to spend against. Step 03 now
+# prints free heap alongside the CSI rate every second - flash it, read
+# the number, and raise these only if the heap headroom is actually
+# there AND the packet rate is short of the 90-290/s bracket in
+# docs/REFERENCES.md section 1.2.
+#   CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=16    (set above)
+#   CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=32   (set above)

@@ -59,6 +59,10 @@ static const char *TAG = "step04";
 static EventGroupHandle_t s_wifi_events;
 static int                s_retry_count = 0;
 static esp_ip4_addr_t     s_gateway;
+static esp_timer_handle_t s_reconnect_timer;
+static bool               s_connected_once = false;
+static esp_ping_handle_t  s_ping = NULL;
+static esp_ip4_addr_t     s_ping_target;
 
 /* ------------------------------------------------------------------ */
 /*  One compact record per CSI packet. Metadata only - we do NOT copy  */
@@ -74,7 +78,26 @@ typedef struct {
     int8_t   rssi;
     int8_t   noise_floor;
     int8_t   first8[8];    /* first 8 raw bytes, to see the I/Q layout   */
+    uint8_t  n_odd;        /* how many odd-index bytes were sampled      */
+    uint8_t  odd_hi0;      /* ...of which the high nibble is 0 (0x00-0x0F) */
+    uint8_t  odd_hiF;      /* ...of which the high nibble is F (0xF0-0xFF) */
 } csi_meta_t;
+
+/* ------------------------------------------------------------------ */
+/*  Byte-packing check                                                 */
+/*                                                                     */
+/*  On the C5, HT/HE-LTF CSI is int8 (imag, real) pairs, but L-LTF CSI */
+/*  (11g frames and ACKs, 106 bytes) arrives by default as 12-bit      */
+/*  samples in little-endian 16-bit words: 4 bytes per subcarrier, 26  */
+/*  subcarriers. Read as int8 pairs, that is nonsense that still has a */
+/*  plausible length. The tell is in the odd-index bytes: as int8 they */
+/*  are real parts spread across -128..127, so plenty have a high      */
+/*  nibble of 1-E; as 12-bit words they carry only the top value bits  */
+/*  (plus zero or sign fill), so every one reads 0x0? or 0xF?. The     */
+/*  report below shows that split per shape. It reports, it does not   */
+/*  decide - read the numbers.                                          */
+/* ------------------------------------------------------------------ */
+#define ODD_SAMPLE_MAX 64
 
 static QueueHandle_t s_meta_q;
 static volatile uint32_t s_dropped = 0;
@@ -89,6 +112,7 @@ typedef struct {
     uint8_t  fwi;
     uint32_t count;
     int8_t   rssi_min, rssi_max;
+    uint32_t odd_total, odd_hi0, odd_hiF;   /* byte-packing check */
 } geom_bin_t;
 
 static geom_bin_t s_bins[MAX_BINS];
@@ -119,6 +143,9 @@ static void hist_add(const csi_meta_t *m)
             s_bins[i].count++;
             if (m->rssi < s_bins[i].rssi_min) s_bins[i].rssi_min = m->rssi;
             if (m->rssi > s_bins[i].rssi_max) s_bins[i].rssi_max = m->rssi;
+            s_bins[i].odd_total += m->n_odd;
+            s_bins[i].odd_hi0   += m->odd_hi0;
+            s_bins[i].odd_hiF   += m->odd_hiF;
             return;
         }
     }
@@ -129,6 +156,9 @@ static void hist_add(const csi_meta_t *m)
         s_bins[s_bin_count].count     = 1;
         s_bins[s_bin_count].rssi_min  = m->rssi;
         s_bins[s_bin_count].rssi_max  = m->rssi;
+        s_bins[s_bin_count].odd_total = m->n_odd;
+        s_bins[s_bin_count].odd_hi0   = m->odd_hi0;
+        s_bins[s_bin_count].odd_hiF   = m->odd_hiF;
         s_bin_count++;
     }
 }
@@ -155,6 +185,16 @@ static void csi_rx_callback(void *ctx, wifi_csi_info_t *info)
     int n = info->len < 8 ? info->len : 8;
     memcpy(m.first8, info->buf, n);
 
+    /* Byte-packing check: two compares per sampled byte, no copy. */
+    int n_odd = info->len / 2;
+    if (n_odd > ODD_SAMPLE_MAX) n_odd = ODD_SAMPLE_MAX;
+    for (int i = 0; i < n_odd; i++) {
+        uint8_t hi = ((uint8_t)info->buf[2 * i + 1]) >> 4;
+        if (hi == 0x0) m.odd_hi0++;
+        else if (hi == 0xF) m.odd_hiF++;
+    }
+    m.n_odd = (uint8_t)n_odd;
+
     /* Never block the WiFi task. If the consumer is behind, drop. */
     if (xQueueSend(s_meta_q, &m, 0) != pdTRUE) {
         s_dropped++;
@@ -164,6 +204,10 @@ static void csi_rx_callback(void *ctx, wifi_csi_info_t *info)
 /* ------------------------------------------------------------------ */
 static void csi_start(void)
 {
+    /* This step deliberately captures EVERYTHING, including 11g L-LTF and
+     * ACK frames that Steps 03 and 05-08 switch off, because its job is to
+     * show you every shape your router produces and how each is packed.
+     * Do not copy this config into a detector. */
     wifi_csi_config_t csi_cfg = {
         .enable                   = 1,
         .acquire_csi_legacy       = 1,
@@ -190,8 +234,21 @@ static void csi_start(void)
 /* ------------------------------------------------------------------ */
 static void ping_noop(esp_ping_handle_t hdl, void *args) { }
 
+/* Called on every GOT_IP (see Step 03): resume, or re-aim if the gateway
+ * changed. */
 static void ping_start(esp_ip4_addr_t target)
 {
+    if (s_ping) {
+        if (s_ping_target.addr == target.addr) {
+            esp_ping_start(s_ping);
+            ESP_LOGI(TAG, "ping resumed");
+            return;
+        }
+        esp_ping_stop(s_ping);
+        esp_ping_delete_session(s_ping);
+        s_ping = NULL;
+    }
+
     ip_addr_t target_addr = { 0 };
     target_addr.type = IPADDR_TYPE_V4;
     target_addr.u_addr.ip4.addr = target.addr;
@@ -214,9 +271,14 @@ static void ping_start(esp_ip4_addr_t target)
         .cb_args         = NULL,
     };
 
-    esp_ping_handle_t ping;
-    ESP_ERROR_CHECK(esp_ping_new_session(&cfg, &cbs, &ping));
-    ESP_ERROR_CHECK(esp_ping_start(ping));
+    esp_err_t err = esp_ping_new_session(&cfg, &cbs, &s_ping);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "ping session failed: %s", esp_err_to_name(err));
+        s_ping = NULL;
+        return;
+    }
+    s_ping_target = target;
+    esp_ping_start(s_ping);
     ESP_LOGI(TAG, "ping -> " IPSTR " every %d ms",
              IP2STR(&target), CONFIG_CSI_PING_INTERVAL_MS);
 }
@@ -251,9 +313,20 @@ static void geometry_task(void *arg)
                 ESP_LOGI(TAG, "  raw bytes [0..7]             = %d %d %d %d %d %d %d %d",
                          m.first8[0], m.first8[1], m.first8[2], m.first8[3],
                          m.first8[4], m.first8[5], m.first8[6], m.first8[7]);
-                ESP_LOGI(TAG, "  layout: pairs of (imag, real), int8 each");
-                ESP_LOGI(TAG, "  -> subcarrier 0 = imag %d, real %d",
-                         m.first8[0], m.first8[1]);
+                ESP_LOGI(TAG, "  as int8 (imag, real) pairs -> sc0 = (%d, %d), sc1 = (%d, %d)",
+                         m.first8[0], m.first8[1], m.first8[2], m.first8[3]);
+                {
+                    /* Same bytes read as 12-bit samples in LE 16-bit words. */
+                    const uint8_t *u = (const uint8_t *)m.first8;
+                    int16_t im0 = (int16_t)((uint16_t)(u[0] | (u[1] << 8)) << 4) >> 4;
+                    int16_t re0 = (int16_t)((uint16_t)(u[2] | (u[3] << 8)) << 4) >> 4;
+                    int16_t im1 = (int16_t)((uint16_t)(u[4] | (u[5] << 8)) << 4) >> 4;
+                    int16_t re1 = (int16_t)((uint16_t)(u[6] | (u[7] << 8)) << 4) >> 4;
+                    ESP_LOGI(TAG, "  as 12-bit LE words          -> sc0 = (%d, %d), sc1 = (%d, %d)",
+                             im0, re0, im1, re1);
+                }
+                ESP_LOGI(TAG, "  (which reading is right depends on the shape - see the");
+                ESP_LOGI(TAG, "   'odd hi-nibble' columns in the histogram below)");
                 ESP_LOGI(TAG, "--------------------------------------------");
             }
         }
@@ -264,7 +337,7 @@ static void geometry_task(void *arg)
             ESP_LOGI(TAG, "");
             ESP_LOGI(TAG, "===== CSI GEOMETRY HISTOGRAM (%" PRIu32 " packets, %" PRIu32 " dropped) =====",
                      total, s_dropped);
-            ESP_LOGI(TAG, "  bytes  subcarriers  fwi  PHY format      count   share  rssi range");
+            ESP_LOGI(TAG, "  bytes  subcarriers  fwi  PHY format      count   share  rssi range     odd hi-nibble 0 / F / other");
 
             for (int i = 0; i < s_bin_count; i++) {
                 /* Each subcarrier = 2 bytes (imag, real).
@@ -273,13 +346,21 @@ static void geometry_task(void *arg)
                 int usable_bytes = s_bins[i].len - (s_bins[i].fwi ? 4 : 0);
                 int subcarriers  = usable_bytes / 2;
                 float share = total ? (100.0f * s_bins[i].count / total) : 0.0f;
+                float hi0 = s_bins[i].odd_total ? 100.0f * s_bins[i].odd_hi0 / s_bins[i].odd_total : 0.0f;
+                float hiF = s_bins[i].odd_total ? 100.0f * s_bins[i].odd_hiF / s_bins[i].odd_total : 0.0f;
 
-                ESP_LOGI(TAG, "  %5u  %11d  %3u  %-14s %6" PRIu32 "  %5.1f%%  %d..%d dBm",
+                float oth = s_bins[i].odd_total ? 100.0f - hi0 - hiF : 0.0f;
+
+                ESP_LOGI(TAG, "  %5u  %11d  %3u  %-14s %6" PRIu32 "  %5.1f%%  %d..%d dBm   %5.1f%% / %5.1f%% / %5.1f%%",
                          s_bins[i].len, subcarriers, s_bins[i].fwi,
                          bb_format_name(s_bins[i].bb_format),
                          s_bins[i].count, share,
-                         s_bins[i].rssi_min, s_bins[i].rssi_max);
+                         s_bins[i].rssi_min, s_bins[i].rssi_max, hi0, hiF, oth);
             }
+            ESP_LOGI(TAG, "  'other' near 0%% (every odd byte is 0x0?/0xF?) = 12-bit samples in");
+            ESP_LOGI(TAG, "  16-bit words: 4 bytes per subcarrier, so a 106 B frame holds 26, not 53.");
+            ESP_LOGI(TAG, "  'other' well above 0%% = plain int8 (imag, real) pairs. Caveat: a very");
+            ESP_LOGI(TAG, "  weak int8 signal (all |values| < 16) can also read near 0%% - check RSSI.");
 
             /* Point at the winner so the user knows what to use next. */
             int best = -1;
@@ -303,8 +384,20 @@ static void geometry_task(void *arg)
 }
 
 /* ------------------------------------------------------------------ */
-/*  WiFi bring-up (identical to Step 03)                               */
+/*  WiFi bring-up (identical to Step 03, including the reconnection    */
+/*  policy: bounded retries for the first join, forever after it).     */
 /* ------------------------------------------------------------------ */
+static void reconnect_cb(void *arg)
+{
+    esp_wifi_connect();
+}
+
+static void schedule_reconnect(uint32_t delay_ms)
+{
+    esp_timer_stop(s_reconnect_timer);          /* harmless if idle */
+    esp_timer_start_once(s_reconnect_timer, (uint64_t)delay_ms * 1000);
+}
+
 static void event_handler(void *arg, esp_event_base_t base,
                           int32_t id, void *data)
 {
@@ -312,12 +405,21 @@ static void event_handler(void *arg, esp_event_base_t base,
         esp_wifi_connect();
     } else if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
         wifi_event_sta_disconnected_t *d = (wifi_event_sta_disconnected_t *)data;
-        if (s_retry_count < CONFIG_CSI_WIFI_MAX_RETRY) {
+        if (s_ping) {
+            esp_ping_stop(s_ping);
+        }
+        if (s_connected_once) {
+            uint32_t delay_s = 1u << (s_retry_count < 5 ? s_retry_count : 5);
+            if (delay_s > 30) delay_s = 30;
+            s_retry_count++;
+            ESP_LOGW(TAG, "link lost (reason %d), reconnect attempt %d in %" PRIu32 " s",
+                     d->reason, s_retry_count, delay_s);
+            schedule_reconnect(delay_s * 1000);
+        } else if (s_retry_count < CONFIG_CSI_WIFI_MAX_RETRY) {
             s_retry_count++;
             ESP_LOGW(TAG, "disconnected (reason %d), retry %d/%d",
                      d->reason, s_retry_count, CONFIG_CSI_WIFI_MAX_RETRY);
-            vTaskDelay(pdMS_TO_TICKS(1000));
-            esp_wifi_connect();
+            schedule_reconnect(1000);
         } else {
             xEventGroupSetBits(s_wifi_events, WIFI_FAIL_BIT);
         }
@@ -327,6 +429,8 @@ static void event_handler(void *arg, esp_event_base_t base,
         ESP_LOGI(TAG, "got IP " IPSTR ", gateway " IPSTR,
                  IP2STR(&e->ip_info.ip), IP2STR(&e->ip_info.gw));
         s_retry_count = 0;
+        s_connected_once = true;
+        ping_start(s_gateway);
         xEventGroupSetBits(s_wifi_events, WIFI_CONNECTED_BIT);
     }
 }
@@ -334,6 +438,11 @@ static void event_handler(void *arg, esp_event_base_t base,
 static void wifi_init_sta(void)
 {
     s_wifi_events = xEventGroupCreate();
+
+    const esp_timer_create_args_t rt = {
+        .callback = reconnect_cb, .name = "wifi_reconnect",
+    };
+    ESP_ERROR_CHECK(esp_timer_create(&rt, &s_reconnect_timer));
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -392,7 +501,7 @@ void app_main(void)
     }
 
     csi_start();
-    ping_start(s_gateway);
+    /* The ping was already started by the GOT_IP handler. */
 
     xTaskCreate(geometry_task, "geometry", 5120, NULL, 4, NULL);
 }

@@ -1,0 +1,419 @@
+   0.00 listener start
+   0.00 port open
+  33.16 port unavailable: ClearCommError failed (PermissionError(13, 'The device does not recognize the co
+  33.46 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  33.77 port open
+  33.98 I (280) csi-human: =========================================
+  33.98 I (281) csi-human:  ESP32-C5 Wi-Fi CSI human detector
+  33.98 I (281) csi-human:  Step 10: + recognise / count / vitals (EXPERIMENTAL)
+  33.98 I (281) csi-human: =========================================
+  33.98 W (281) csi-human: no baseline (ESP_ERR_NVS_NOT_FOUND) - will calibrate automatically
+  33.98 I (282) csi-human: motion gate: moving at hf >= 4.00, 624 bytes static
+  33.98 I (282) csi-human: vitals: breathing + EXPERIMENTAL heart rate, 30984 bytes static
+  33.98 I (283) csi-human: no recognition model yet - enrol people with 'enroll <slot> <name>'
+  33.98 I (283) csi-human: no vitals log yet - it fills as recognised people sit still
+  33.98 I (283) csi-human: no count model yet - 'count-train 1', then 'count-train 2'
+  33.98 I (284) pp: pp rom version: 78a72e9d5
+  33.98 I (285) net80211: net80211 rom version: 78a72e9d5
+  33.98 I (286) wifi:wifi driver task: 40838c1c, prio:23, stack:6656, core=0
+  33.98 I (291) wifi:wifi firmware version: 00ad238
+  33.98 I (291) wifi:wifi certification version: v7.0
+  33.98 I (291) wifi:config NVS flash: enabled
+  33.98 I (292) wifi:config nano formatting: disabled
+  33.98 I (292) wifi:mac_version:HAL_MAC_ESP32AX_752MP_ECO2,ut_version:N, band mode:0x1
+  33.98 I (292) wifi:Init data frame dynamic rx buffer num: 32
+  33.98 I (293) wifi:Init static rx mgmt buffer num: 5
+  33.98 I (293) wifi:Init management short buffer num: 32
+  33.98 I (293) wifi:Init dynamic tx buffer num: 32
+  33.98 I (293) wifi:Init static tx FG buffer num: 2
+  33.98 I (293) wifi:Init static rx buffer size: 2212 (rxctrl:64, csi:512)
+  33.98 I (294) wifi:Init static rx buffer num: 16
+  33.98 I (294) wifi:Init dynamic rx buffer num: 32
+  33.98 I (295) wifi_init: rx ba win: 6
+  33.98 I (295) wifi_init: accept mbox: 6
+  33.98 I (295) wifi_init: tcpip mbox: 32
+  33.98 I (295) wifi_init: udp mbox: 6
+  33.98 I (295) wifi_init: tcp mbox: 6
+  33.98 I (295) wifi_init: tcp tx win: 5760
+  33.98 I (295) wifi_init: tcp rx win: 5760
+  33.98 I (296) wifi_init: tcp mss: 1440
+  33.98 I (296) wifi_init: WiFi IRAM OP enabled
+  33.98 I (296) wifi_init: WiFi RX IRAM OP enabled
+  33.98 I (296) wifi_init: WiFi SLP IRAM OP enabled
+  33.98 W (296) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+  33.98 I (319) phy_init: phy_version 109,edb400d6,Mar 10 2026,10:22:11
+  34.38 I (905) wifi:11ax coex: WDEVAX_PTI0(0x55777555), WDEVAX_PTI1(0x00003377).
+  34.38 
+  34.38 I (906) wifi:mode : sta (30:ed:a0:e4:50:b8)
+  34.38 I (906) wifi:enable tsf
+  34.38 I (908) wifi:Set ps type: 0, coexist: 0
+  34.38 
+  34.38 I (912) wifi:(he)max.RxAMPDULenExponentExtension:2, max.RxAMPDUpre-EOFpaddingBytes:4194303(0x3fffff)
+  34.38 I (913) wifi:(mac)omc_ul_mu_data_disable_rx:0
+  34.38 I (913) wifi:(phy)ppe_thresholds_present:1, nominal_packet_padding:0
+  34.38 I (913) wifi:(phy)dcm tx(constellation:0, nss:0), dcm rx(constellation:0, nss:0)
+  34.38 I (914) wifi:(phy)rx_mcs_map:0xfffa, tx_mcs_map:0xfffa, stbc_tx:1, bfmer(su:0, mu:0), ldpc:1, max_rate:172
+  34.38 I (914) wifi:(phy)nsts:2, ru_index_bitmap:0xc(242:0, 484:0, 996:1, 2*996:1)
+  34.38 I (915) wifi:(phy)threshold_bits:24, nsts_num:2, ru_num:2, he_cap->len:26, ppe_threshold_len:4(6,11,4)
+  34.38 I (915) wifi:(opr)bss color disabled:1
+  34.38 I (915) wifi:(opr)len:7, TWT Required:0, VHT Opr Info Present:0, 6GHz Opr Info Present:0, Co-Hosted BSS:0(max_indicator:0), Basic MCS and NSS:0xfff0
+  34.38 I (916) wifi:(opr)len:7, Default PE Duration:0, TXOP RTS Threshold:1023(0 us), ER-SU-Disable:1
+  34.38 I (916) wifi:(opr)len:7, BSS Color:0, disabled:1, Partial BSS Color:0
+  34.38 I (918) wifi:(connect)dot11_authmode:0x3, pairwise_cipher:0x3, group_cipher:0x3
+  34.38 I (918) wifi:state: init -> auth (0xb0)
+  34.38 I (931) wifi:state: auth -> assoc (0x0)
+  34.58 I (979) wifi:(assoc)RESP, Extended Capabilities length:14, operating_mode_notification:0
+  34.58 I (980) wifi:(assoc)RESP, Extended Capabilities, MBSSID:0, TWT Responder:0, OBSS Narrow Bandwidth RU In OFDMA Tolerance:0
+  34.58 I (981) wifi:(he)max.RxAMPDULenExponentExtension:2, max.RxAMPDUpre-EOFpaddingBytes:4194303(0x3fffff)
+  34.58 I (981) wifi:(mac)omc_ul_mu_data_disable_rx:0
+  34.58 I (981) wifi:(phy)ppe_thresholds_present:1, nominal_packet_padding:0
+  34.58 I (982) wifi:(phy)dcm tx(constellation:0, nss:0), dcm rx(constellation:0, nss:0)
+  34.58 I (982) wifi:(phy)rx_mcs_map:0xfffa, tx_mcs_map:0xfffa, stbc_tx:1, bfmer(su:0, mu:0), ldpc:1, max_rate:172
+  34.58 I (983) wifi:(phy)nsts:2, ru_index_bitmap:0xc(242:0, 484:0, 996:1, 2*996:1)
+  34.58 I (983) wifi:(phy)threshold_bits:24, nsts_num:2, ru_num:2, he_cap->len:26, ppe_threshold_len:4(6,11,4)
+  34.58 I (983) wifi:(opr)bss color disabled:1
+  34.58 I (984) wifi:(opr)len:7, TWT Required:0, VHT Opr Info Present:0, 6GHz Opr Info Present:0, Co-Hosted BSS:0(max_indicator:0), Basic MCS and NSS:0xfff0
+  34.58 I (984) wifi:(opr)len:7, Default PE Duration:0, TXOP RTS Threshold:1023(0 us), ER-SU-Disable:1
+  34.58 I (985) wifi:(opr)len:7, BSS Color:0, disabled:1, Partial BSS Color:0
+  34.58 I (985) wifi:state: assoc -> run (0x10)
+  34.58 I (985) wifi:(he)ppe_thresholds_present:1, nominal_packet_padding(rx:0, cfg:0)
+  34.58 I (986) wifi:(trc)phytype:CBW20-SGI, snr:54, maxRate:172, highestRateIdx:0
+  34.58 W (986) wifi:(trc)band:2G, phymode:3, highestRateIdx:0, lowestRateIdx:11, dataSchedTableSize:14
+  34.58 I (987) wifi:(trc)band:2G, rate(S-MCS7, rateIdx:0), ampdu(rate:S-MCS7, schedIdx(0, stop:8)), snr:54, ampduState:wait operational
+  34.58 I (987) wifi:ifidx:0, rssi:-42, nf:-96, phytype(0x3, CBW20-SGI), phymode(0x7, 11ax), max_rate:172, he:1, vht:0, ht:1
+  34.58 I (988) wifi:(ht)max.RxAMPDULenExponent:3(65535 bytes), MMSS:5(4 us)
+  34.58 I (1002) wifi:(extcap)mbssid:0, enhanced_mbssid_advertise:0, complete_nontxbssid_profiles:0, twt_responder: 0
+  34.58 I (1003) wifi:connected with Testing, aid = 4, channel 1, BW20(NONE, 00), bssid = 4e:5f:70:8c:a8:de
+  34.58 I (1003) wifi:security: WPA2-PSK, phy: ax, rssi: -42, cipher(pairwise:0x3, group:0x3), pmf:0
+  34.58 I (1005) wifi:pm start, type: 0, twt_start:0
+  34.58 
+  34.58 I (1005) wifi:pm start, type:0, aid:0x4, trans-BSSID:4e:5f:70:8c:a8:de, BSSID[5]:0xde, mbssid(max-indicator:0, index:0), he:1
+  34.58 I (1006) wifi:set rx beacon pti, rx_bcn_pti: 10, bcn_timeout: 25000, mt_pti: 10, mt_time: 10000
+  34.58 I (1006) wifi:[ADDBA]TX addba request, tid:0, dialogtoken:1, bufsize:32, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x0)
+  34.58 I (1007) wifi:[ADDBA]TX addba request, tid:7, dialogtoken:2, bufsize:32, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x20)
+  34.58 I (1008) wifi:[ADDBA]TX addba request, tid:5, dialogtoken:3, bufsize:32, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x0)
+  34.58 I (1014) wifi:AP's beacon interval = 102400 us, DTIM period = 3
+  34.58 I (1018) wifi:[ADDBA]RX addba response, status:0, tid:0/tb:1(0xa1), bufsize:64, batimeout:5000, txa_wnd:32
+  34.58 I (1019) wifi:[ADDBA]RX addba response, status:0, tid:7/tb:1(0xa1), bufsize:64, batimeout:5000, txa_wnd:32
+  34.58 I (1019) wifi:[ADDBA]RX addba response, status:0, tid:5/tb:1(0xa1), bufsize:64, batimeout:5000, txa_wnd:32
+  35.32 port unavailable: ClearCommError failed (PermissionError(13, 'The device does not recognize the co
+  35.62 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  35.93 port open
+  36.14 I (280) csi-human: =========================================
+  36.14 I (281) csi-human:  ESP32-C5 Wi-Fi CSI human detector
+  36.14 I (281) csi-human:  Step 10: + recognise / count / vitals (EXPERIMENTAL)
+  36.14 I (281) csi-human: =========================================
+  36.14 W (281) csi-human: no baseline (ESP_ERR_NVS_NOT_FOUND) - will calibrate automatically
+  36.14 I (282) csi-human: motion gate: moving at hf >= 4.00, 624 bytes static
+  36.14 I (282) csi-human: vitals: breathing + EXPERIMENTAL heart rate, 30984 bytes static
+  36.14 I (283) csi-human: no recognition model yet - enrol people with 'enroll <slot> <name>'
+  36.14 I (283) csi-human: no vitals log yet - it fills as recognised people sit still
+  36.14 I (283) csi-human: no count model yet - 'count-train 1', then 'count-train 2'
+  36.14 I (284) pp: pp rom version: 78a72e9d5
+  36.14 I (285) net80211: net80211 rom version: 78a72e9d5
+  36.14 I (286) wifi:wifi driver task: 40838c1c, prio:23, stack:6656, core=0
+  36.14 I (291) wifi:wifi firmware version: 00ad238
+  36.14 I (291) wifi:wifi certification version: v7.0
+  36.14 I (291) wifi:config NVS flash: enabled
+  36.14 I (292) wifi:config nano formatting: disabled
+  36.14 I (292) wifi:mac_version:HAL_MAC_ESP32AX_752MP_ECO2,ut_version:N, band mode:0x1
+  36.14 I (292) wifi:Init data frame dynamic rx buffer num: 32
+  36.14 I (293) wifi:Init static rx mgmt buffer num: 5
+  36.14 I (293) wifi:Init management short buffer num: 32
+  36.14 I (293) wifi:Init dynamic tx buffer num: 32
+  36.14 I (293) wifi:Init static tx FG buffer num: 2
+  36.14 I (293) wifi:Init static rx buffer size: 2212 (rxctrl:64, csi:512)
+  36.14 I (294) wifi:Init static rx buffer num: 16
+  36.14 I (294) wifi:Init dynamic rx buffer num: 32
+  36.14 I (295) wifi_init: rx ba win: 6
+  36.14 I (295) wifi_init: accept mbox: 6
+  36.14 I (295) wifi_init: tcpip mbox: 32
+  36.14 I (295) wifi_init: udp mbox: 6
+  36.14 I (295) wifi_init: tcp mbox: 6
+  36.14 I (295) wifi_init: tcp tx win: 5760
+  36.14 I (295) wifi_init: tcp rx win: 5760
+  36.14 I (296) wifi_init: tcp mss: 1440
+  36.14 I (296) wifi_init: WiFi IRAM OP enabled
+  36.14 I (296) wifi_init: WiFi RX IRAM OP enabled
+  36.14 I (296) wifi_init: WiFi SLP IRAM OP enabled
+  36.14 W (296) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+  36.14 I (307) phy_init: phy_version 109,edb400d6,Mar 10 2026,10:22:11
+  36.54 I (896) wifi:11ax coex: WDEVAX_PTI0(0x55777555), WDEVAX_PTI1(0x00003377).
+  36.54 
+  36.54 I (897) wifi:mode : sta (30:ed:a0:e4:50:b8)
+  36.54 I (897) wifi:enable tsf
+  36.54 I (899) wifi:Set ps type: 0, coexist: 0
+  36.54 
+  36.54 I (917) wifi:(he)max.RxAMPDULenExponentExtension:2, max.RxAMPDUpre-EOFpaddingBytes:4194303(0x3fffff)
+  36.54 I (917) wifi:(mac)omc_ul_mu_data_disable_rx:0
+  36.54 I (918) wifi:(phy)ppe_thresholds_present:1, nominal_packet_padding:0
+  36.54 I (918) wifi:(phy)dcm tx(constellation:0, nss:0), dcm rx(constellation:0, nss:0)
+  36.54 I (918) wifi:(phy)rx_mcs_map:0xfffa, tx_mcs_map:0xfffa, stbc_tx:1, bfmer(su:0, mu:0), ldpc:1, max_rate:172
+  36.54 I (919) wifi:(phy)nsts:2, ru_index_bitmap:0xc(242:0, 484:0, 996:1, 2*996:1)
+  36.54 I (919) wifi:(phy)threshold_bits:24, nsts_num:2, ru_num:2, he_cap->len:26, ppe_threshold_len:4(6,11,4)
+  36.54 I (920) wifi:(opr)bss color disabled:1
+  36.54 I (920) wifi:(opr)len:7, TWT Required:0, VHT Opr Info Present:0, 6GHz Opr Info Present:0, Co-Hosted BSS:0(max_indicator:0), Basic MCS and NSS:0xfff0
+  36.54 I (920) wifi:(opr)len:7, Default PE Duration:0, TXOP RTS Threshold:1023(0 us), ER-SU-Disable:1
+  36.54 I (921) wifi:(opr)len:7, BSS Color:0, disabled:1, Partial BSS Color:0
+  36.54 I (922) wifi:(connect)dot11_authmode:0x3, pairwise_cipher:0x3, group_cipher:0x3
+  36.54 I (922) wifi:state: init -> auth (0xb0)
+  36.75 I (927) wifi:state: auth -> assoc (0x0)
+  36.75 I (933) wifi:(assoc)RESP, Extended Capabilities length:14, operating_mode_notification:0
+  36.75 I (933) wifi:(assoc)RESP, Extended Capabilities, MBSSID:0, TWT Responder:0, OBSS Narrow Bandwidth RU In OFDMA Tolerance:0
+  36.75 I (934) wifi:(he)max.RxAMPDULenExponentExtension:2, max.RxAMPDUpre-EOFpaddingBytes:4194303(0x3fffff)
+  36.75 I (934) wifi:(mac)omc_ul_mu_data_disable_rx:0
+  36.75 I (935) wifi:(phy)ppe_thresholds_present:1, nominal_packet_padding:0
+  36.75 I (935) wifi:(phy)dcm tx(constellation:0, nss:0), dcm rx(constellation:0, nss:0)
+  36.75 I (935) wifi:(phy)rx_mcs_map:0xfffa, tx_mcs_map:0xfffa, stbc_tx:1, bfmer(su:0, mu:0), ldpc:1, max_rate:172
+  36.75 I (936) wifi:(phy)nsts:2, ru_index_bitmap:0xc(242:0, 484:0, 996:1, 2*996:1)
+  36.75 I (936) wifi:(phy)threshold_bits:24, nsts_num:2, ru_num:2, he_cap->len:26, ppe_threshold_len:4(6,11,4)
+  36.75 I (936) wifi:(opr)bss color disabled:1
+  36.75 I (937) wifi:(opr)len:7, TWT Required:0, VHT Opr Info Present:0, 6GHz Opr Info Present:0, Co-Hosted BSS:0(max_indicator:0), Basic MCS and NSS:0xfff0
+  36.75 I (937) wifi:(opr)len:7, Default PE Duration:0, TXOP RTS Threshold:1023(0 us), ER-SU-Disable:1
+  36.75 I (938) wifi:(opr)len:7, BSS Color:0, disabled:1, Partial BSS Color:0
+  36.75 I (938) wifi:state: assoc -> run (0x10)
+  36.75 I (938) wifi:(he)ppe_thresholds_present:1, nominal_packet_padding(rx:0, cfg:0)
+  36.75 I (939) wifi:(trc)phytype:CBW20-SGI, snr:54, maxRate:172, highestRateIdx:0
+  36.75 W (939) wifi:(trc)band:2G, phymode:3, highestRateIdx:0, lowestRateIdx:11, dataSchedTableSize:14
+  36.75 I (940) wifi:(trc)band:2G, rate(S-MCS7, rateIdx:0), ampdu(rate:S-MCS7, schedIdx(0, stop:8)), snr:54, ampduState:wait operational
+  36.75 I (940) wifi:ifidx:0, rssi:-42, nf:-96, phytype(0x3, CBW20-SGI), phymode(0x7, 11ax), max_rate:172, he:1, vht:0, ht:1
+  36.75 I (941) wifi:(ht)max.RxAMPDULenExponent:3(65535 bytes), MMSS:5(4 us)
+  36.75 I (977) wifi:(extcap)mbssid:0, enhanced_mbssid_advertise:0, complete_nontxbssid_profiles:0, twt_responder: 0
+  36.75 I (977) wifi:connected with Testing, aid = 5, channel 1, BW20(NONE, 00), bssid = 4e:5f:70:8c:a8:de
+  36.75 I (978) wifi:security: WPA2-PSK, phy: ax, rssi: -42, cipher(pairwise:0x3, group:0x3), pmf:0
+  36.75 I (979) wifi:pm start, type: 0, twt_start:0
+  36.75 
+  36.75 I (980) wifi:pm start, type:0, aid:0x5, trans-BSSID:4e:5f:70:8c:a8:de, BSSID[5]:0xde, mbssid(max-indicator:0, index:0), he:1
+  36.75 I (980) wifi:set rx beacon pti, rx_bcn_pti: 10, bcn_timeout: 25000, mt_pti: 10, mt_time: 10000
+  36.75 I (981) wifi:[ADDBA]TX addba request, tid:0, dialogtoken:1, bufsize:32, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x0)
+  36.75 I (981) wifi:[ADDBA]TX addba request, tid:7, dialogtoken:2, bufsize:32, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x20)
+  36.75 I (982) wifi:[ADDBA]TX addba request, tid:5, dialogtoken:3, bufsize:32, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x0)
+  36.75 I (985) wifi:[ADDBA]RX addba response, status:0, tid:0/tb:1(0xa1), bufsize:64, batimeout:5000, txa_wnd:32
+  36.75 I (986) wifi:[ADDBA]RX addba response, status:0, tid:7/tb:1(0xa1), bufsize:64, batimeout:5000, txa_wnd:32
+  36.75 I (987) wifi:[ADDBA]RX addba response, status:0, tid:5/tb:1(0xa1), bufsize:64, batimeout:5000, txa_wnd:32
+  36.75 I (992) wifi:AP's beacon interval = 102400 us, DTIM period = 3
+  37.96 I (2158) esp_netif_handlers: sta ip: 192.168.137.5, mask: 255.255.255.0, gw: 192.168.137.1
+  37.96 I (2158) csi-human: got IP 192.168.137.5, gateway 192.168.137.1
+  37.96 I (2159) csi-human: ping -> 192.168.137.1 every 20 ms
+  37.96 I (2160) csi-human: CSI: L-LTF only (12-bit samples)
+  37.96 I (2160) csi-human: console ready - type 'help' and Enter in idf.py monitor
+  37.96 I (2161) csi-human: free heap after start-up: 89708 bytes
+  37.96 I (2161) main_task: Returned from app_main()
+  37.96 E (2280) ping_sock: send error=0
+  37.96 E (2320) ping_sock: send error=0
+  38.16 E (2360) ping_sock: send error=0
+  38.16 E (2400) ping_sock: send error=0
+  38.16 E (2440) ping_sock: send error=0
+  38.16 E (2480) ping_sock: send error=0
+  38.16 E (2520) ping_sock: send error=0
+  38.36 E (2560) ping_sock: send error=0
+  38.36 E (2600) ping_sock: send error=0
+  38.36 E (2640) ping_sock: send error=0
+  38.36 E (2680) ping_sock: send error=0
+  38.36 E (2720) ping_sock: send error=0
+  38.56 E (2760) ping_sock: send error=0
+  38.56 E (2800) ping_sock: send error=0
+  38.56 E (2840) ping_sock: send error=0
+  38.56 E (2880) ping_sock: send error=0
+  38.56 E (2920) ping_sock: send error=0
+  38.77 E (2960) ping_sock: send error=0
+  38.77 E (3000) ping_sock: send error=0
+  38.77 E (3040) ping_sock: send error=0
+  38.77 E (3080) ping_sock: send error=0
+  38.77 E (3120) ping_sock: send error=0
+  38.98 E (3160) ping_sock: send error=0
+  38.98 E (3200) ping_sock: send error=0
+  38.98 E (3240) ping_sock: send error=0
+  38.98 I (3260) csi-human: [lock] 0/200 packets
+  38.98 JSON {"t_ms":3040,"state":"lock","present":0,"remaining_s":0}
+  38.98 E (3280) ping_sock: send error=0
+  38.98 E (3320) ping_sock: send error=0
+  39.18 E (3360) ping_sock: send error=0
+  39.18 E (3400) ping_sock: send error=0
+  39.18 E (3440) ping_sock: send error=0
+  39.18 E (3480) ping_sock: send error=0
+  39.18 E (3520) ping_sock: send error=0
+  39.18 E (3560) ping_sock: send error=0
+  39.38 E (3600) ping_sock: send error=0
+  39.38 E (3640) ping_sock: send error=0
+  39.38 E (3680) ping_sock: send error=0
+  39.38 E (3720) ping_sock: send error=0
+  39.38 E (3760) ping_sock: send error=0
+  39.59 E (3800) ping_sock: send error=0
+  39.59 E (3840) ping_sock: send error=0
+  39.59 E (3880) ping_sock: send error=0
+  39.59 E (3920) ping_sock: send error=0
+  39.59 E (3960) ping_sock: send error=0
+  39.79 E (4000) ping_sock: send error=0
+  39.79 E (4040) ping_sock: send error=0
+  39.79 E (4080) ping_sock: send error=0
+  39.79 E (4120) ping_sock: send error=0
+  39.79 E (4160) ping_sock: send error=0
+  40.00 E (4200) ping_sock: send error=0
+  40.00 E (4240) ping_sock: send error=0
+  40.00 E (4280) ping_sock: send error=0
+  40.00 I (4284) csi-human: [lock] 2/200 packets
+  40.00 JSON {"t_ms":4064,"state":"lock","present":0,"remaining_s":0}
+  40.61 W (4928) wifi:<ba-add>idx:0, ifx:0, tid:0, TAHI:0x100dea8, TALO:0x8c705f4e, (ssn:36, win:64, cur_ssn:36), CONF:0xc0000001
+  41.01 I (5284) csi-human: [lock] 28/200 packets
+  41.02 JSON {"t_ms":5064,"state":"lock","present":0,"remaining_s":0}
+  42.05 I (6323) csi-human: [lock] 57/200 packets
+  42.05 JSON {"t_ms":6104,"state":"lock","present":0,"remaining_s":0}
+  43.08 I (7379) csi-human: [lock] 110/200 packets
+  43.08 JSON {"t_ms":7159,"state":"lock","present":0,"remaining_s":0}
+  44.10 I (8387) csi-human: [lock] 163/200 packets
+  44.10 JSON {"t_ms":8168,"state":"lock","present":0,"remaining_s":0}
+  44.92 W (9119) csi-human: CSI shape locked: 106 bytes, 26 subcarriers, fwi=0, ch=1 (100.0%)
+  44.92 W (9120) csi-human: no stored baseline - calibrating
+  45.12 I (9400) csi-human: [leave-room] 10 s left, 14 packets
+  45.12 JSON {"t_ms":9180,"state":"leave-room","present":0,"remaining_s":10}
+  46.13 I (10401) csi-human: [leave-room] 9 s left, 65 packets
+  46.13 JSON {"t_ms":10182,"state":"leave-room","present":0,"remaining_s":9}
+  47.14 I (11401) csi-human: [leave-room] 8 s left, 115 packets
+  47.14 JSON {"t_ms":11182,"state":"leave-room","present":0,"remaining_s":8}
+  47.67 port unavailable: ClearCommError failed (PermissionError(13, 'The device does not recognize the co
+  47.97 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  48.27 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  48.58 port open
+  48.78 I (280) csi-human: =========================================
+  48.78 I (281) csi-human:  ESP32-C5 Wi-Fi CSI human detector
+  48.78 I (281) csi-human:  Step 10: + recognise / count / vitals (EXPERIMENTAL)
+  48.78 I (281) csi-human: =========================================
+  48.78 W (281) csi-human: no baseline (ESP_ERR_NVS_NOT_FOUND) - will calibrate automatically
+  48.78 I (282) csi-human: motion gate: moving at hf >= 4.00, 624 bytes static
+  48.78 I (282) csi-human: vitals: breathing + EXPERIMENTAL heart rate, 30984 bytes static
+  48.78 I (283) csi-human: no recognition model yet - enrol people with 'enroll <slot> <name>'
+  48.78 I (283) csi-human: no vitals log yet - it fills as recognised people sit still
+  48.78 I (283) csi-human: no count model yet - 'count-train 1', then 'count-train 2'
+  48.78 I (284) pp: pp rom version: 78a72e9d5
+  48.78 I (285) net80211: net80211 rom version: 78a72e9d5
+  48.78 I (286) wifi:wifi driver task: 40838c1c, prio:23, stack:6656, core=0
+  48.78 I (291) wifi:wifi firmware version: 00ad238
+  48.78 I (291) wifi:wifi certification version: v7.0
+  48.78 I (291) wifi:config NVS flash: enabled
+  48.78 I (292) wifi:config nano formatting: disabled
+  48.78 I (292) wifi:mac_version:HAL_MAC_ESP32AX_752MP_ECO2,ut_version:N, band mode:0x1
+  48.78 I (292) wifi:Init data frame dynamic rx buffer num: 32
+  48.78 I (293) wifi:Init static rx mgmt buffer num: 5
+  48.78 I (293) wifi:Init management short buffer num: 32
+  48.78 I (293) wifi:Init dynamic tx buffer num: 32
+  48.78 I (293) wifi:Init static tx FG buffer num: 2
+  48.78 I (293) wifi:Init static rx buffer size: 2212 (rxctrl:64, csi:512)
+  48.78 I (294) wifi:Init static rx buffer num: 16
+  48.78 I (294) wifi:Init dynamic rx buffer num: 32
+  48.78 I (295) wifi_init: rx ba win: 6
+  48.78 I (295) wifi_init: accept mbox: 6
+  48.78 I (295) wifi_init: tcpip mbox: 32
+  48.78 I (295) wifi_init: udp mbox: 6
+  48.78 I (295) wifi_init: tcp mbox: 6
+  48.78 I (295) wifi_init: tcp tx win: 5760
+  48.78 I (295) wifi_init: tcp rx win: 5760
+  48.78 I (296) wifi_init: tcp mss: 1440
+  48.78 I (296) wifi_init: WiFi IRAM OP enabled
+  48.78 I (296) wifi_init: WiFi RX IRAM OP enabled
+  48.78 I (296) wifi_init: WiFi SLP IRAM OP enabled
+  48.98 W (296) wifi:Password length matches WPA2 standards, authmode threshold changI (934) wifi:11ax coex: WDEVAX_PTI0(0x55777555), WDEVAX_PTI1(0x00003377).
+  48.98 
+  48.98 I (935) wifi:mode : sta (30:ed:a0:e4:50:b8)
+  48.98 I (935) wifi:enable tsf
+  48.98 I (937) wifi:Set ps type: 0, coexist: 0
+  48.98 
+  49.06 I (976) wifi:(he)max.RxAMPDULenExponentExtension:2, max.RxAMPDUpre-EOFpaddingBytes:4194303(0x3fffff)
+  49.06 I (977) wifi:(mac)omc_ul_mu_data_disable_rx:0
+  49.06 I (977) wifi:(phy)ppe_thresholds_present:1, nominal_packet_padding:0
+  49.06 I (977) wifi:(phy)dcm tx(constellation:0, nss:0), dcm rx(constellation:0, nss:0)
+  49.06 I (977) wifi:(phy)rx_mcs_map:0xfffa, tx_mcs_map:0xfffa, stbc_tx:1, bfmer(su:0, mu:0), ldpc:1, max_rate:172
+  49.06 I (978) wifi:(phy)nsts:2, ru_index_bitmap:0xc(242:0, 484:0, 996:1, 2*996:1)
+  49.06 I (978) wifi:(phy)threshold_bits:24, nsts_num:2, ru_num:2, he_cap->len:26, ppe_threshold_len:4(6,11,4)
+  49.06 I (979) wifi:(opr)bss color disabled:1
+  49.06 I (979) wifi:(opr)len:7, TWT Required:0, VHT Opr Info Present:0, 6GHz Opr Info Present:0, Co-Hosted BSS:0(max_indicator:0), Basic MCS and NSS:0xfff0
+  49.06 I (980) wifi:(opr)len:7, Default PE Duration:0, TXOP RTS Threshold:1023(0 us), ER-SU-Disable:1
+  49.06 I (980) wifi:(opr)len:7, BSS Color:0, disabled:1, Partial BSS Color:0
+  49.06 I (981) wifi:(connect)dot11_authmode:0x3, pairwise_cipher:0x3, group_cipher:0x3
+  49.06 I (982) wifi:state: init -> auth (0xb0)
+  49.06 I (1004) wifi:state: auth -> assoc (0x0)
+  49.06 I (1011) wifi:(assoc)RESP, Extended Capabilities length:14, operating_mode_notification:0
+  49.06 I (1012) wifi:(assoc)RESP, Extended Capabilities, MBSSID:0, TWT Responder:0, OBSS Narrow Bandwidth RU In OFDMA Tolerance:0
+  49.06 I (1013) wifi:(he)max.RxAMPDULenExponentExtension:2, max.RxAMPDUpre-EOFpaddingBytes:4194303(0x3fffff)
+  49.06 I (1013) wifi:(mac)omc_ul_mu_data_disable_rx:0
+  49.06 I (1013) wifi:(phy)ppe_thresholds_present:1, nominal_packet_padding:0
+  49.06 I (1014) wifi:(phy)dcm tx(constellation:0, nss:0), dcm rx(constellation:0, nss:0)
+  49.06 I (1014) wifi:(phy)rx_mcs_map:0xfffa, tx_mcs_map:0xfffa, stbc_tx:1, bfmer(su:0, mu:0), ldpc:1, max_rate:172
+  49.06 I (1015) wifi:(phy)nsts:2, ru_index_bitmap:0xc(242:0, 484:0, 996:1, 2*996:1)
+  49.06 I (1015) wifi:(phy)threshold_bits:24, nsts_num:2, ru_num:2, he_cap->len:26, ppe_threshold_len:4(6,11,4)
+  49.06 I (1015) wifi:(opr)bss color disabled:1
+  49.06 I (1016) wifi:(opr)len:7, TWT Required:0, VHT Opr Info Present:0, 6GHz Opr Info Present:0, Co-Hosted BSS:0(max_indicator:0), Basic MCS and NSS:0xfff0
+  49.06 I (1016) wifi:(opr)len:7, Default PE Duration:0, TXOP RTS Threshold:1023(0 us), ER-SU-Disable:1
+  49.06 I (1017) wifi:(opr)len:7, BSS Color:0, disabled:1, Partial BSS Color:0
+  49.06 I (1017) wifi:state: assoc -> run (0x10)
+  49.06 I (1017) wifi:(he)ppe_thresholds_present:1, nominal_packet_padding(rx:0, cfg:0)
+  49.06 I (1018) wifi:(trc)phytype:CBW20-SGI, snr:55, maxRate:172, highestRateIdx:0
+  49.06 W (1018) wifi:(trc)band:2G, phymode:3, highestRateIdx:0, lowestRateIdx:11, dataSchedTableSize:14
+  49.06 I (1019) wifi:(trc)band:2G, rate(S-MCS7, rateIdx:0), ampdu(rate:S-MCS7, schedIdx(0, stop:8)), snr:55, ampduState:wait operational
+  49.06 I (1019) wifi:ifidx:0, rssi:-41, nf:-96, phytype(0x3, CBW20-SGI), phymode(0x7, 11ax), max_rate:172, he:1, vht:0, ht:1
+  49.06 I (1020) wifi:(ht)max.RxAMPDULenExponent:3(65535 bytes), MMSS:5(4 us)
+  49.06 I (1027) wifi:(extcap)mbssid:0, enhanced_mbssid_advertise:0, complete_nontxbssid_profiles:0, twt_responder: 0
+  49.06 I (1027) wifi:connected with Testing, aid = 6, channel 1, BW20(NONE, 00), bssid = 4e:5f:70:8c:a8:de
+  49.06 I (1028) wifi:security: WPA2-PSK, phy: ax, rssi: -41, cipher(pairwise:0x3, group:0x3), pmf:0
+  49.06 I (1029) wifi:pm start, type: 0, twt_start:0
+  49.06 
+  49.06 I (1029) wifi:pm start, type:0, aid:0x6, trans-BSSID:4e:5f:70:8c:a8:de, BSSID[5]:0xde, mbssid(max-indicator:0, index:0), he:1
+  49.06 I (1030) wifi:set rx beacon pti, rx_bcn_pti: 10, bcn_timeout: 25000, mt_pti: 10, mt_time: 10000
+  49.06 I (1031) wifi:[ADDBA]TX addba request, tid:0, dialogtoken:1, bufsize:32, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x0)
+  49.06 I (1031) wifi:[ADDBA]TX addba request, tid:7, dialogtoken:2, bufsize:32, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x20)
+  49.06 I (1032) wifi:[ADDBA]TX addba request, tid:5, dialogtoken:3, bufsize:32, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x0)
+  49.06 I (1035) wifi:[ADDBA]RX addba response, status:0, tid:0/tb:1(0xa1), bufsize:64, batimeout:5000, txa_wnd:32
+  49.06 I (1036) wifi:[ADDBA]RX addba response, status:0, tid:7/tb:1(0xa1), bufsize:64, batimeout:5000, txa_wnd:32
+  49.27 I (1037) wifi:[ADDBA]RX addba response, status:0, tid:5/tb:1(0xa1), bufsize:64, batimeout:5000, txa_wnd:32
+  49.27 I (1078) wifi:AP's beacon interval = 102400 us, DTIM period = 3
+  50.28 I (2228) esp_netif_handlers: sta ip: 192.168.137.5, mask: 255.255.255.0, gw: 192.168.137.1
+  50.28 I (2228) csi-human: got IP 192.168.137.5, gateway 192.168.137.1
+  50.28 I (2229) csi-human: ping -> 192.168.137.1 every 20 ms
+  50.28 I (2230) csi-human: CSI: L-LTF only (12-bit samples)
+  50.28 I (2230) csi-human: console ready - type 'help' and Enter in idf.py monitor
+  50.28 I (2231) csi-human: free heap after start-up: 89720 bytes
+  50.28 I (2231) main_task: Returned from app_main()
+  51.09 W (2880) wifi:<ba-add>idx:0, ifx:0, tid:0, TAHI:0x100dea8, TALO:0x8c705f4e, (ssn:36, win:64, cur_ssn:36), CONF:0xc0000001
+  51.51 I (3281) csi-human: [lock] 10/200 packets
+  51.51 JSON {"t_ms":3061,"state":"lock","present":0,"remaining_s":0}
+  52.32 I (4284) csi-human: [lock] 25/200 packets
+  52.32 JSON {"t_ms":4064,"state":"lock","present":0,"remaining_s":0}
+  53.33 I (5284) csi-human: [lock] 76/200 packets
+  53.34 JSON {"t_ms":5064,"state":"lock","present":0,"remaining_s":0}
+  54.36 I (6292) csi-human: [lock] 127/200 packets
+  54.36 JSON {"t_ms":6072,"state":"lock","present":0,"remaining_s":0}
+  55.38 I (7309) csi-human: [lock] 178/200 packets
+  55.38 JSON {"t_ms":7090,"state":"lock","present":0,"remaining_s":0}
+  55.80 W (7755) csi-human: CSI shape locked: 106 bytes, 26 subcarriers, fwi=0, ch=1 (100.0%)
+  55.80 W (7755) csi-human: no stored baseline - calibrating
+  56.40 I (8312) csi-human: [leave-room] 10 s left, 28 packets
+  56.40 JSON {"t_ms":8093,"state":"leave-room","present":0,"remaining_s":10}
+  57.43 I (9337) csi-human: [leave-room] 9 s left, 79 packets
+  57.43 JSON {"t_ms":9118,"state":"leave-room","present":0,"remaining_s":9}
+  58.45 I (10350) csi-human: [leave-room] 8 s left, 130 packets
+  58.45 JSON {"t_ms":10130,"state":"leave-room","present":0,"remaining_s":8}
+  59.47 I (11351) csi-human: [leave-room] 7 s left, 180 packets
+  59.47 JSON {"t_ms":11132,"state":"leave-room","present":0,"remaining_s":7}
+  60.49 I (12363) csi-human: [leave-room] 6 s left, 230 packets
+  60.49 JSON {"t_ms":12143,"state":"leave-room","present":0,"remaining_s":6}
+  61.50 I (13370) csi-human: [leave-room] 5 s left, 281 packets
+  61.50 JSON {"t_ms":13151,"state":"leave-room","present":0,"remaining_s":5}
+  62.51 I (14375) csi-human: [leave-room] 4 s left, 331 packets
+  62.51 JSON {"t_ms":14156,"state":"leave-room","present":0,"remaining_s":4}
+  63.53 I (15390) csi-human: [leave-room] 3 s left, 382 packets
+  63.53 JSON {"t_ms":15170,"state":"leave-room","present":0,"remaining_s":3}
+  64.54 I (16416) csi-human: [leave-room] 2 s left, 433 packets
+  64.54 JSON {"t_ms":16197,"state":"leave-room","present":0,"remaining_s":2}
+  64.67 port unavailable: ClearCommError failed (PermissionError(13, 'The device does not recognize the co
+  64.97 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  65.27 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  65.57 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  65.87 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  66.17 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  66.47 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  66.77 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  67.07 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  67.37 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  67.67 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  67.97 port unavailable: could not open port 'COM13': FileNotFoundError(2, 'The system cannot find the fi
+  68.27 port open

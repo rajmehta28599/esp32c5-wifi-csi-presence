@@ -35,6 +35,10 @@
     {
       "name": "step09_espressif_sensing",
       "path": "step09_espressif_sensing"
+    },
+    {
+      "name": "step10_recognise_count_vitals",
+      "path": "step10_recognise_count_vitals"
     }
   ],
   "settings": {
@@ -46,9 +50,7 @@
       "**/build": true,
       "**/sdkconfig": true,
       "**/sdkconfig.old": true
-    },
-    "idf.port": "COM37",
-    "idf.portWin": "COM37"
+    }
   },
   "extensions": {
     "recommendations": [

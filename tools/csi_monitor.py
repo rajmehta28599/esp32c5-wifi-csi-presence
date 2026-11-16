@@ -19,6 +19,7 @@ Usage:
     pip install pyserial matplotlib numpy
     python csi_monitor.py --port COM12
     python csi_monitor.py --port COM12 --baud 921600 --history 300
+    python csi_monitor.py        # --port auto (default): the one ESP32 board plugged in
 """
 
 import argparse
@@ -38,15 +39,57 @@ except ImportError:
     sys.exit("matplotlib/numpy are missing.  pip install matplotlib numpy")
 
 
+# USB vendor IDs that appear on ESP32 devkits - the same table as
+# build.ps1's $UsbSerialVids, which is what the IDE tasks' 'auto' means.
+BOARD_VIDS = {
+    0x303A: "Espressif USB-Serial-JTAG (built into the C5)",
+    0x10C4: "Silicon Labs CP210x bridge",
+    0x1A86: "WCH CH34x bridge",
+    0x0403: "FTDI bridge",
+}
+
+
+def resolve_port(port):
+    """'auto' (the default, and what the Antigravity task passes when its
+    port prompt is left alone) picks the one connected ESP32 board by USB
+    vendor ID. Anything else is used as given."""
+    if port.strip().lower() != "auto":
+        return port
+    from serial.tools import list_ports
+    ports = list(list_ports.comports())
+    boards = [p for p in ports if p.vid in BOARD_VIDS]
+    if len(boards) == 1:
+        p = boards[0]
+        print(f"--port auto: using {p.device} ({BOARD_VIDS[p.vid]})")
+        return p.device
+    if not boards:
+        present = ", ".join(p.device for p in ports) or "none"
+        sys.exit("--port auto: no ESP32 board found (serial ports present: "
+                 f"{present}). Plug it in with a data cable, or pass --port COMx.")
+    listed = ", ".join(f"{p.device} ({BOARD_VIDS[p.vid]})" for p in boards)
+    sys.exit(f"--port auto: {len(boards)} boards found - {listed}. "
+             "Pass --port COMx to pick one.")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--port", required=True, help="serial port, e.g. COM12 or /dev/ttyUSB0")
+    ap.add_argument("--port", default="auto",
+                    help="serial port, e.g. COM12 or /dev/ttyUSB0; 'auto' (default) "
+                         "picks the one ESP32 board plugged in")
     ap.add_argument("--baud", type=int, default=921600)
     ap.add_argument("--history", type=int, default=200, help="waterfall rows")
     args = ap.parse_args()
 
-    ser = serial.Serial(args.port, args.baud, timeout=1)
-    print(f"listening on {args.port} at {args.baud} ...")
+    port = resolve_port(args.port)
+    # DTR/RTS de-asserted before opening, as idf.py monitor does: on the
+    # C5's USB-Serial-JTAG they drive reset and boot strapping (see
+    # presence_monitor.py and docs/DECISIONS.md, hardware bring-up gotchas).
+    ser = serial.Serial()
+    ser.port, ser.baudrate, ser.timeout = port, args.baud, 1
+    ser.dtr = False
+    ser.rts = False
+    ser.open()
+    print(f"listening on {port} at {args.baud} ...")
     print("waiting for the first CSI line (Step 05 must be running)")
 
     history = collections.deque(maxlen=args.history)

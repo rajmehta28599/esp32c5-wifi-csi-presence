@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSI Decision Dashboard</title>
+<meta name="description" content="Live view of how the ESP32-C5 Step 10 firmware detects, recognises and counts people and estimates breathing, from its serial output (served by tools/dashboard.py).">
+<!--
+  tools/dashboard.html - served by tools/dashboard.py (GET /). One file, no
+  build step, no external scripts or fonts: it works offline. It reads the
+  board's serial lines from /events (Server-Sent Events) and posts console
+  commands to /cmd. Line formats it understands:
+    JSON {...}     Step 08 / Step 10 status line (README "Step 10 -> JSON")
+    EXPLAIN {...}  Step 10 decision events (CSI_EXPLAIN=y): config, cal, amp,
+                   gait, count, vitals, presence
+    CMD ...        console answers, plus their 4-space-indented lines
+    X (ms) tag: .. ESP-IDF log lines, including the firmware's "why:" lines
+  Without EXPLAIN lines (older firmware, Step 08) every panel falls back to
+  the JSON line and says what is missing.
+-->
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink2: #52514e;
+  --muted: #7a7873;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
+  --s4: #eda100;
+  --unk: #a09f99;
+  --accent: #2a78d6;
+  --band: rgba(42, 120, 214, 0.11);
+  --lit: rgba(42, 120, 214, 0.12);
+  --good: #0ca30c;
+  --good-text: #006300;
+  --warn: #fab219;
+  --serious: #ec835a;
+  --crit: #d03b3b;
+  --warn-bg: #fff6df;
+  --crit-bg: #fdecec;
+  --info-bg: #eef4fc;
+  --is-dark: 0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink2: #c3c2b7;
+    --muted: #8f8d87;
+    --grid: #2c2c2a;
+    --axis: #45443f;
+    --border: rgba(255, 255, 255, 0.10);
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
+    --s4: #c98500;
+    --unk: #6d6c67;
+    --accent: #3987e5;
+    --band: rgba(57, 135, 229, 0.17);
+    --lit: rgba(57, 135, 229, 0.20);
+    --good-text: #0ca30c;
+    --warn-bg: #2e2612;
+    --crit-bg: #331616;
+    --info-bg: #15202e;
+    --is-dark: 1;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --ink: #ffffff;
+  --ink2: #c3c2b7;
+  --muted: #8f8d87;
+  --grid: #2c2c2a;
+  --axis: #45443f;
+  --border: rgba(255, 255, 255, 0.10);
+  --s1: #3987e5;
+  --s2: #d95926;
+  --s3: #199e70;
+  --s4: #c98500;
+  --unk: #6d6c67;
+  --accent: #3987e5;
+  --band: rgba(57, 135, 229, 0.17);
+  --lit: rgba(57, 135, 229, 0.20);
+  --good-text: #0ca30c;
+  --warn-bg: #2e2612;
+  --crit-bg: #331616;
+  --info-bg: #15202e;
+  --is-dark: 1;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 1400px; margin: 0 auto; padding: 0 16px 32px; }
+h1 { font-size: 18px; margin: 0; font-weight: 650; }
+h2 { font-size: 15px; margin: 0; font-weight: 650; }
+h3 { font-size: 12px; margin: 0 0 4px; font-weight: 650; color: var(--ink2); text-transform: uppercase; letter-spacing: .04em; }
+p { margin: 0 0 6px; }
+b.num, .num { font-variant-numeric: tabular-nums; }
+button, input, select {
+  font: inherit; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--axis); border-radius: 6px; padding: 5px 9px;
+}
+button { cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+button.danger:hover { border-color: var(--crit); }
+input[type="checkbox"] { padding: 0; }
+.icon { width: 16px; height: 16px; flex: none; vertical-align: -3px; }
+
+/* ---- top bar ---- */
+.top {
+  position: sticky; top: 0; z-index: 5; background: var(--page);
+  border-bottom: 1px solid var(--border); margin: 0 -16px 12px; padding: 8px 16px;
+}
+.toprow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.toprow .spacer { flex: 1; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface); font-size: 13px; white-space: nowrap;
+}
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--unk); flex: none; }
+.dot.good { background: var(--good); }
+.dot.warn { background: var(--warn); }
+.dot.crit { background: var(--crit); }
+.honesty { font-size: 12px; color: var(--ink2); margin-top: 4px; display: flex; gap: 6px; align-items: flex-start; }
+.banner {
+  display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; border-radius: 8px;
+  margin: 8px 0 0; border: 1px solid var(--border); font-size: 14px;
+}
+.banner.warn { background: var(--warn-bg); }
+.banner.crit { background: var(--crit-bg); }
+.banner.info { background: var(--info-bg); }
+.banner[hidden] { display: none; }
+.banner .icon { margin-top: 2px; }
+
+/* ---- pipeline strip ---- */
+.pipe { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+.pipe-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.pipe-head .sub { color: var(--ink2); font-size: 12px; }
+.pipe-body { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 5fr); gap: 10px; align-items: center; }
+.chain { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.branches { display: grid; gap: 8px; }
+.branch { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.stage {
+  position: relative; border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px;
+  background: var(--surface); min-width: 0; transition: background-color .6s, border-color .6s;
+}
+.stage .lbl { font-size: 11px; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stage .val { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.stage .ago { font-size: 10px; color: var(--muted); white-space: nowrap; }
+.stage.lit { background: var(--lit); border-color: var(--accent); transition: none; }
+.stage.on .val { color: var(--accent); }
+.stage.out { border-width: 2px; }
+.chain .stage:not(:last-child)::after, .branch .stage:not(:last-child)::after {
+  content: ""; position: absolute; right: -12px; top: 50%; width: 10px; height: 10px; margin-top: -5px;
+  background: linear-gradient(135deg, transparent 50%, var(--axis) 50%); transform: rotate(-45deg) scale(.7);
+}
+
+/* ---- panels ---- */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
+.panel {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px;
+  min-width: 0; display: flex; flex-direction: column; gap: 10px;
+}
+.span4 { grid-column: span 4; }
+.span5 { grid-column: span 5; }
+.span6 { grid-column: span 6; }
+.span7 { grid-column: span 7; }
+.span8 { grid-column: span 8; }
+.span12 { grid-column: span 12; }
+.phead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.phead .tag { font-size: 11px; color: var(--ink2); border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; }
+.tag.exp { border-color: var(--warn); }
+.hero { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.hero .big { font-size: 30px; font-weight: 650; line-height: 1.1; }
+.hero .small { color: var(--ink2); font-size: 13px; }
+.how {
+  border-left: 3px solid var(--axis); padding: 2px 0 2px 10px; color: var(--ink2); font-size: 13px;
+}
+.how b { color: var(--ink); font-weight: 600; }
+.how h3 { margin-bottom: 2px; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.tile { border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; min-width: 0; }
+.tile .lbl { font-size: 11px; color: var(--ink2); }
+.tile .val { font-size: 17px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tile .sub { font-size: 11px; color: var(--muted); }
+canvas { display: block; width: 100%; }
+.chartbox { position: relative; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink2); align-items: center; }
+.key { display: inline-block; width: 14px; height: 0; border-top: 2px solid var(--ink2); vertical-align: middle; margin-right: 4px; }
+.key.dash { border-top-style: dashed; }
+.key.box { height: 10px; border: 0; }
+.tip {
+  position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 8px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.15); white-space: nowrap; z-index: 3;
+}
+.tip[hidden] { display: none; }
+
+/* bars (gait distances, count distances, meters) */
+.bars { display: grid; grid-template-columns: max-content minmax(60px, 1fr) max-content; gap: 8px 10px; align-items: center; font-size: 13px; }
+.bars.marked { row-gap: 20px; padding-top: 12px; }
+.bars > .small { grid-column: 1 / -1; }
+.barrow { display: contents; }
+.barrow .name { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+.barrow .name .nearest { font-size: 11px; font-weight: 400; color: var(--ink2); }
+.barrow .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink2); }
+.track { position: relative; height: 16px; border-radius: 4px; background: var(--grid); overflow: visible; }
+.fill { position: absolute; left: 0; top: 2px; bottom: 2px; border-radius: 0 4px 4px 0; background: var(--unk); }
+.mark { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 2px dashed var(--ink2); }
+.mark span { position: absolute; top: -16px; left: -2px; font-size: 10.5px; color: var(--ink2); white-space: nowrap; }
+.barrow.best .name { font-weight: 650; }
+.sw { width: 10px; height: 10px; border-radius: 3px; flex: none; background: var(--unk); }
+.chips { display: flex; gap: 3px; flex-wrap: wrap; align-items: center; }
+.chip {
+  min-width: 22px; height: 22px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 650; padding: 0 4px; color: #fff; background: var(--unk);
+}
+.chip.empty { background: transparent; border: 1px dashed var(--axis); color: var(--muted); font-weight: 400; }
+.chip.dark-ink { color: #0b0b0b; }
+.stage .chips .chip { min-width: 14px; height: 16px; font-size: 10px; border-radius: 3px; padding: 0 2px; }
+.hist { list-style: none; margin: 0; padding: 0; font-size: 12.5px; max-height: 190px; overflow-y: auto; border-top: 1px solid var(--grid); }
+.hist li { padding: 3px 0; border-bottom: 1px solid var(--grid); display: flex; gap: 8px; align-items: baseline; }
+.hist li .when { color: var(--muted); font-variant-numeric: tabular-nums; flex: none; width: 60px; }
+.callout { border: 1px dashed var(--axis); border-radius: 8px; padding: 8px 10px; font-size: 13px; }
+.callout ol { margin: 4px 0 6px 18px; padding: 0; }
+.statepill { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border); font-size: 12px; }
+
+/* console */
+.cmdgrid { display: grid; gap: 8px; }
+.cmdgrid .row button { min-width: 0; }
+pre.out {
+  margin: 0; font: 12px/1.4 ui-monospace, Consolas, monospace; background: var(--page); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px; max-height: 240px; overflow: auto; white-space: pre-wrap; word-break: break-word;
+}
+.out .sent { color: var(--accent); }
+.out .err { color: var(--crit); }
+input.name { width: 9em; }
+input.free { flex: 1; min-width: 8em; }
+
+/* event log */
+.log { list-style: none; margin: 0; padding: 0; font-size: 13px; max-height: 360px; overflow-y: auto; }
+.log li { display: grid; grid-template-columns: 70px 20px minmax(0, 1fr); gap: 6px; padding: 3px 0; border-bottom: 1px solid var(--grid); align-items: baseline; }
+.log .when { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; }
+.log .txt { word-break: break-word; }
+.log li.decision .txt { font-weight: 600; }
+.log li.warn .txt { color: var(--ink); }
+.log .k { width: 8px; height: 8px; border-radius: 2px; display: inline-block; background: var(--axis); }
+.log li.decision .k { background: var(--accent); }
+.log li.why .k { background: var(--s3); }
+.log li.warn .k { background: var(--warn); }
+.log li.err .k { background: var(--crit); }
+.log li.link .k { background: var(--muted); }
+.filters { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; color: var(--ink2); }
+.filters label { display: inline-flex; gap: 4px; align-items: center; }
+details > summary { cursor: pointer; color: var(--ink2); font-size: 13px; }
+footer { margin-top: 16px; color: var(--muted); font-size: 12px; }
+
+@media (max-width: 1100px) {
+  .pipe-body { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .span4, .span5, .span6, .span7, .span8 { grid-column: span 12; }
+}
+@media (max-width: 640px) {
+  .top { position: static; }
+  .chain { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chain .stage:nth-child(2)::after { display: none; }
+  .branch { gap: 10px; }
+  .stage .val { white-space: normal; font-size: 13px; }
+  .hero .big { font-size: 24px; }
+  .log li { grid-template-columns: 58px 14px minmax(0, 1fr); }
+}
+@media (forced-colors: active) {
+  .stage.lit { outline: 2px solid Highlight; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-warn" viewBox="0 0 16 16"><path d="M8 1.5 15 14H1z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 6v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="12" r=".9" fill="currentColor"/></symbol>
+  <symbol id="i-info" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="4.8" r=".9" fill="currentColor"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 5.5l5 5m0-5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+</svg>
+<div class="wrap">
+
+<header class="top">
+  <div class="toprow">
+    <h1>How Step 10 decides</h1>
+    <span class="pill" id="linkPill" title="Where the lines come from"><span class="dot" id="linkDot"></span><span id="linkText">connecting to dashboard.py ...</span></span>
+    <span class="pill" id="statePill" title="The firmware's phase (JSON state)"><span class="dot" id="stateDot"></span><span id="stateText">no data yet</span></span>
+    <span class="spacer"></span>
+    <button id="themeBtn" type="button" title="Switch light / dark / follow the system">Theme: auto</button>
+  </div>
+  <div class="honesty"><svg class="icon" style="color:var(--warn)" aria-hidden="true"><use href="#i-warn"/></svg>
+    <span><b>EXPERIMENTAL:</b> recognition, counting and heart rate are unvalidated - nothing here has been checked against ground truth on this hardware yet (docs/TESTING.md section 5). Not a medical device. Presence detection is the only established part.</span></div>
+  <div class="banner warn" id="calBanner" hidden><svg class="icon" aria-hidden="true"><use href="#i-warn"/></svg><div id="calText"></div></div>
+  <div class="banner crit" id="critBanner" hidden><svg class="icon" aria-hidden="true"><use href="#i-stop"/></svg><div id="critText"></div></div>
+  <div class="banner info" id="infoBanner" hidden><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg><div id="infoText"></div></div>
+</header>
+
+<!-- 1. pipeline strip -->
+<section class="pipe" aria-label="Pipeline">
+  <div class="pipe-head">
+    <h2>The pipeline, stage by stage</h2>
+    <span class="sub">A stage lights up when it last produced something; the grey text says how long ago (board clock).</span>
+  </div>
+  <div class="pipe-body">
+    <div class="chain">
+      <div class="stage" id="st-csi"><div class="lbl">CSI in</div><div class="val">-</div><div class="ago"></div></div>
+      <div class="stage" id="st-base"><div class="lbl">calibrated baseline</div><div class="val">-</div><div class="ago"></div></div>
+      <div class="stage" id="st-motion"><div class="lbl">motion score</div><div class="val">-</div><div class="ago"></div></div>
+      <div class="stage out" id="st-present"><div class="lbl">PRESENT?</div><div class="val">-</div><div class="ago"></div></div>
+    </div>
+    <div class="branches">
+      <div class="branch">
+        <div class="stage" id="st-gwin"><div class="lbl">gait windows</div><div class="val">-</div><div class="ago"></div></div>
+        <div class="stage" id="st-gvote"><div class="lbl">votes (last 7)</div><div class="val">-</div><div class="ago"></div></div>
+        <div class="stage out" id="st-who"><div class="lbl">WHO</div><div class="val">-</div><div class="ago"></div></div>
+      </div>
+      <div class="branch">
+        <div class="stage" id="st-cblk"><div class="lbl">count blocks</div><div class="val">-</div><div class="ago"></div></div>
+        <div class="stage" id="st-cvote"><div class="lbl">votes (last 5)</div><div class="val">-</div><div class="ago"></div></div>
+        <div class="stage out" id="st-many"><div class="lbl">HOW MANY</div><div class="val">-</div><div class="ago"></div></div>
+      </div>
+      <div class="branch">
+        <div class="stage" id="st-gate"><div class="lbl">motion gate still?</div><div class="val">-</div><div class="ago"></div></div>
+        <div class="stage" id="st-vit"><div class="lbl">vitals analysis</div><div class="val">-</div><div class="ago"></div></div>
+        <div class="stage out" id="st-vout"><div class="lbl">BREATHING / HEART</div><div class="val">-</div><div class="ago"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="grid">
+
+  <!-- 2. link -->
+  <section class="panel span4" aria-labelledby="h-link">
+    <div class="phead"><h2 id="h-link">Link and calibration</h2><span class="tag" id="linkTag">-</span></div>
+    <div class="tiles">
+      <div class="tile"><div class="lbl">packets / s</div><div class="val num" id="t-rate">-</div><div class="sub" id="t-rate-sub">calibrated rate</div></div>
+      <div class="tile"><div class="lbl">RSSI</div><div class="val num" id="t-rssi">-</div><div class="sub">dBm, higher = stronger</div></div>
+      <div class="tile"><div class="lbl">dropped</div><div class="val num" id="t-drop">-</div><div class="sub">CSI packets since boot</div></div>
+      <div class="tile"><div class="lbl">slowest packet</div><div class="val num" id="t-proc">-</div><div class="sub">ms, since last line</div></div>
+      <div class="tile"><div class="lbl">CSI shape</div><div class="val num" id="t-shape">-</div><div class="sub" id="t-shape-sub">bytes / subcarriers</div></div>
+      <div class="tile"><div class="lbl">channel</div><div class="val num" id="t-ch">-</div><div class="sub" id="t-ch-sub">-</div></div>
+      <div class="tile"><div class="lbl">last reset</div><div class="val" id="t-reset">-</div><div class="sub" id="t-reset-sub">why the board last restarted</div></div>
+    </div>
+    <div class="small muted" id="calSummary">No calibration seen in this session yet.</div>
+    <div class="how"><h3>How it works</h3>
+      <p>The board pings the Wi-Fi access point about <b class="num" data-cfg="rate">50</b> times a second. Every reply carries <b>CSI</b> (channel state information): how strongly each radio subcarrier arrived. A body changes how the radio waves bounce around the room, so those numbers change.</p>
+      <p>Before it detects anything the board <b>calibrates against the empty room</b>: a leave-room countdown, a warm-up, phase A (each subcarrier's own noise), then phase B (the empty room's noise floor for the scores). Every score below is "how different from that empty room".</p>
+    </div>
+  </section>
+
+  <!-- 3. waterfall -->
+  <section class="panel span8" aria-labelledby="h-wf">
+    <div class="phead"><h2 id="h-wf">What the radio sees: CSI waterfall</h2>
+      <div class="row small">
+        <label><input type="radio" name="wfmode" value="change" checked> change from average</label>
+        <label><input type="radio" name="wfmode" value="level"> raw level</label>
+      </div>
+    </div>
+    <div class="chartbox" id="wfBox">
+      <canvas id="wf" data-h="200" aria-label="CSI amplitude waterfall: subcarrier by time"></canvas>
+      <div class="tip" id="wfTip" hidden></div>
+    </div>
+    <div class="legend" id="wfLegend"></div>
+    <div class="small muted" id="wfNote">Waiting for EXPLAIN amp lines (5 per second by default).</div>
+    <div class="how"><h3>How to read it</h3>
+      <p>Each column is one moment (newest on the right, last 60 s), each row one subcarrier the board uses, colour = its amplitude. An <b>empty room</b> paints steady horizontal stripes. <b>Someone walking</b> makes the stripes flicker. <b>Someone sitting down</b> shifts a few rows a little and then holds still. "Change from average" subtracts each row's average of the previous 10 s, so only the disturbance is coloured.</p>
+    </div>
+  </section>
+
+  <!-- 4. presence -->
+  <section class="panel span12" aria-labelledby="h-pres">
+    <div class="phead"><h2 id="h-pres">Presence: is anyone there?</h2><span class="tag">established</span></div>
+    <div class="hero"><span class="big" id="presBig">-</span><span class="small" id="presWhy">-</span></div>
+    <div class="legend">
+      <span><span class="key" style="border-color:var(--s1)"></span>motion score</span>
+      <span><span class="key" style="border-color:var(--s2)"></span>deviation score</span>
+      <span><span class="key dash"></span>thresholds</span>
+      <span><span class="key box" style="background:var(--band)"></span>PRESENT</span>
+    </div>
+    <div class="chartbox" id="presBox">
+      <canvas id="presM" data-h="150" aria-label="Motion score over the last 60 seconds"></canvas>
+      <canvas id="presD" data-h="118" aria-label="Deviation score over the last 60 seconds"></canvas>
+      <div class="tip" id="presTip" hidden></div>
+    </div>
+    <div class="how"><h3>How it decides</h3>
+      <p><b>Motion score</b> = how fast the subcarriers are changing right now, in standard deviations (sd) of the empty room's own noise. It turns <b>PRESENT</b> when motion reaches <b class="num" data-cfg="thr_motion">5.0</b> sd, and lets go only when motion falls below <b class="num" data-cfg="thr_release">2.5</b> sd <i>and</i> nothing has triggered for <b class="num" data-cfg="hold_s">5.0</b> s.</p>
+      <p>Someone sitting still barely changes the signal, so a second score, <b>deviation</b>, measures how far the signal sits from the empty-room level: at least <b class="num" data-cfg="thr_static">5.0</b> sd for <b class="num" data-cfg="sustain_s">4.0</b> s also means PRESENT.<span id="holdSentence"> A confident breathing rate can keep a still person PRESENT (it never starts presence).</span></p>
+    </div>
+  </section>
+
+  <!-- 5. recognise -->
+  <section class="panel span6" aria-labelledby="h-id">
+    <div class="phead"><h2 id="h-id">Recognise: who is walking?</h2><span class="tag exp">EXPERIMENTAL</span></div>
+    <div class="hero"><span class="big" id="whoBig">-</span><span class="small" id="whoSub">-</span></div>
+    <div id="idNoModel" class="callout" hidden>
+      <b>Nobody is enrolled yet</b>, so there is nobody to compare a walk with.
+      <ol>
+        <li>Everyone else leaves the area between the board and the router (a second person moving poisons the template - nothing guards against that).</li>
+        <li>Type a name and press Enroll. Slot numbers are 0 to 3.</li>
+        <li>That person walks around ALONE at a normal pace, by several different routes, until the log says <i>enrol &lt;name&gt;: done</i> (<b class="num" data-cfg="enrol_windows">30</b> gait windows by default, a few minutes; a slot takes part once it has <b class="num" data-cfg="min_windows">10</b>).</li>
+      </ol>
+      <div class="row"><label>slot <select id="enSlot0"><option>0</option><option>1</option><option>2</option><option>3</option></select></label>
+        <input class="name" id="enName0" placeholder="name" maxlength="15" aria-label="name to enrol">
+        <button type="button" class="primary" id="enBtn0">Enroll</button></div>
+    </div>
+    <div>
+      <h3>Latest gait window: distance to each enrolled person</h3>
+      <div class="bars" id="idBars"><div class="muted small">No gait window yet - they only run while someone is PRESENT and moving.</div></div>
+    </div>
+    <div class="small" id="idVerdict">-</div>
+    <div class="row"><h3 style="margin:0">Vote ring (oldest to newest)</h3><div class="chips" id="idRing"></div></div>
+    <div>
+      <h3>Gait window history</h3>
+      <ul class="hist" id="idHist"></ul>
+    </div>
+    <div class="how"><h3>How it decides</h3>
+      <p>Only while <b>one</b> person walks. Every <b class="num" data-cfg="hop_s">2.5</b> s the board takes the last <b class="num" data-cfg="win_s">5.1</b> s of signal - if at least <b class="num" data-cfg="min_moving_pct">80</b> % of those packets were moving - and turns it into 18 numbers: how fast the signal fluctuates, the step rhythm, and which subcarriers move.</p>
+      <p>It measures the <b>distance</b> from those numbers to each enrolled person's template, in units of the spread seen while they enrolled. The nearest person gets the vote if the distance is at most <b class="num" data-cfg="reject">2.50</b> (otherwise "unknown": too far from everyone) and the runner-up is at least <b class="num" data-cfg="margin">1.15</b>x as far (otherwise "unknown": ambiguous). A name needs <b class="num" data-cfg="min_votes">3</b> of the last <b class="num" data-cfg="votes">7</b> votes, more than "unknown" has, and no tie.</p>
+      <p>It cannot recognise someone sitting still, a stranger (only "unknown"), or anyone while 2+ people move.</p>
+    </div>
+  </section>
+
+  <!-- 6. count -->
+  <section class="panel span6" aria-labelledby="h-cnt">
+    <div class="phead"><h2 id="h-cnt">Count: one mover or more?</h2><span class="tag exp">EXPERIMENTAL</span></div>
+    <div class="hero"><span class="big" id="cntBig">-</span><span class="small" id="cntSub">-</span></div>
+    <div id="cntNoModel" class="callout" hidden>
+      <b>The counter is not trained</b>, so "count" only follows presence: 0 when empty, 1 when anyone is there. Train it in this room, with the board where it will stay:
+      <ol>
+        <li>One person walks around (everyone else out, or perfectly still) and you press <b>count-train 1</b>. It collects <b class="num" data-cfg="cnt_target">20</b> blocks with enough movement.</li>
+        <li>Then two or more people walk around at the same time and you press <b>count-train 2</b>.</li>
+      </ol>
+      <div class="row"><button type="button" data-cmd="count-train 1">count-train 1</button><button type="button" data-cmd="count-train 2">count-train 2</button><span class="small muted" id="cntTrainInfo"></span></div>
+    </div>
+    <div>
+      <h3>Latest block: which trained class is nearer?</h3>
+      <div class="bars" id="cntBars"><div class="muted small">No count block yet - blocks only run while someone is PRESENT.</div></div>
+    </div>
+    <div>
+      <h3>Movement in the block</h3>
+      <div class="bars" id="cntDuty"></div>
+    </div>
+    <div class="small" id="cntVerdict">-</div>
+    <div class="row"><h3 style="margin:0">Vote ring (oldest to newest)</h3><div class="chips" id="cntRing"></div></div>
+    <div class="how"><h3>How it decides</h3>
+      <p>Also only while people move. Every <b class="num" data-cfg="blk_s">5.1</b> s the board looks at how 8 groups of subcarriers move together. One walker disturbs them in one main pattern; two or more walkers disturb them in several independent patterns (the spread of the eigenvalues of their 8 x 8 covariance).</p>
+      <p>If at least <b class="num" data-cfg="min_duty_pct">30</b> % of the block's packets were moving, the block is compared with the two classes trained on site - "one mover" and "two or more" - and the <b>nearer class gets the vote</b>. "Two or more" needs a strict majority of the last <b class="num" data-cfg="cnt_votes">5</b> votes; a tie stays at one. It never counts past "2+", and cannot count people sitting still.</p>
+    </div>
+  </section>
+
+  <!-- 7. vitals -->
+  <section class="panel span6" aria-labelledby="h-vit">
+    <div class="phead"><h2 id="h-vit">Vitals: someone sitting still</h2><span class="tag exp">heart rate EXPERIMENTAL</span></div>
+    <div class="tiles">
+      <div class="tile"><div class="lbl">breathing</div><div class="val num" id="v-br">-</div><div class="sub">breaths / min</div></div>
+      <div class="tile"><div class="lbl">heart (EXPERIMENTAL)</div><div class="val num" id="v-hr">-</div><div class="sub">~ beats / min, unvalidated</div></div>
+      <div class="tile"><div class="lbl">state</div><div class="val" id="v-state">-</div><div class="sub" id="v-state-sub">-</div></div>
+      <div class="tile"><div class="lbl">attributed to</div><div class="val" id="v-of">-</div><div class="sub" id="v-of-sub">vitals_of (a claim)</div></div>
+      <div class="tile"><div class="lbl">activity</div><div class="val" id="v-act">-</div><div class="sub" id="v-act-sub">empty / still / restless / moving</div></div>
+    </div>
+    <div class="bars" id="vitBars"></div>
+    <div class="callout" id="vitMultiple" hidden><b>Rates withheld: two or more people this visit.</b> The count said 2+, or two different names were recognised. Two people's breathing mixes into one signal, so any single number would belong to nobody. This clears once the room has been empty.</div>
+    <div class="how"><h3>How it decides</h3>
+      <p>Only when <b>nobody moves</b>. A separate <b>motion gate</b> looks only at fast changes (above about 1.6 Hz: walking, typing, fidgeting - not breathing) and divides them by the empty room's level. That ratio is <b>hf</b>; at <b class="num" data-cfg="gate">4.0</b> or more the room counts as moving.</p>
+      <p>After <b class="num" data-cfg="min_s">20</b> s of still data (window <b class="num" data-cfg="window_s">30</b> s, re-analysed every 2 s) it looks for the strongest peak in the breathing band (6-30 per minute) and reports it only if the peak is at least <b class="num" data-cfg="br_conf">4.0</b>x the band's median ("conf"). A heart rate (48-120 per minute) is shown only with confident breathing and a peak of at least <b class="num" data-cfg="hr_conf">5.0</b>x - EXPERIMENTAL and unvalidated.</p>
+      <p>The name is the last person recognised walking in <b>alone</b> this visit - carried over, not measured. Nobody can be recognised while sitting.</p>
+    </div>
+  </section>
+
+  <!-- 8. console -->
+  <section class="panel span6" aria-labelledby="h-con">
+    <div class="phead"><h2 id="h-con">Console: talk to the board</h2><span class="tag" id="conTag">-</span></div>
+    <div class="small muted" id="conNote">Commands go to the board over the same USB cable. The board answers with a line starting "CMD".</div>
+    <div class="cmdgrid">
+      <div class="row">
+        <button type="button" data-cmd="status">status</button>
+        <button type="button" data-cmd="people">people</button>
+        <button type="button" data-cmd="help">help</button>
+        <button type="button" data-cmd="explain">explain</button>
+        <button type="button" data-cmd="stop" title="cancel an enrolment / training, discarding its data">stop</button>
+        <button type="button" class="danger" data-cmd="recal" data-confirm="Recalibrate now? Everyone should LEAVE THE ROOM for about a minute (leave-room countdown, warm-up, phase A and phase B).">recal</button>
+      </div>
+      <div class="row">
+        <button type="button" data-cmd="count-train 1">count-train 1</button>
+        <button type="button" data-cmd="count-train 2">count-train 2</button>
+        <button type="button" class="danger" data-cmd="count-reset" data-confirm="Delete the trained count model? count goes back to following presence until you train again.">count-reset</button>
+      </div>
+      <div class="row">
+        <label>enroll slot <select id="enSlot"><option>0</option><option>1</option><option>2</option><option>3</option></select></label>
+        <input class="name" id="enName" placeholder="name" maxlength="15" aria-label="name to enrol">
+        <button type="button" id="enBtn">enroll</button>
+      </div>
+      <div class="row">
+        <label>forget <select id="fgSlot"><option>0</option><option>1</option><option>2</option><option>3</option><option>all</option></select></label>
+        <button type="button" class="danger" id="fgBtn">forget</button>
+        <label>vitals-reset <select id="vrSlot"><option>0</option><option>1</option><option>2</option><option>3</option><option>all</option></select></label>
+        <button type="button" class="danger" id="vrBtn">vitals-reset</button>
+      </div>
+      <form class="row" id="freeForm">
+        <input class="free" id="freeCmd" maxlength="63" placeholder="any console command, e.g. people" aria-label="console command">
+        <button type="submit">send</button>
+      </form>
+    </div>
+    <pre class="out" id="cmdOut" aria-live="polite"></pre>
+  </section>
+
+  <!-- 9. event log -->
+  <section class="panel span12" aria-labelledby="h-log">
+    <div class="phead"><h2 id="h-log">What happened, and why</h2>
+      <div class="row">
+        <button type="button" id="recBtn" title="Record every line from now on; press again to download a CSV">Record</button>
+        <span class="small muted" id="recInfo"></span>
+      </div>
+    </div>
+    <div class="filters" role="group" aria-label="Show in the log">
+      <label><input type="checkbox" data-f="decision" checked> decisions</label>
+      <label><input type="checkbox" data-f="why" checked> why lines</label>
+      <label><input type="checkbox" data-f="warn" checked> warnings</label>
+      <label><input type="checkbox" data-f="link" checked> link and commands</label>
+    </div>
+    <ul class="log" id="log"></ul>
+    <details id="rawBox"><summary>Raw serial lines (last 300)</summary>
+      <label class="small"><input type="checkbox" id="rawAll"> include the amp and JSON lines</label>
+      <pre class="out" id="raw"></pre>
+    </details>
+    <div class="small muted">Record saves a CSV: one row per line, with presence_monitor.py's JSON columns (so tools/vitals_validate.py can read it) plus kind, ev and the raw line. For a replayable raw log, start dashboard.py with --log FILE.</div>
+  </section>
+
+</main>
+<footer>tools/dashboard.html, served by tools/dashboard.py. Thresholds shown come from the board's EXPLAIN config line when one has been received; otherwise they are the Kconfig defaults and marked as such.</footer>
+</div>
+
+<script>
+"use strict";
+
+/* ================================================================== */
+/*  Defaults = Kconfig defaults, used until an EXPLAIN config arrives  */
+/* ================================================================== */
+const DEF = {
+  rate_hz: 50, csi_len: null, nsub: null, channel: null, lltf: null,
+  thr_motion: 5.0, thr_release: 2.5, thr_static: 5.0,
+  static_sustain_ms: 4000, presence_hold_ms: 5000, gate_ratio: 4.0,
+  id: { reject: 2.5, margin: 1.15, votes: 7, min_votes: 3, win: 256, hop: 128, min_moving: 0.8, slots: [] },
+  count: { votes: 5, win: 256, min_duty: 0.3, ready: false, n1: 0, n2: 0 },
+  vitals: { window_s: 30, min_s: 20, br_conf_min: 4.0, hr_conf_min: 5.0 },
+};
+const WINDOW_S = 60;          // chart span
+const NO_EXPLAIN_AFTER = 20;  // detect JSON lines (10 s) before saying EXPLAIN is missing
+const PHASES = {
+  "lock": "Locking onto the CSI format (collecting 200 packets). Nothing is detected yet.",
+  "leave-room": "Calibration: LEAVE THE ROOM - measuring starts in {n} s.",
+  "warmup": "Calibration warm-up: settling filters and measuring the packet rate. Keep the room empty and still ({n} s left).",
+  "calib-A": "Calibration phase A: measuring each subcarrier's own noise. Keep the room empty and still ({n} s left).",
+  "select": "Calibration: choosing the usable subcarriers.",
+  "calib-B": "Calibration phase B: measuring the empty room's noise floor for the scores. Keep it empty and still ({n} s left).",
+  "save": "Calibration: saving the baseline.",
+  "settle": "Stored baseline loaded - settling the filters before detecting ({n} s left).",
+};
+const STILL_ROOM_NOTE = " Cannot empty the room? A workaround, not the procedure: everyone stays seated and still (no typing) until it says detecting. " +
+  "Those people then count as part of the empty room, so they will not be detected while they sit still - only movement will be.";
+
+/* ================================================================== */
+/*  State                                                              */
+/* ================================================================== */
+const S = {
+  mode: null, instance: null, lastSeq: 0, portOpen: false, port: null, source: "",
+  replayDone: false, hostNote: "",
+  cfg: clone(DEF), cfgFromBoard: false, cfgStale: false, cal: null,
+  clk: { off: null, lastTms: null, lastT: 0, lastHostT: 0, rebase: false },
+  json: null, jsonT: 0, state: null, remaining: null, stateT: 0,
+  explainSeen: false, detectJson: 0,
+  series: [],             // {T, m, d, p}
+  amp: [],                // {T, a, p, still}
+  presence: null,         // last EXPLAIN presence
+  lastPresent: null,
+  gait: null, gaitHist: [],
+  count: null, vit: null,
+  stages: {},
+  reboots: [],
+  liveRate: null,
+  cmdTail: false, lastCmdT: 0,
+  raw: [],
+  rec: { on: false, rows: [] },
+  logFilter: { decision: true, why: true, warn: true, link: true },
+};
+
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function isNum(v) { return typeof v === "number" && isFinite(v); }
+function fmt(v, d, dash) { return isNum(v) ? v.toFixed(d) : (dash === undefined ? "-" : dash); }
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+
+function merge(base, over) {
+  const out = clone(base);
+  for (const k of Object.keys(over || {})) {
+    const v = over[k];
+    if (v && typeof v === "object" && !Array.isArray(v) && out[k] && typeof out[k] === "object" && !Array.isArray(out[k])) {
+      out[k] = merge(out[k], v);
+    } else if (v !== undefined) {
+      out[k] = v;
+    }
+  }
+  return out;
+}
+
+/* ================================================================== */
+/*  Board clock -> one continuous timeline across reboots             */
+/* ================================================================== */
+/* t_ms restarts at every reboot. The charts need one time axis, so each
+ * boot's t_ms is shifted to continue where the previous one stopped
+ * (plus the host time that passed). With --replay --speed N the axis then
+ * still shows board seconds. Lines without t_ms use the latest time. */
+function boardT(tms, hostT) {
+  const c = S.clk;
+  if (!isNum(tms)) return c.lastT || hostT;
+  const s = tms / 1000;
+  if (c.off === null) {
+    c.off = hostT - s;
+  } else if (c.rebase || (c.lastTms !== null && tms < c.lastTms - 1500)) {
+    if (!c.rebase) onReboot("its clock went back");
+    const gap = clamp(hostT - c.lastHostT, 0.2, 30);
+    c.off = c.lastT + gap - s;
+    c.rebase = false;
+  }
+  c.lastTms = tms;
+  c.lastHostT = hostT;
+  const T = s + c.off;
+  if (T > c.lastT) c.lastT = T;
+  return T;
+}
+function nowT() { return S.clk.lastT; }
+
+function onReboot(why) {
+  const T = nowT();
+  if (S.reboots.length && T - S.reboots[S.reboots.length - 1] < 5) return;
+  S.reboots.push(T);
+  S.clk.rebase = true;
+  S.gait = null; S.gaitDist = null; S.gaitHist = []; S.count = null; S.vit = null; S.presence = null;
+  S.lastPresent = null; S.cal = null;
+  if (S.cfgFromBoard) S.cfgStale = true;
+  addLog("link", "board restarted (" + why + ") - recognition, count and vitals state starts over", null);
+  dirty();
+}
+
+/* ================================================================== */
+/*  Line routing                                                        */
+/* ================================================================== */
+const RE_ANSI = /\x1b\[[0-9;]*[A-Za-z]/g;
+const RE_LOG = /^([IWEDV]) \((\d+)\) ([^:]+): ?(.*)$/;
+const RE_BAR = /^(PRESENT|empty)\s+\|/;
+const RE_HOSTISH = /^(\[dashboard\] |port open\b|port unavailable|port lost|listener (start|end))/;
+
+function handleMsg(m) {
+  if (typeof m.seq === "number") {
+    if (m.seq <= S.lastSeq) return;           // already seen (EventSource reconnect)
+    S.lastSeq = m.seq;
+  }
+  let line = String(m.line || "").replace(RE_ANSI, "");
+  const t = isNum(m.t) ? m.t : Date.now() / 1000;
+  if (m.src === "host" || RE_HOSTISH.test(line)) {
+    onHost(line.replace(/^\[dashboard\] /, ""), t, m.src === "host");
+    record("HOST", null, null, line, t, null);
+    return;
+  }
+  pushRaw(line);
+  if (line.startsWith("JSON ")) {
+    const rec = parseObj(line.slice(5));
+    if (rec) { onJson(rec, t); record("JSON", null, rec.t_ms, line, t, rec); return; }
+  } else if (line.startsWith("EXPLAIN ")) {
+    const ev = parseObj(line.slice(8));
+    if (ev) { onExplain(ev, t); record("EXPLAIN", ev.ev, ev.t_ms, line, t, null); return; }
+  }
+  if (line.startsWith("CMD ")) {
+    S.cmdTail = true; S.lastCmdT = t;
+    cmdOut(line, "");
+    record("CMD", null, null, line, t, null);
+    if (line.startsWith("CMD status:")) parseStatus(line, t);
+    return;
+  }
+  if (line.startsWith("    ") && line.trim() && S.cmdTail && t - S.lastCmdT < 3) {
+    cmdOut(line, "");
+    record("CMD", null, null, line, t, null);
+    return;
+  }
+  S.cmdTail = false;
+  if (RE_BAR.test(line)) { record("BAR", null, null, line, t, null); return; }
+  const lm = RE_LOG.exec(line);
+  if (lm) { onLog(lm[1], parseInt(lm[2], 10), lm[3].trim(), lm[4], t); }
+  record("LOG", null, null, line, t, null);
+}
+
+function parseObj(txt) {
+  try {
+    const o = JSON.parse(txt);
+    return (o && typeof o === "object" && !Array.isArray(o)) ? o : null;
+  } catch (e) {
+    return null;              // e.g. a line spliced by a reset: shown as raw text only
+  }
+}
+
+function onHost(text, t, fromServer) {
+  if (/^port open/.test(text)) {
+    if (fromServer) { S.portOpen = true; }
+  } else if (/^port (unavailable|lost)|^--port auto/.test(text)) {
+    if (fromServer) { S.portOpen = false; }
+  } else if (/^replay finished/.test(text)) {
+    S.replayDone = true;
+  } else if (/^replay start/.test(text)) {
+    S.replayDone = false;
+  }
+  if (fromServer) S.hostNote = text;
+  const isSent = /^>>> sent: /.test(text);
+  if (isSent) cmdOut("> " + text.slice(10), "sent");
+  addLog("link", (fromServer ? "" : "[recorded] ") + text, t);
+  dirty();
+}
+
+/* ---- JSON (2 per second): the Step 08 / 10 status line ---- */
+function onJson(rec, hostT) {
+  const T = boardT(rec.t_ms, hostT);
+  S.json = rec; S.jsonT = T;
+  S.state = rec.state || null;
+  S.remaining = isNum(rec.remaining_s) ? rec.remaining_s : null;
+  S.stateT = T;
+  fire("csi", T);
+  if (rec.state === "detect") {
+    S.detectJson++;
+    fire("motion", T);
+    if (isNum(rec.motion_sd) || isNum(rec.dev_sd)) {
+      addPoint({ T: T, m: rec.motion_sd, d: rec.dev_sd, p: rec.present ? 1 : 0 });
+    }
+    // Presence changes reach the event log as the firmware's own
+    // ">>> HUMAN DETECTED / room clear" lines (Step 08 and 10 both print them).
+    const p = rec.present ? 1 : 0;
+    if (p !== S.lastPresent) fire("present", T);
+    S.lastPresent = p;
+    S.lastHf = { T: T, v: rec.hf, still: isNum(rec.hf) ? rec.hf < S.cfg.gate_ratio : null };
+    if (isNum(rec.hf)) fire("gate", T);
+  } else if (rec.state === "no_csi") {
+    S.lastPresent = null;
+  } else {
+    fire("base", T);
+  }
+  dirty();
+}
+
+/* ---- EXPLAIN (Step 10 with CSI_EXPLAIN) ---- */
+function onExplain(ev, hostT) {
+  S.explainSeen = true;
+  const T = boardT(ev.t_ms, hostT);
+  switch (ev.ev) {
+    case "config":
+      S.cfg = merge(DEF, ev);
+      // a feature compiled out prints null for its whole sub-object
+      for (const k of ["id", "count", "vitals"]) {
+        if (ev[k] === null) { S.cfg[k] = clone(DEF[k]); S.cfg[k].disabled = true; }
+      }
+      if (!isNum(ev.gate_ratio)) { S.cfg.gate_ratio = DEF.gate_ratio; S.cfg.noGate = ev.gate_ratio === null; }
+      S.cfgFromBoard = true; S.cfgStale = false;
+      fire("base", T);
+      addLog("link", "thresholds received from the board (EXPLAIN config)", hostT);
+      break;
+    case "cal":
+      S.cal = ev;
+      fire("base", T);
+      break;
+    case "amp":
+      if (Array.isArray(ev.a)) {
+        S.amp.push({ T: T, a: ev.a, p: ev.present ? 1 : 0, still: !!ev.still, hf: ev.hf });
+        trimTo(S.amp, T - WINDOW_S - 15);
+      }
+      if (isNum(ev.m) || isNum(ev.d)) addPoint({ T: T, m: ev.m, d: ev.d, p: ev.present ? 1 : 0 });
+      S.lastHf = { T: T, v: ev.hf, still: typeof ev.still === "boolean" ? ev.still : null };
+      fire("csi", T); fire("motion", T);
+      if (isNum(ev.hf)) fire("gate", T);
+      break;
+    case "gait":
+      ev._T = T;
+      S.gait = ev;
+      if (Array.isArray(ev.dist) && ev.dist.some(isNum)) S.gaitDist = ev;
+      S.gaitHist.unshift(ev);
+      if (S.gaitHist.length > 40) S.gaitHist.length = 40;
+      fire("gwin", T);
+      if (ev.used) fire("gvote", T);
+      if (ev.tally && ev.tally.label) fire("who", T);
+      break;
+    case "count":
+      ev._T = T;
+      S.count = ev;
+      fire("cblk", T);
+      if (ev.used) { fire("cvote", T); fire("many", T); }
+      break;
+    case "vitals":
+      ev._T = T;
+      S.vit = ev;
+      fire("vit", T);
+      if (isNum(ev.br)) fire("vout", T);
+      break;
+    case "presence":
+      ev._T = T;
+      S.presence = ev;
+      fire("present", T);
+      break;
+    default:
+      break;                  // unknown event: a newer firmware - ignored
+  }
+  dirty();
+}
+
+/* ---- ESP-IDF log lines ---- */
+function onLog(level, tick, tag, msg, hostT) {
+  if (/ESP32-C5 Wi-Fi CSI human detector|ESP32-C5 Wi-Fi CSI/.test(msg) && tag === "csi-human") {
+    if (S.clk.lastTms !== null) onReboot("boot banner");
+    return;
+  }
+  if (tag !== "csi-human") {
+    if (level === "E") addLog("err", tag + ": " + msg, hostT);
+    return;
+  }
+  if (/^why: /.test(msg)) { addLog("why", msg.slice(5), hostT); return; }
+  if (/^>>> /.test(msg)) { addLog("decision", msg.slice(4), hostT); return; }
+  if (/^\[(lock|leave-room|warmup|calib-A|calib-B|settle|select|save)\]/.test(msg)) return;
+  if (/^enrol .*: \d+\/\d+ windows|^count-train:\d: \d+\/\d+ blocks/.test(msg)) { addLog("decision", msg, hostT); return; }
+  if (level === "E") { addLog("err", msg, hostT); return; }
+  if (level === "W") {
+    if (/^=+$/.test(msg.trim())) return;
+    addLog("warn", msg.trim(), hostT);
+  }
+}
+
+/* 'status' carries the one figure the JSON does not: the live packet rate */
+function parseStatus(line, t) {
+  const m = /([\d.]+) CSI packets\/s live/.exec(line);
+  if (m) S.liveRate = { v: parseFloat(m[1]), t: t };
+}
+
+function trimTo(arr, tmin) {
+  let i = 0;
+  while (i < arr.length && arr[i].T < tmin) i++;
+  if (i > 0) arr.splice(0, i);
+}
+function addPoint(p) {
+  if (!S.lastPoint || p.T >= S.lastPoint.T) S.lastPoint = p;
+  S.series.push(p);
+  if (S.series.length > 1 && p.T < S.series[S.series.length - 2].T) S.series.sort((a, b) => a.T - b.T);
+  trimTo(S.series, p.T - WINDOW_S - 15);
+}
+function fire(stage, T) { S.stages[stage] = T; }
+
+/* ================================================================== */
+/*  Event log, console output, raw lines                               */
+/* ================================================================== */
+const LOG_MAX = 400;
+const pendingLog = [];
+let lastLogEntry = null;
+function addLog(kind, text, hostT) {
+  const e = lastLogEntry;
+  if (e && e.kind === kind && e.text === text && isNum(hostT) && isNum(e.t) && hostT - e.t < 30) {
+    e.n++;
+    e.t = hostT;
+    if (e.li) e.li.querySelector(".txt").textContent = text + "  (x" + e.n + ")";
+    return;
+  }
+  lastLogEntry = { kind: kind, text: text, t: hostT, T: nowT(), n: 1, li: null };
+  pendingLog.push(lastLogEntry);
+  // a background tab gets no animation frames: keep only what the list can show
+  if (pendingLog.length > LOG_MAX) pendingLog.splice(0, pendingLog.length - LOG_MAX);
+}
+function hhmmss(t) {
+  if (!isNum(t)) return "";
+  const d = new Date(t * 1000);
+  return d.toTimeString().slice(0, 8);
+}
+function flushLog() {
+  if (!pendingLog.length) return;
+  const ul = $("log");
+  const frag = document.createDocumentFragment();
+  for (const e of pendingLog) {
+    const li = document.createElement("li");
+    li.className = e.kind;
+    li.dataset.k = e.kind === "err" ? "warn" : e.kind;
+    if (!S.logFilter[li.dataset.k]) li.hidden = true;
+    li.innerHTML = '<span class="when">' + esc(hhmmss(e.t)) + '</span><span><span class="k"></span></span><span class="txt">' + esc(e.text + (e.n > 1 ? "  (x" + e.n + ")" : "")) + "</span>";
+    e.li = li;
+    frag.insertBefore(li, frag.firstChild);
+  }
+  pendingLog.length = 0;
+  ul.insertBefore(frag, ul.firstChild);
+  while (ul.childNodes.length > LOG_MAX) ul.removeChild(ul.lastChild);
+}
+
+const cmdLines = [];
+function cmdOut(text, cls) {
+  cmdLines.push({ text: text, cls: cls });
+  if (cmdLines.length > 200) cmdLines.splice(0, cmdLines.length - 200);
+  S.cmdDirty = true;
+}
+function flushCmd() {
+  if (!S.cmdDirty) return;
+  S.cmdDirty = false;
+  const pre = $("cmdOut");
+  pre.innerHTML = cmdLines.map(l => l.cls ? '<span class="' + l.cls + '">' + esc(l.text) + "</span>" : esc(l.text)).join("\n");
+  pre.scrollTop = pre.scrollHeight;
+}
+
+function pushRaw(line) {
+  S.raw.push(line);
+  if (S.raw.length > 1200) S.raw.splice(0, S.raw.length - 1200);
+  S.rawDirty = true;
+}
+function flushRaw() {
+  if (!S.rawDirty || !$("rawBox").open) return;
+  S.rawDirty = false;
+  const all = $("rawAll").checked;
+  const lines = all ? S.raw : S.raw.filter(l => !l.startsWith("JSON ") && !l.startsWith('EXPLAIN {"ev":"amp"') && !RE_BAR.test(l));
+  $("raw").textContent = lines.slice(-300).join("\n");
+}
+
+/* ================================================================== */
+/*  Record -> CSV                                                      */
+/* ================================================================== */
+/* presence_monitor.py CSV_FIELDS, then kind / ev / line. host_time is ISO
+ * 8601 with the UTC offset, as presence_monitor writes it, so
+ * tools/vitals_validate.py reads this file (it skips rows whose present
+ * is not 1, i.e. every non-JSON row). */
+const CSV_FIELDS = ["host_time", "t_ms", "state", "present", "motion_sd", "dev_sd", "level", "rssi",
+  "rate_hz", "nsub", "remaining_s", "count", "count_src", "person", "person_dist", "person_votes",
+  "vitals", "br_bpm", "br_conf", "hr_bpm_exp", "hr_conf", "session", "hf", "proc_ms_max", "dropped",
+  "vitals_of", "activity", "activity_s", "episode_s", "agc", "fft", "gain_chg", "kind", "ev", "line"];
+function isoLocal(t) {
+  const d = new Date(t * 1000);
+  const p = (n, w) => String(Math.abs(n)).padStart(w || 2, "0");
+  const off = -d.getTimezoneOffset();
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" +
+    p(d.getMinutes()) + ":" + p(d.getSeconds()) + "." + p(d.getMilliseconds(), 3) +
+    (off >= 0 ? "+" : "-") + p(Math.floor(Math.abs(off) / 60)) + ":" + p(Math.abs(off) % 60);
+}
+function record(kind, ev, tms, line, t, rec) {
+  if (!S.rec.on) return;
+  const row = { host_time: isoLocal(t), kind: kind, ev: ev || "", t_ms: isNum(tms) ? tms : "", line: line };
+  if (rec) for (const k of CSV_FIELDS) if (k in rec && !(k in row && k !== "t_ms")) row[k] = rec[k];
+  S.rec.rows.push(row);
+  if (S.rec.rows.length > 300000) S.rec.rows.shift();
+}
+function csvCell(v) {
+  if (v === null || v === undefined) return "";
+  if (typeof v === "boolean") return v ? "1" : "0";
+  const s = String(v);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function toggleRecord() {
+  const btn = $("recBtn");
+  if (!S.rec.on) {
+    S.rec.on = true; S.rec.rows = []; S.rec.start = new Date();
+    btn.textContent = "Stop and save CSV";
+    btn.classList.add("primary");
+    return;
+  }
+  S.rec.on = false;
+  btn.textContent = "Record";
+  btn.classList.remove("primary");
+  const lines = [CSV_FIELDS.join(",")];
+  for (const r of S.rec.rows) lines.push(CSV_FIELDS.map(k => csvCell(r[k])).join(","));
+  const blob = new Blob([lines.join("\r\n") + "\r\n"], { type: "text/csv" });
+  const d = S.rec.start;
+  const p = n => String(n).padStart(2, "0");
+  const name = "csi_session_" + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + "_" + p(d.getHours()) + p(d.getMinutes()) + p(d.getSeconds()) + ".csv";
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  $("recInfo").textContent = "saved " + S.rec.rows.length + " lines to " + name;
+  S.rec.rows = [];
+}
+
+/* ================================================================== */
+/*  Commands                                                           */
+/* ================================================================== */
+const NAME_RE = /^[A-Za-z0-9_-]{1,15}$/;
+async function sendCmd(cmd) {
+  cmd = String(cmd).trim();
+  if (!cmd) return;
+  if (cmd.length > 63 || /[^\x20-\x7e]/.test(cmd)) {
+    cmdOut("! a command is 1-63 printable ASCII characters", "err");
+    flushCmd();
+    return;
+  }
+  try {
+    const r = await fetch("/cmd", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cmd: cmd }) });
+    let j = null;
+    try { j = await r.json(); } catch (e) { j = null; }
+    if (!r.ok || !j || !j.ok) {
+      cmdOut("> " + cmd, "sent");
+      cmdOut("! " + ((j && j.error) || ("HTTP " + r.status)), "err");
+    }
+    // on success the server's own "sent" note arrives on /events
+  } catch (e) {
+    cmdOut("> " + cmd, "sent");
+    cmdOut("! dashboard.py did not answer - is it still running?", "err");
+  }
+  flushCmd();
+}
+function cmdButton(el) {
+  const c = el.dataset.cmd;
+  const conf = el.dataset.confirm;
+  if (conf && !window.confirm(conf)) return;
+  sendCmd(c);
+}
+function enrollFrom(slotSel, nameInput) {
+  const name = $(nameInput).value.trim();
+  const slot = $(slotSel).value;
+  if (!NAME_RE.test(name)) { cmdOut("! a name is 1-15 characters of A-Z a-z 0-9 _ -", "err"); flushCmd(); return; }
+  if (/^(unknown|multiple|null)$/i.test(name)) { cmdOut("! that name is reserved - pick another", "err"); flushCmd(); return; }
+  const slots = (S.cfg.id && S.cfg.id.slots) || [];
+  const cur = slots[+slot];
+  if (cur && cur.name && !window.confirm("Slot " + slot + " holds " + cur.name + ". Enrolling deletes that template and its vitals log first. Continue?")) return;
+  sendCmd("enroll " + slot + " " + name);
+}
+
+/* ================================================================== */
+/*  Rendering                                                          */
+/* ================================================================== */
+let needDraw = true, lastDraw = 0;
+function dirty() { needDraw = true; }
+function loop(ts) {
+  requestAnimationFrame(loop);          // first, so one exception cannot stop the page
+  if (needDraw && ts - lastDraw > 120) {
+    needDraw = false;
+    lastDraw = ts;
+    try { render(); } catch (e) { console.error(e); }
+  }
+  try { flushLog(); flushCmd(); flushRaw(); } catch (e) { console.error(e); }
+}
+setInterval(dirty, 1000);    // "x s ago" labels and the fade keep moving
+
+function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function isDark() { return css("--is-dark") === "1"; }
+function slotColor(i) { return ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"][i] || "var(--unk)"; }
+function slotName(i) {
+  const s = (S.cfg.id.slots || [])[i];
+  return (s && s.name) ? s.name : "slot " + i;
+}
+function agoText(T) {
+  if (!isNum(T)) return "";
+  const a = nowT() - T;
+  if (a < 1) return "just now";
+  if (a < 90) return a.toFixed(0) + " s ago";
+  if (a < 5400) return (a / 60).toFixed(0) + " min ago";
+  return "long ago";
+}
+
+function render() {
+  renderTop();
+  renderCfgText();
+  renderPipe();
+  renderLink();
+  drawWaterfall();
+  drawPresence();
+  renderPresenceHead();
+  renderRecognise();
+  renderCount();
+  renderVitals();
+  renderConsole();
+  $("recInfo").textContent = S.rec.on ? ("recording: " + S.rec.rows.length + " lines") : $("recInfo").textContent;
+}
+
+function setBanner(id, textId, html) {
+  const b = $(id);
+  if (html) { $(textId).innerHTML = html; b.hidden = false; } else { b.hidden = true; }
+}
+
+function renderTop() {
+  // link pill
+  let dot = "", txt = "";
+  if (S.mode === "replay") {
+    dot = S.replayDone ? "" : "good";
+    txt = (S.replayDone ? "replay finished: " : "REPLAY: ") + S.source.split(/[\\/]/).pop();
+  } else if (S.mode === "serial") {
+    dot = S.portOpen ? "good" : "crit";
+    txt = S.portOpen ? "LIVE: " + (S.port || S.source) : "board not connected";
+  } else if (S.mode === "offline") {
+    dot = "crit"; txt = "dashboard.py not reachable - retrying";
+  } else {
+    txt = "connecting to dashboard.py ...";
+  }
+  $("linkDot").className = "dot " + dot;
+  $("linkText").textContent = txt;
+
+  // state pill + banners
+  const st = S.state;
+  const detect = st === "detect";
+  const pres = S.json && detect ? (S.json.present ? "PRESENT" : "empty") : null;
+  $("stateText").textContent = !st ? "no data yet" : (detect ? "detecting - " + pres : (st === "no_csi" ? "NO USABLE CSI" : "calibrating: " + st));
+  $("stateDot").className = "dot " + (!st ? "" : detect ? "good" : st === "no_csi" ? "crit" : "warn");
+
+  let cal = "";
+  if (st && PHASES[st] && nowT() - S.stateT < 10) {
+    cal = esc(PHASES[st].replace("{n}", S.remaining === null ? "?" : S.remaining));
+    if (st === "leave-room" || st === "warmup" || st === "calib-A" || st === "calib-B") cal += '<br><span class="small">' + esc(STILL_ROOM_NOTE) + "</span>";
+  }
+  setBanner("calBanner", "calText", cal);
+
+  let crit = "";
+  if (st === "no_csi" && nowT() - S.stateT < 10) {
+    crit = "<b>NO USABLE CSI</b> - the Wi-Fi link is down or the CSI shape changed. Presence is <b>unknown</b>, not empty. Check the access point; if the shape changed, reboot the board.";
+  } else if (S.mode === "serial" && !S.portOpen) {
+    crit = "<b>Board not connected.</b> " + esc(S.hostNote || "") + " - dashboard.py keeps trying (a chip reset re-enumerates the USB port for a moment). Close idf.py monitor or any other program that holds the port.";
+  } else if (S.mode === "offline") {
+    crit = "<b>dashboard.py is not answering.</b> Start it again (python tools\\dashboard.py); this page reconnects by itself.";
+  }
+  setBanner("critBanner", "critText", crit);
+
+  let info = "";
+  if (S.detectJson >= NO_EXPLAIN_AFTER && !S.explainSeen) {
+    info = "<b>explain lines not received - flash Step 10 with CSI_EXPLAIN</b>. Until then this page works from the JSON line only: no waterfall, no distances or votes, and the thresholds are the Kconfig defaults.";
+  } else if (S.explainSeen && !S.cfgFromBoard) {
+    info = 'The board\'s thresholds have not been received yet, so the Kconfig defaults are shown. <button type="button" data-cmd="explain">ask the board (explain)</button>';
+  } else if (S.cfgStale) {
+    info = 'The board restarted; the thresholds shown are from before the restart until it prints a new config line (when detection starts). <button type="button" data-cmd="explain">ask now (explain)</button>';
+  }
+  if (S.mode === "replay" && !info) {
+    info = "Replay of a recorded log: nothing here is live, and console commands are not sent to any board.";
+  }
+  setBanner("infoBanner", "infoText", info);
+}
+
+/* live thresholds into every "How it decides" text */
+function renderCfgText() {
+  const c = S.cfg, rate = isNum(c.rate_hz) && c.rate_hz > 0 ? c.rate_hz : 50;
+  const vals = {
+    rate: fmt(rate, 0),
+    thr_motion: fmt(c.thr_motion, 1), thr_release: fmt(c.thr_release, 1), thr_static: fmt(c.thr_static, 1),
+    hold_s: fmt(c.presence_hold_ms / 1000, 1), sustain_s: fmt(c.static_sustain_ms / 1000, 1),
+    hop_s: fmt(c.id.hop / rate, 1), win_s: fmt(c.id.win / rate, 1),
+    min_moving_pct: fmt(c.id.min_moving * 100, 0), reject: fmt(c.id.reject, 2), margin: fmt(c.id.margin, 2),
+    min_votes: fmt(c.id.min_votes, 0), votes: fmt(c.id.votes, 0),
+    enrol_windows: "30",
+    min_windows: fmt(isNum(c.id.min_windows) ? c.id.min_windows : 10, 0),
+    blk_s: fmt(c.count.win / rate, 1), min_duty_pct: fmt(c.count.min_duty * 100, 0), cnt_votes: fmt(c.count.votes, 0),
+    cnt_target: fmt(isNum(c.count.need) ? c.count.need : 20, 0),
+    gate: fmt(c.gate_ratio, 1), min_s: fmt(c.vitals.min_s, 0), window_s: fmt(c.vitals.window_s, 0),
+    br_conf: fmt(c.vitals.br_conf_min, 1), hr_conf: fmt(c.vitals.hr_conf_min, 1),
+  };
+  const title = S.cfgFromBoard ? (S.cfgStale ? "from the board, before its last restart" : "live value from the board") : "Kconfig default (no EXPLAIN config received)";
+  $("holdSentence").hidden = c.vitals.disabled || c.vitals.holds_presence === false;
+  document.querySelectorAll("[data-cfg]").forEach(el => {
+    const v = vals[el.dataset.cfg];
+    if (v !== undefined && el.textContent !== v) el.textContent = v;
+    el.title = title;
+  });
+}
+
+function stage(id, val, opts) {
+  const el = $("st-" + id);
+  if (!el) return;
+  const T = S.stages[id];
+  const valEl = el.querySelector(".val");
+  if (opts && opts.html) { if (valEl.innerHTML !== val) valEl.innerHTML = val; } else if (valEl.textContent !== val) valEl.textContent = val;
+  el.querySelector(".ago").textContent = isNum(T) ? agoText(T) : "not yet";
+  el.classList.toggle("lit", isNum(T) && nowT() - T < 2.5);
+  el.classList.toggle("on", !!(opts && opts.on));
+}
+
+function ringChips(ring, kind, small) {
+  if (!ring) return "";
+  let h = "";
+  for (const ch of String(ring)) {
+    if (kind === "id") {
+      if (ch === "?") h += '<span class="chip" title="unknown" style="background:var(--unk)">?</span>';
+      else if (/\d/.test(ch)) {
+        const i = +ch;
+        const nm = slotName(i);
+        h += '<span class="chip' + (i === 3 ? " dark-ink" : "") + '" title="' + esc(nm) + '" style="background:' + slotColor(i) + '">' + esc(small ? String(i) : nm.slice(0, 1).toUpperCase()) + "</span>";
+      }
+    } else {
+      const two = ch === "2";
+      h += '<span class="chip" title="' + (two ? "two or more" : "one") + '" style="background:' + (two ? "var(--s2)" : "var(--s1)") + '">' + (two ? "2+" : "1") + "</span>";
+    }
+  }
+  return h;
+}
+
+function renderPipe() {
+  const j = S.json || {};
+  const detect = S.state === "detect";
+  const rate = isNum(j.rate_hz) ? j.rate_hz : S.cfg.rate_hz;
+  stage("csi", (isNum(rate) ? fmt(rate, 1) + "/s" : "-") + (isNum(j.rssi) ? "  " + j.rssi + " dBm" : ""));
+  let base = "-";
+  if (S.state && !detect && S.state !== "no_csi") base = S.state + (S.remaining !== null ? " " + S.remaining + " s" : "");
+  else if (S.cal) base = S.cal.nsub_selected + " subcarriers";
+  else if (detect && isNum(j.nsub)) base = j.nsub + " subcarriers";
+  stage("base", base);
+  const m = S.lastPoint ? S.lastPoint.m : j.motion_sd;
+  stage("motion", detect && isNum(m) ? fmt(m, 1) + " sd" : "-", { on: detect && isNum(m) && m >= S.cfg.thr_motion });
+  stage("present", !detect ? (S.state === "no_csi" ? "unknown" : "-") : (j.present ? "PRESENT" : "empty"), { on: detect && !!j.present });
+
+  const g = S.gait;
+  stage("gwin", g ? "#" + g.win + "  " + fmt(g.moving_frac * 100, 0) + "%" + (g.used ? "" : " no vote") : "-");
+  stage("gvote", g && g.ring ? ringChips(g.ring, "id", true) : "-", { html: true });
+  stage("who", detect && j.person ? String(j.person) : (detect ? "nobody named" : "-"), { on: detect && !!j.person });
+
+  const c = S.count;
+  stage("cblk", c ? "#" + c.blk + "  " + fmt(c.duty * 100, 0) + "%" + (c.used ? "" : " no vote") : "-");
+  stage("cvote", c && c.ring ? ringChips(c.ring, "cnt", true) : "-", { html: true });
+  const cnt = isNum(j.count) ? (j.count >= 2 ? "2+" : String(j.count)) : "-";
+  stage("many", detect ? cnt + (j.count_src ? " (" + j.count_src + ")" : "") : "-", { on: detect && j.count >= 1 });
+
+  const hf = S.lastHf ? S.lastHf.v : null;
+  const still = S.lastHf ? S.lastHf.still : null;
+  stage("gate", detect && isNum(hf) ? "hf " + fmt(hf, 1) + (still === null ? "" : still ? "  still" : "  moving") : "-", { on: detect && still === true });
+  const v = S.vit;
+  stage("vit", v ? v.state + "  " + fmt(v.still_s, 0) + " s still" : (j.vitals ? String(j.vitals) : "-"));
+  const br = isNum(j.br_bpm) ? fmt(j.br_bpm, 0) + "/min" : "-";
+  const hr = isNum(j.hr_bpm_exp) ? "  ~" + fmt(j.hr_bpm_exp, 0) : "";
+  stage("vout", detect ? br + hr : "-", { on: detect && isNum(j.br_bpm) });
+}
+
+function renderLink() {
+  const j = S.json || {};
+  const c = S.cfg;
+  $("t-rate").textContent = isNum(j.rate_hz) ? fmt(j.rate_hz, 1) : "-";
+  $("t-rate-sub").textContent = S.liveRate ? "live " + fmt(S.liveRate.v, 1) + "/s at " + hhmmss(S.liveRate.t) + " (status)" : "calibrated rate (live: 'status')";
+  $("t-rssi").textContent = isNum(j.rssi) ? String(j.rssi) : "-";
+  $("t-drop").textContent = isNum(j.dropped) ? String(j.dropped) : "-";
+  $("t-proc").textContent = isNum(j.proc_ms_max) ? fmt(j.proc_ms_max, 1) : "-";
+  const len = (S.cal && S.cal.csi_len) || c.csi_len;
+  const nsub = c.nsub;
+  const sel = (S.cal && S.cal.nsub_selected) || c.nsel || j.nsub;
+  $("t-shape").textContent = (isNum(len) ? len + " B" : "-") + (isNum(nsub) ? " / " + nsub : "");
+  $("t-shape-sub").textContent = (isNum(sel) ? sel + " subcarriers used" : "bytes / subcarriers") + (c.lltf === true ? ", L-LTF 12-bit" : c.lltf === false ? ", HT/HE" : "");
+  const RESET_HELP = { POWERON: "power on", USB: "reset by the PC over USB", SW: "software restart", EXT: "reset pin / button",
+    PANIC: "a crash", INT_WDT: "watchdog", TASK_WDT: "watchdog", WDT: "watchdog", BROWNOUT: "power dip", PWR_GLITCH: "power glitch", CPU_LOCKUP: "CPU lockup" };
+  $("t-reset").textContent = c.reset ? String(c.reset) : "-";
+  $("t-reset-sub").textContent = c.reset ? (RESET_HELP[c.reset] || "see ESP-IDF esp_reset_reason") : "arrives with the EXPLAIN config line";
+  const ch = (S.cal && S.cal.channel) || c.channel;
+  $("t-ch").textContent = isNum(ch) ? String(ch) : "-";
+  $("t-ch-sub").textContent = isNum(ch) ? (ch <= 14 ? "2.4 GHz" : "5 GHz") : "-";
+  $("linkTag").textContent = !S.state ? "waiting" : S.state === "detect" ? "detecting" : S.state === "no_csi" ? "no CSI" : "calibrating";
+  let cs = "No calibration seen in this session yet (a stored baseline may have been loaded at boot).";
+  if (S.cal) {
+    cs = (S.cal.src === "stored" ? "Stored baseline (from flash): " : S.cal.src === "fresh" ? "Fresh calibration: " : "Calibrated: ") + "empty-room motion " + fmt(S.cal.m_mean, 3) + " +/- " + fmt(S.cal.m_std, 3) + ", deviation " + fmt(S.cal.d_mean, 3) + " +/- " + fmt(S.cal.d_std, 3) +
+      " (raw units; the scores are these turned into sd). " + S.cal.nsub_selected + " subcarriers selected.";
+  } else if (S.state === "detect") {
+    cs = "Detecting against a baseline (stored or calibrated before this page connected).";
+  }
+  $("calSummary").textContent = cs;
+}
+
+/* ---- canvas helpers ---- */
+function canvasCtx(cv) {
+  const dpr = window.devicePixelRatio || 1;
+  const h = +cv.dataset.h || 150;
+  if (cv.style.height !== h + "px") cv.style.height = h + "px";
+  const w = Math.max(10, cv.clientWidth);
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) {
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+  }
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  return { ctx: ctx, w: w, h: h };
+}
+function hexToRgb(h) {
+  h = h.replace("#", "");
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+function makeLut(stops) {
+  const rgb = stops.map(hexToRgb), lut = [];
+  for (let i = 0; i < 256; i++) {
+    const x = i / 255 * (rgb.length - 1), k = Math.min(rgb.length - 2, Math.floor(x)), f = x - k;
+    const a = rgb[k], b = rgb[k + 1];
+    lut.push("rgb(" + Math.round(a[0] + (b[0] - a[0]) * f) + "," + Math.round(a[1] + (b[1] - a[1]) * f) + "," + Math.round(a[2] + (b[2] - a[2]) * f) + ")");
+  }
+  return lut;
+}
+const LUTS = {
+  seqLight: makeLut(["#eef4fc", "#b7d3f6", "#6da7ec", "#2a78d6", "#1c5cab", "#0d366b"]),
+  seqDark: makeLut(["#161d27", "#184f95", "#2a78d6", "#6da7ec", "#cde2fb"]),
+  divLight: makeLut(["#1c5cab", "#86b6ef", "#f0efec", "#ec9a99", "#b32d2d"]),
+  divDark: makeLut(["#9ec5f4", "#2a6fc4", "#383835", "#c24a4a", "#f4a3a3"]),
+};
+function quantile(arr, q) {
+  if (!arr.length) return 0;
+  const s = arr.slice().sort((a, b) => a - b);
+  return s[Math.min(s.length - 1, Math.max(0, Math.floor(q * (s.length - 1))))];
+}
+
+/* ---- 3. waterfall ---- */
+let wfGeom = null;
+function drawWaterfall() {
+  const cv = $("wf");
+  const { ctx, w, h } = canvasCtx(cv);
+  const cols = S.amp;
+  const note = $("wfNote");
+  const mode = document.querySelector('input[name="wfmode"]:checked').value;
+  const dark = isDark();
+  const padL = 58, padB = 30, stripH = 6;
+  const plotW = w - padL - 4, plotH = h - padB - 4;
+  ctx.fillStyle = css("--grid");
+  ctx.fillRect(padL, 2, plotW, plotH);
+  const t1 = nowT(), t0 = t1 - WINDOW_S;
+  const vis = cols.filter(c => c.T >= t0 - 1);
+  wfGeom = null;
+  if (!vis.length) {
+    note.textContent = S.detectJson >= NO_EXPLAIN_AFTER && !S.explainSeen ?
+      "No amp lines: the firmware prints no EXPLAIN lines (flash Step 10 with CSI_EXPLAIN)." :
+      "Waiting for EXPLAIN amp lines (5 per second by default; they start when detection starts; CSI_EXPLAIN_AMP_HZ = 0 turns them off).";
+    $("wfLegend").innerHTML = "";
+    return;
+  }
+  const nrow = vis.reduce((m, c) => Math.max(m, c.a.length), 0);
+  note.textContent = nrow + " subcarriers, " + vis.length + " moments in the last " + WINDOW_S + " s.";
+  // per-cell values
+  const vals = [];
+  let lo, hi, lut;
+  const cellVal = [];
+  if (mode === "change") {
+    // each row minus its mean over the previous 10 s (all columns, not only visible)
+    const all = cols;
+    const start = all.indexOf(vis[0]);
+    let j0 = 0;
+    const sum = new Array(nrow).fill(0), cnt = new Array(nrow).fill(0);
+    for (let i = 0; i < all.length; i++) {
+      const c = all[i];
+      while (j0 < i && all[j0].T < c.T - 10) {
+        const a0 = all[j0].a;
+        for (let r = 0; r < a0.length; r++) { if (isNum(a0[r])) { sum[r] -= a0[r]; cnt[r]--; } }
+        j0++;
+      }
+      if (i >= start) {
+        const row = [];
+        for (let r = 0; r < nrow; r++) {
+          const v = c.a[r];
+          row.push(isNum(v) && cnt[r] > 0 ? v - sum[r] / cnt[r] : (isNum(v) ? 0 : null));
+          if (row[r] !== null) vals.push(Math.abs(row[r]));
+        }
+        cellVal.push(row);
+      }
+      for (let r = 0; r < c.a.length; r++) { if (isNum(c.a[r])) { sum[r] += c.a[r]; cnt[r]++; } }
+    }
+    hi = Math.max(0.06, quantile(vals, 0.98));
+    lo = -hi;
+    lut = dark ? LUTS.divDark : LUTS.divLight;
+  } else {
+    for (const c of vis) {
+      const row = [];
+      for (let r = 0; r < nrow; r++) { const v = c.a[r]; row.push(isNum(v) ? v : null); if (isNum(v)) vals.push(v); }
+      cellVal.push(row);
+    }
+    lo = quantile(vals, 0.02); hi = quantile(vals, 0.98);
+    if (hi - lo < 1e-3) hi = lo + 1e-3;
+    lut = dark ? LUTS.seqDark : LUTS.seqLight;
+  }
+  const rowH = plotH / nrow;
+  const colW = Math.max(1, plotW / (WINDOW_S * 5) + 0.6);
+  ctx.save();                       // the oldest column may start left of the plot
+  ctx.beginPath();
+  ctx.rect(padL, 0, plotW, h);
+  ctx.clip();
+  for (let i = 0; i < vis.length; i++) {
+    const c = vis[i];
+    const x = padL + (c.T - t0) / WINDOW_S * plotW;
+    const nx = i + 1 < vis.length ? padL + (vis[i + 1].T - t0) / WINDOW_S * plotW : x + colW;
+    const cw = Math.min(Math.max(colW, nx - x + 0.5), colW * 6);
+    const row = cellVal[i];
+    for (let r = 0; r < nrow; r++) {
+      const v = row[r];
+      if (v === null) continue;
+      const k = clamp(Math.round((v - lo) / (hi - lo) * 255), 0, 255);
+      ctx.fillStyle = lut[k];
+      ctx.fillRect(x, 2 + (nrow - 1 - r) * rowH, cw, rowH + 0.5);
+    }
+    // PRESENT strip under the heatmap
+    ctx.fillStyle = c.p ? css("--accent") : css("--grid");
+    ctx.fillRect(x, 2 + plotH + 3, cw, stripH);
+  }
+  ctx.restore();
+  // axes
+  ctx.fillStyle = css("--muted");
+  ctx.font = "11px system-ui, sans-serif";
+  ctx.textAlign = "right";
+  ctx.textBaseline = "middle";
+  ctx.fillText("1", padL - 4, 2 + plotH - rowH / 2);
+  ctx.fillText(String(nrow), padL - 4, 2 + rowH / 2);
+  ctx.save();
+  ctx.translate(12, 2 + plotH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = "center";
+  ctx.fillText("subcarrier", 0, 0);
+  ctx.restore();
+  ctx.textAlign = "right";
+  ctx.font = "10px system-ui, sans-serif";
+  ctx.fillText("PRESENT", padL - 4, 2 + plotH + 3 + stripH / 2);
+  drawTimeAxis(ctx, padL, plotW, h - 8, t0);
+  wfGeom = { padL: padL, plotW: plotW, plotH: plotH, nrow: nrow, rowH: rowH, t0: t0, vis: vis, cellVal: cellVal, mode: mode };
+  // legend: colour bar with its two ends
+  const ends = mode === "change" ? ["-" + fmt(hi, 2) + " below average", "0", "+" + fmt(hi, 2) + " above"] : [fmt(lo, 2) + " (low)", "", fmt(hi, 2) + " (high)"];
+  const grad = "linear-gradient(90deg," + [0, 64, 128, 191, 255].map(i => lut[i]).join(",") + ")";
+  $("wfLegend").innerHTML = '<span>' + esc(ends[0]) + '</span><span style="display:inline-block;width:120px;height:10px;border-radius:3px;background:' + grad + '"></span><span>' + esc(ends[2]) +
+    '</span><span class="muted">' + (mode === "change" ? "amplitude change vs the row's last 10 s" : "amplitude / the packet's median amplitude") + "</span>";
+}
+
+function drawTimeAxis(ctx, x0, w, y, t0) {
+  ctx.fillStyle = css("--muted");
+  ctx.font = "11px system-ui, sans-serif";
+  ctx.textBaseline = "alphabetic";
+  for (let s = 0; s <= WINDOW_S; s += 10) {
+    const x = x0 + s / WINDOW_S * w;
+    ctx.textAlign = s === 0 ? "left" : s === WINDOW_S ? "right" : "center";
+    ctx.fillText(s === WINDOW_S ? "now" : "-" + (WINDOW_S - s) + " s", x, y);
+  }
+}
+
+/* ---- 4. presence charts ---- */
+let presGeom = null;
+function drawPresence() {
+  const t1 = nowT(), t0 = t1 - WINDOW_S;
+  const pts = S.series.filter(p => p.T >= t0 - 1);
+  const c = S.cfg;
+  const gM = drawSeries($("presM"), pts, "m", t0, "--s1", [
+    { v: c.thr_motion, label: "PRESENT at " + fmt(c.thr_motion, 1) + " sd" },
+    { v: c.thr_release, label: "release below " + fmt(c.thr_release, 1) },
+  ], "motion (sd)", false);
+  const gD = drawSeries($("presD"), pts, "d", t0, "--s2", [
+    { v: c.thr_static, label: "still person at " + fmt(c.thr_static, 1) + " sd for " + fmt(c.static_sustain_ms / 1000, 0) + " s" },
+  ], "deviation (sd)", true);
+  presGeom = { pts: pts, t0: t0, m: gM, d: gD };
+}
+
+function drawSeries(cv, pts, key, t0, colorVar, thresholds, ylabel, showAxis) {
+  const { ctx, w, h } = canvasCtx(cv);
+  const padL = 40, padR = 8, padT = 8, padB = showAxis ? 20 : 6;
+  const pw = w - padL - padR, ph = h - padT - padB;
+  let ymax = thresholds.reduce((m, t) => Math.max(m, t.v * 1.6), 4);
+  const vals = pts.map(p => p[key]).filter(isNum);
+  if (vals.length) ymax = Math.max(ymax, Math.min(quantile(vals, 0.99) * 1.1, 60));
+  const ymin = Math.min(-1, vals.length ? Math.max(-5, Math.min(...vals)) : -1);
+  const X = T => padL + (T - t0) / WINDOW_S * pw;
+  const Y = v => padT + (1 - (clamp(v, ymin, ymax) - ymin) / (ymax - ymin)) * ph;
+  // PRESENT band
+  ctx.fillStyle = css("--band");
+  for (let i = 0; i < pts.length; i++) {
+    if (!pts[i].p) continue;
+    let k = i;
+    while (k + 1 < pts.length && pts[k + 1].p && pts[k + 1].T - pts[k].T < 3) k++;
+    const xa = Math.max(padL, X(pts[i].T));
+    const xb = Math.min(padL + pw, k + 1 < pts.length ? X(pts[k + 1].T) : X(nowT()));
+    if (xb > xa) ctx.fillRect(Math.round(xa), padT, Math.max(1, Math.round(xb) - Math.round(xa)), ph);
+    i = k;
+  }
+  // grid + y ticks
+  ctx.strokeStyle = css("--grid");
+  ctx.lineWidth = 1;
+  ctx.fillStyle = css("--muted");
+  ctx.font = "11px system-ui, sans-serif";
+  ctx.textAlign = "right";
+  ctx.textBaseline = "middle";
+  const step = ymax > 30 ? 10 : ymax > 12 ? 5 : 2;
+  for (let v = 0; v <= ymax; v += step) {
+    const y = Math.round(Y(v)) + 0.5;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + pw, y); ctx.stroke();
+    ctx.fillText(String(v), padL - 5, y);
+  }
+  ctx.save();
+  ctx.translate(10, padT + ph / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = "center";
+  ctx.fillText(ylabel, 0, 0);
+  ctx.restore();
+  // reboot markers
+  ctx.strokeStyle = css("--axis");
+  for (const Tr of S.reboots) {
+    if (Tr < t0) continue;
+    const x = Math.round(X(Tr)) + 0.5;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + ph); ctx.stroke();
+    ctx.textAlign = "left"; ctx.textBaseline = "top";
+    ctx.fillText("restart", x + 3, padT);
+  }
+  // thresholds
+  ctx.setLineDash([5, 4]);
+  ctx.strokeStyle = css("--ink2");
+  ctx.textAlign = "right";
+  ctx.textBaseline = "bottom";
+  for (const t of thresholds) {
+    if (!isNum(t.v) || t.v > ymax) continue;
+    const y = Math.round(Y(t.v)) + 0.5;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + pw, y); ctx.stroke();
+    ctx.fillStyle = css("--ink2");
+    ctx.fillText(t.label, padL + pw - 2, y - 2);
+  }
+  ctx.setLineDash([]);
+  // the line (clipped: the oldest point may lie just left of the plot)
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(padL, 0, pw + padR, h);
+  ctx.clip();
+  ctx.strokeStyle = css(colorVar);
+  ctx.lineWidth = 2;
+  ctx.lineJoin = "round"; ctx.lineCap = "round";
+  ctx.beginPath();
+  let pen = false, prevT = null, last = null;
+  for (const p of pts) {
+    const v = p[key];
+    if (!isNum(v)) { pen = false; continue; }
+    if (prevT !== null && p.T - prevT > 3) pen = false;       // gap: do not join
+    const x = X(p.T), y = Y(v);
+    if (pen) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+    pen = true; prevT = p.T; last = { x: x, y: y, v: v };
+  }
+  ctx.stroke();
+  if (last) {
+    ctx.fillStyle = css(colorVar);
+    ctx.strokeStyle = css("--surface");
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(last.x, last.y, 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  }
+  ctx.restore();
+  if (showAxis) drawTimeAxis(ctx, padL, pw, h - 5, t0);
+  if (!pts.length) {
+    ctx.fillStyle = css("--muted");
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("no detection data in the last " + WINDOW_S + " s", padL + pw / 2, padT + ph / 2);
+  }
+  return { padL: padL, pw: pw, X: X, Y: Y, h: h, cv: cv };
+}
+
+function reasonText(r) {
+  const c = S.cfg;
+  switch (r) {
+    case "motion": return "movement: motion score reached " + fmt(c.thr_motion, 1) + " sd";
+    case "static": return "someone still: deviation at least " + fmt(c.thr_static, 1) + " sd for " + fmt(c.static_sustain_ms / 1000, 0) + " s";
+    case "breathing-hold": return "a confident breathing rate is holding PRESENT for a still person";
+    case "hold-expired": return "nothing triggered for " + fmt(c.presence_hold_ms / 1000, 0) + " s (motion below " + fmt(c.thr_release, 1) + " sd, deviation below " + fmt(c.thr_static, 1) + " sd)";
+    case "no-csi": return "no usable CSI - presence unknown";
+    case "recal": return "recalibration started";
+    default: return r ? String(r) : "";
+  }
+}
+
+function renderPresenceHead() {
+  const j = S.json;
+  const detect = S.state === "detect";
+  $("presBig").textContent = !j ? "-" : detect ? (j.present ? "PRESENT" : "empty") : S.state === "no_csi" ? "unknown (no CSI)" : "calibrating";
+  let why = "";
+  if (S.presence) {
+    why = (S.presence.present ? "PRESENT because " : "empty because ") + reasonText(S.presence.reason) + " - " + agoText(S.presence._T) +
+      " (motion " + fmt(S.presence.m, 1) + " sd, deviation " + fmt(S.presence.d, 1) + " sd then).";
+  } else if (detect && j) {
+    why = "motion " + fmt(j.motion_sd, 1) + " sd, deviation " + fmt(j.dev_sd, 1) + " sd" + (S.explainSeen ? "; no presence change seen yet" : " (the reason needs EXPLAIN lines)");
+  }
+  $("presWhy").textContent = why;
+}
+
+/* ---- hover tooltips ---- */
+function presHover(ev) {
+  const tip = $("presTip");
+  if (!presGeom || !presGeom.pts.length) { tip.hidden = true; return; }
+  const cv = ev.currentTarget;
+  const g = cv === presGeom.m.cv ? presGeom.m : presGeom.d;
+  const r = cv.getBoundingClientRect();
+  const x = ev.clientX - r.left;
+  const T = presGeom.t0 + (x - g.padL) / g.pw * WINDOW_S;
+  let best = null;
+  for (const p of presGeom.pts) if (!best || Math.abs(p.T - T) < Math.abs(best.T - T)) best = p;
+  if (!best || Math.abs(best.T - T) > 3) { tip.hidden = true; return; }
+  tip.innerHTML = "<b>" + fmt(nowT() - best.T, 1) + " s ago</b><br>motion " + fmt(best.m, 2) + " sd<br>deviation " + fmt(best.d, 2) + " sd<br>" + (best.p ? "PRESENT" : "empty");
+  tip.hidden = false;
+  const box = $("presBox").getBoundingClientRect();
+  let left = ev.clientX - box.left + 12;
+  if (left + 150 > box.width) left = ev.clientX - box.left - 160;
+  tip.style.left = Math.max(0, left) + "px";
+  tip.style.top = (ev.clientY - box.top + 10) + "px";
+}
+function wfHover(ev) {
+  const tip = $("wfTip");
+  const g = wfGeom;
+  if (!g) { tip.hidden = true; return; }
+  const r = ev.currentTarget.getBoundingClientRect();
+  const x = ev.clientX - r.left, y = ev.clientY - r.top;
+  if (x < g.padL || y < 2 || y > 2 + g.plotH) { tip.hidden = true; return; }
+  const T = g.t0 + (x - g.padL) / g.plotW * WINDOW_S;
+  let bi = -1;
+  for (let i = 0; i < g.vis.length; i++) if (bi < 0 || Math.abs(g.vis[i].T - T) < Math.abs(g.vis[bi].T - T)) bi = i;
+  if (bi < 0 || Math.abs(g.vis[bi].T - T) > 2) { tip.hidden = true; return; }
+  const row = g.nrow - 1 - Math.floor((y - 2) / g.rowH);
+  const raw = g.vis[bi].a[row], v = g.cellVal[bi][row];
+  tip.innerHTML = "subcarrier " + (row + 1) + " of " + g.nrow + ", " + fmt(nowT() - g.vis[bi].T, 1) + " s ago<br>amplitude " + fmt(raw, 2) +
+    (g.mode === "change" ? " (" + (v >= 0 ? "+" : "") + fmt(v, 3) + " vs its 10 s average)" : "");
+  tip.hidden = false;
+  const box = $("wfBox").getBoundingClientRect();
+  let left = ev.clientX - box.left + 12;
+  if (left + 260 > box.width) left = ev.clientX - box.left - 270;
+  tip.style.left = Math.max(0, left) + "px";
+  tip.style.top = (ev.clientY - box.top + 10) + "px";
+}
+
+/* ---- 5. recognise ---- */
+function barRow(name, swatch, value, scaleMax, marks, best, valText) {
+  const w = isNum(value) ? clamp(value / scaleMax * 100, 0.5, 100) : 0;
+  let m = "";
+  for (const mk of marks) {
+    if (!isNum(mk.v)) continue;
+    const pos = clamp(mk.v / scaleMax * 100, 0, 100);
+    // a label near the right end is anchored to its right, so it stays inside the panel
+    m += '<div class="mark" style="left:' + pos + '%" title="' + esc(mk.title || mk.label || "") + '">' +
+      (mk.label ? "<span" + (pos > 60 ? ' style="left:auto;right:-2px"' : "") + ">" + esc(mk.label) + "</span>" : "") + "</div>";
+  }
+  return '<div class="barrow' + (best ? " best" : "") + '"><div class="name"><span class="sw" style="background:' + swatch + '"></span><span>' + esc(name) + "</span>" + (best ? '<span class="nearest">nearest</span>' : "") + "</div>" +
+    '<div class="track"><div class="fill" style="width:' + w + '%;background:' + swatch + '"></div>' + m + "</div>" +
+    '<div class="v">' + esc(valText !== undefined ? valText : fmt(value, 2)) + (isNum(value) && value > scaleMax ? " &gt;" : "") + "</div></div>";
+}
+
+function gaitSentence(g) {
+  const pct = fmt(g.moving_frac * 100, 0) + "% moving";
+  if (!g.used) {
+    switch (g.why) {
+      case "few-moving": return pct + " (needs " + fmt(S.cfg.id.min_moving * 100, 0) + "%) - too little walking, no vote";
+      case "multiple": return "2+ people moving - nobody can be told apart, no vote";
+      case "no-model": return pct + " - nobody enrolled yet, no vote";
+      case "session": return "count training is running - no vote";
+      case "enrol":
+      case "enroll": return pct + " - this window went into the enrolment, no vote";
+      case "nonfinite": return pct + " - its features were not finite numbers, no vote";
+      default: return pct + " - no vote" + (g.why ? " (" + g.why + ")" : "");
+    }
+  }
+  const n1 = isNum(g.nearest) ? slotName(g.nearest) : "?";
+  const d1 = Array.isArray(g.dist) && isNum(g.nearest) ? g.dist[g.nearest] : null;
+  let second = "";
+  if (Array.isArray(g.dist)) {
+    let si = -1;
+    g.dist.forEach((d, i) => { if (isNum(d) && i !== g.nearest && (si < 0 || d < g.dist[si])) si = i; });
+    if (si >= 0) second = slotName(si);
+  }
+  const margin = isNum(d1) && isNum(g.second_dist) && d1 > 0 ? g.second_dist / d1 : null;
+  if (g.reason === "too-far") return pct + "; nearest " + n1 + " " + fmt(d1, 2) + " is beyond " + fmt(S.cfg.id.reject, 2) + " - too far from everyone: vote unknown";
+  if (g.reason === "ambiguous") return pct + "; " + n1 + " " + fmt(d1, 2) + " vs " + (second || "next") + " " + fmt(g.second_dist, 2) + " = " + fmt(margin, 2) + "x, needs " + fmt(S.cfg.id.margin, 2) + "x - ambiguous: vote unknown";
+  return pct + "; " + n1 + " " + fmt(d1, 2) + (second ? ", next " + second + " " + fmt(g.second_dist, 2) + " (" + fmt(margin, 2) + "x)" : "") + " - vote " + (g.vote || n1);
+}
+
+function renderRecognise() {
+  const j = S.json || {};
+  const detect = S.state === "detect";
+  const slots = S.cfg.id.slots || [];
+  const ready = slots.filter(s => s && s.ready).length;
+  const g = S.gait;
+  const person = detect ? j.person : null;
+  $("whoBig").textContent = !detect ? "-" : person ? String(person) : (j.present ? "not named yet" : "nobody");
+  let sub = "";
+  if (detect && person && person !== "multiple") sub = "votes " + (j.person_votes || "-") + ", mean distance " + fmt(j.person_dist, 2);
+  else if (person === "multiple") sub = "the counter says 2+ people are moving - no single name";
+  else if (detect && j.present) sub = "a name needs " + fmt(S.cfg.id.min_votes, 0) + " votes from gait windows while walking alone";
+  if (S.cfgFromBoard) sub += (sub ? " - " : "") + ready + " of " + (slots.length || 4) + " slots enrolled";
+  if (S.cfg.id.disabled) sub = "recognition is switched off in this build (CSI_ID_ENABLE)";
+  $("whoSub").textContent = sub;
+  // no model?
+  const noModel = S.cfg.id.disabled ? false : S.cfgFromBoard ? ready === 0 : (g && g.why === "no-model");
+  $("idNoModel").hidden = !noModel;
+
+  // distance bars
+  const bars = $("idBars");
+  const gd = S.gaitDist;
+  bars.classList.toggle("marked", !!gd);
+  if (gd) {
+    const rej = S.cfg.id.reject;
+    const scale = Math.max(rej * 1.6, 0.1);
+    let h = gd === g ? "" : '<div class="small muted">From window #' + esc(gd.win) + " (" + esc(agoText(gd._T)) + "), the last one that was compared. Window #" + esc(g.win) + " was not: " + esc(gaitSentence(g)) + ".</div>";
+    let first = true;
+    gd.dist.forEach((d, i) => {
+      const sl = slots[i];
+      if (!isNum(d) && !(sl && sl.name)) return;
+      h += barRow(slotName(i), slotColor(i), d, scale, [{ v: rej, label: first ? "reject above " + fmt(rej, 2) : "", title: "farther than this = unknown" }], i === gd.nearest, isNum(d) ? fmt(d, 2) : "not ready");
+      first = false;
+    });
+    bars.innerHTML = h;
+  } else if (g) {
+    bars.innerHTML = '<div class="small muted">Window #' + g.win + ": no distances - " + esc(gaitSentence(g)) + ".</div>";
+  } else if (!S.explainSeen) {
+    bars.innerHTML = '<div class="small muted">Needs EXPLAIN gait lines. From the JSON line alone: person ' + esc(j.person || "-") + ", votes " + esc(j.person_votes || "-") + ".</div>";
+  }
+  // verdict
+  let v = "-";
+  if (g) {
+    v = "Window #" + g.win + ": " + gaitSentence(g) + ".";
+    if (g.tally && g.tally.n) v += " Tally: " + (g.tally.label || "no name yet") + " " + g.tally.k + " of " + g.tally.n + ".";
+  }
+  $("idVerdict").textContent = v;
+  $("idRing").innerHTML = g && g.ring ? ringChips(g.ring, "id", false) : '<span class="small muted">empty</span>';
+  // history
+  const hist = $("idHist");
+  const key = S.gaitHist.length ? S.gaitHist[0].win + ":" + S.gaitHist.length : "";
+  if (hist.dataset.key !== key) {
+    hist.dataset.key = key;
+    const groups = [];
+    for (const e of S.gaitHist) {
+      const last = groups[groups.length - 1];
+      if (last && !e.used && !last.e.used && last.e.why === e.why) { last.from = e.win; last.n++; continue; }
+      groups.push({ e: e, from: e.win, n: 1 });
+    }
+    hist.innerHTML = groups.slice(0, 20).map(gr => {
+      const e = gr.e;
+      const label = gr.n > 1 ? "#" + gr.from + "-" + e.win : "#" + e.win;
+      const chip = e.used ? ringChips(e.best >= 0 ? String(e.best) : "?", "id", false) : '<span class="chip empty">-</span>';
+      const txt = gaitSentence(e) + (gr.n > 1 ? " (" + gr.n + " windows in a row)" : "");
+      return '<li><span class="when">' + esc(label) + "</span><span>" + chip + "</span><span>" + esc(txt) + "</span></li>";
+    }).join("") || '<li class="muted">none yet</li>';
+  }
+}
+
+/* ---- 6. count ---- */
+function renderCount() {
+  const j = S.json || {};
+  const detect = S.state === "detect";
+  const c = S.count;
+  const cc = S.cfg.count;
+  const cnt = isNum(j.count) ? (j.count >= 2 ? "2+" : String(j.count)) : "-";
+  $("cntBig").textContent = detect ? cnt : "-";
+  let sub = "";
+  if (detect) sub = j.count_src === "trained" ? "from the trained counter" : j.count_src === "presence" ? "follows presence only (0 = empty, 1 = someone)" : "";
+  $("cntSub").textContent = sub;
+  if (cc.disabled) sub = "counting is switched off in this build (CSI_COUNT_ENABLE) - count follows presence";
+  $("cntSub").textContent = sub;
+  const untrained = cc.disabled ? false : S.cfgFromBoard ? !cc.ready : (c && c.why === "no-model");
+  $("cntNoModel").hidden = !untrained;
+  $("cntTrainInfo").textContent = S.cfgFromBoard ? "collected: one " + (cc.n1 || 0) + ", two+ " + (cc.n2 || 0) + " blocks" : "";
+
+  const bars = $("cntBars");
+  if (c && Array.isArray(c.dist) && c.dist.some(isNum)) {
+    const d1 = c.dist[0], d2 = c.dist[1];
+    const scale = Math.max(3, isNum(d1) ? d1 * 1.2 : 0, isNum(d2) ? d2 * 1.2 : 0);
+    const nearer = isNum(d1) && isNum(d2) ? (d2 < d1 ? 1 : 0) : -1;
+    bars.innerHTML = barRow("one mover", "var(--s1)", d1, scale, [], nearer === 0) + barRow("two or more", "var(--s2)", d2, scale, [], nearer === 1) +
+      (c.used ? "" : '<div class="small muted">Block #' + esc(c.blk) + " did not vote, so these distances changed nothing.</div>");
+  } else if (c) {
+    bars.innerHTML = '<div class="small muted">Block #' + esc(c.blk) + ": no distances (" + esc(c.why === "no-model" ? "counter not trained" : c.why || "not classified") + ").</div>";
+  } else if (!S.explainSeen) {
+    bars.innerHTML = '<div class="small muted">Needs EXPLAIN count lines. From the JSON line alone: count ' + esc(cnt) + " (" + esc(j.count_src || "-") + ").</div>";
+  }
+  $("cntDuty").classList.toggle("marked", !!c);
+  $("cntDuty").innerHTML = c ? barRow("moving", "var(--accent)", c.duty * 100, 100, [{ v: cc.min_duty * 100, label: "needs " + fmt(cc.min_duty * 100, 0) + "%" }], false, fmt(c.duty * 100, 0) + "%") : "";
+  let v = "-";
+  if (c) {
+    if (c.used) {
+      const twos = String(c.ring || "").split("").filter(x => x === "2").length;
+      const n = String(c.ring || "").length;
+      v = "Block #" + c.blk + ": " + fmt(c.duty * 100, 0) + "% moving; nearer class: " + (c.vote === 2 ? "two or more" : "one mover") + ". " + twos + " of the last " + n + " votes say 2+ -> estimate " + (c.est >= 2 ? "2+" : String(c.est)) + ".";
+    } else {
+      const w = { "low-duty": "too little movement in this block (needs " + fmt(cc.min_duty * 100, 0) + "%) - no vote", "no-model": "the counter is not trained - count follows presence",
+        "session": "a count-train block or an enrolment is running - no vote", "nonfinite": "its features were not finite numbers - no vote" }[c.why] || ("not classified (" + (c.why || "?") + ")");
+      v = "Block #" + c.blk + ": " + fmt(c.duty * 100, 0) + "% moving; " + w + ".";
+    }
+  }
+  $("cntVerdict").textContent = v;
+  $("cntRing").innerHTML = c && c.ring ? ringChips(c.ring, "cnt", false) : '<span class="small muted">empty</span>';
+}
+
+/* ---- 7. vitals ---- */
+function renderVitals() {
+  const j = S.json || {};
+  const detect = S.state === "detect";
+  const v = S.vit;
+  const vc = S.cfg.vitals;
+  $("v-br").textContent = detect && isNum(j.br_bpm) ? fmt(j.br_bpm, 1) : "-";
+  $("v-hr").textContent = detect && isNum(j.hr_bpm_exp) ? "~" + fmt(j.hr_bpm_exp, 0) : "-";
+  const state = detect ? (j.vitals || (v && v.state) || "-") : "-";
+  $("v-state").textContent = state;
+  const stateHelp = {
+    "off": "vitals are switched off (CSI_VITALS_ENABLE)",
+    "no-person": "nobody PRESENT - nothing is reported",
+    "multiple": "2+ people this visit - rates withheld",
+    "moving": "someone is moving - the analysis waits for stillness",
+    "settling": "collecting still data",
+    "no-signal": "analysed, but no confident breathing peak",
+    "ok": "confident breathing" + (isNum(j.hr_bpm_exp) ? " and heart peak" : ""),
+  };
+  $("v-state-sub").textContent = vc.disabled ? "vitals are switched off in this build" : (stateHelp[state] || "-");
+  $("v-of").textContent = detect && j.vitals_of ? String(j.vitals_of) : "-";
+  $("v-of-sub").textContent = detect && j.vitals_of ? "carried over from the walk in" : "nobody named";
+  const act = detect && typeof j.activity === "string" ? j.activity : null;
+  $("v-act").textContent = act || "-";
+  $("v-act-sub").textContent = act ? (isNum(j.activity_s) ? fmt(j.activity_s, 0) + " s in this state" : "") +
+    (isNum(j.episode_s) ? (isNum(j.activity_s) ? ", " : "") + fmt(j.episode_s, 0) + " s present" : "")
+    : !detect ? "-" : (j.activity === undefined ? "no activity key in this JSON line" : "empty / still / restless / moving");
+  const multiple = detect && (j.vitals !== undefined ? j.vitals === "multiple" : !!(v && v.multiple));
+  $("vitMultiple").hidden = !multiple;
+  let h = "";
+  const stillS = v && isNum(v.still_s) ? v.still_s : null;
+  h += barRow("still data", "var(--s3)", stillS, Math.max(vc.window_s, vc.min_s * 1.25), [{ v: vc.min_s, label: "first estimate at " + fmt(vc.min_s, 0) + " s" }], false, stillS === null ? "-" : fmt(stillS, 0) + " s");
+  const brc = isNum(j.br_conf) ? j.br_conf : (v && isNum(v.br_conf) ? v.br_conf : null);
+  h += barRow("breathing conf", "var(--s1)", brc, Math.max(vc.br_conf_min * 2.5, brc || 0), [{ v: vc.br_conf_min, label: "report at " + fmt(vc.br_conf_min, 1) }], false, brc === null ? "-" : fmt(brc, 1));
+  const hrc = isNum(j.hr_conf) ? j.hr_conf : (v && isNum(v.hr_conf) ? v.hr_conf : null);
+  h += barRow("heart conf (exp.)", "var(--s2)", hrc, Math.max(vc.hr_conf_min * 2.5, hrc || 0), [{ v: vc.hr_conf_min, label: "report at " + fmt(vc.hr_conf_min, 1) }], false, hrc === null ? "-" : fmt(hrc, 1));
+  $("vitBars").classList.add("marked");
+  $("vitBars").innerHTML = h;
+}
+
+/* ---- 8. console ---- */
+function renderConsole() {
+  const tag = $("conTag");
+  const note = $("conNote");
+  if (S.mode === "replay") {
+    tag.textContent = "replay: not sent";
+    note.textContent = "Replay mode: dashboard.py refuses commands, because no board is attached. The buttons show what each command is; the CMD lines below are the ones recorded in the log.";
+  } else if (S.mode === "serial") {
+    tag.textContent = S.portOpen ? "connected" : "no port";
+    note.textContent = "Commands go to the board over the same USB cable. The board answers with a line starting \"CMD\". Enrolment and count training need the detector running (state detect), and one session at a time.";
+  }
+}
+
+/* ================================================================== */
+/*  Connection                                                         */
+/* ================================================================== */
+let es = null;
+function connect() {
+  es = new EventSource("/events");
+  es.addEventListener("hello", e => {
+    let h = {};
+    try { h = JSON.parse(e.data); } catch (err) { h = {}; }
+    const inst = h.instance || null;
+    if (S.instance !== null && inst !== S.instance) {
+      // dashboard.py restarted: its line numbers start again
+      S.lastSeq = 0;
+    }
+    S.instance = inst;
+    S.mode = h.mode || "serial";
+    S.source = h.source || "";
+    S.port = h.port || null;
+    S.portOpen = !!h.port_open;
+    dirty();
+  });
+  es.onmessage = e => {
+    let m;
+    try { m = JSON.parse(e.data); } catch (err) { return; }
+    try { handleMsg(m); } catch (err) { console.error(err, m); }
+  };
+  es.onerror = () => {
+    // EventSource retries by itself; a CLOSED one (HTTP error) is retried here
+    if (es.readyState === EventSource.CLOSED) setTimeout(connect, 2000);
+    if (S.mode !== "offline") S.prevMode = S.mode;
+    S.mode = "offline";
+    dirty();
+  };
+}
+
+/* ================================================================== */
+/*  Wiring                                                             */
+/* ================================================================== */
+function applyTheme(t) {
+  const root = document.documentElement;
+  if (t === "light" || t === "dark") root.setAttribute("data-theme", t); else root.removeAttribute("data-theme");
+  $("themeBtn").textContent = "Theme: " + (t || "auto");
+  try { localStorage.setItem("csiDashTheme", t || ""); } catch (e) { /* private window: not remembered */ }
+  dirty();
+}
+(function init() {
+  let t = "";
+  try { t = localStorage.getItem("csiDashTheme") || ""; } catch (e) { t = ""; }
+  applyTheme(t);
+  $("themeBtn").addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme") || "";
+    applyTheme(cur === "" ? "light" : cur === "light" ? "dark" : "");
+  });
+  document.addEventListener("click", e => {
+    const b = e.target.closest("button[data-cmd]");
+    if (b) cmdButton(b);
+  });
+  $("enBtn").addEventListener("click", () => enrollFrom("enSlot", "enName"));
+  $("enBtn0").addEventListener("click", () => enrollFrom("enSlot0", "enName0"));
+  $("fgBtn").addEventListener("click", () => {
+    const s = $("fgSlot").value;
+    const who = s === "all" ? "EVERY enrolled person" : slotName(+s);
+    if (window.confirm("Delete the template and vitals log of " + who + "? This is saved to the board at once.")) sendCmd("forget " + s);
+  });
+  $("vrBtn").addEventListener("click", () => {
+    const s = $("vrSlot").value;
+    const who = s === "all" ? "everyone" : slotName(+s);
+    if (window.confirm("Delete the vitals log of " + who + "? The templates are kept.")) sendCmd("vitals-reset " + s);
+  });
+  $("freeForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const v = $("freeCmd").value;
+    if (/^\s*(recal|forget|count-reset|vitals-reset)\b/i.test(v) && !window.confirm("Send '" + v.trim() + "'? It changes or deletes what the board has learned or recalibrates it.")) return;
+    sendCmd(v);
+    $("freeCmd").value = "";
+  });
+  $("recBtn").addEventListener("click", toggleRecord);
+  document.querySelectorAll(".filters input").forEach(cb => cb.addEventListener("change", () => {
+    S.logFilter[cb.dataset.f] = cb.checked;
+    document.querySelectorAll("#log li").forEach(li => { li.hidden = !S.logFilter[li.dataset.k]; });
+  }));
+  document.querySelectorAll('input[name="wfmode"]').forEach(r => r.addEventListener("change", dirty));
+  $("rawAll").addEventListener("change", () => { S.rawDirty = true; });
+  $("rawBox").addEventListener("toggle", () => { S.rawDirty = true; });
+  $("presM").addEventListener("pointermove", presHover);
+  $("presD").addEventListener("pointermove", presHover);
+  $("presM").addEventListener("pointerleave", () => { $("presTip").hidden = true; });
+  $("presD").addEventListener("pointerleave", () => { $("presTip").hidden = true; });
+  $("wf").addEventListener("pointermove", wfHover);
+  $("wf").addEventListener("pointerleave", () => { $("wfTip").hidden = true; });
+  window.addEventListener("resize", dirty);
+  if (window.matchMedia) {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq.addEventListener) mq.addEventListener("change", dirty);
+  }
+  connect();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

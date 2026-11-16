@@ -1,0 +1,122 @@
+#    0.00 port open: COM13
+   1.03 W (10061) csi-human: disconnected (reason 201), retry 3/10
+   4.50 W (13475) csi-human: disconnected (reason 201), retry 4/10
+   7.77 W (16888) csi-human: disconnected (reason 201), retry 5/10
+  11.27 W (20301) csi-human: disconnected (reason 201), retry 6/10
+  14.76 W (23714) csi-human: disconnected (reason 201), retry 7/10
+  18.02 W (27127) csi-human: disconnected (reason 201), retry 8/10
+  21.51 W (30540) csi-human: disconnected (reason 201), retry 9/10
+  25.00 W (33953) csi-human: disconnected (reason 201), retry 10/10
+  28.30 E (37367) csi-human: WiFi failed. Check SSID/password (must be 2.4 GHz).
+  33.44 I (42367) wifi:flush txq
+  33.44 I (42368) wifi:stop sw txq
+  33.44 I (42368) wifi:lmac stop hw txq
+  33.44 ESP-ROM:esp32c5-eco2-20250121
+  33.44 Build:Jan 21 2025
+  33.44 rst:0xc (SW_CPU),boot:0x18 (SPI_FAST_FLASH_BOOT)
+  33.44 Core0 Saved PC:0x40800750
+  33.44 SPI mode:DIO, clock div:1
+  33.44 load:0x408556c0,len:0x181c
+  33.44 load:0x4084bba0,len:0xec4
+  33.44 load:0x4084e5a0,len:0x338c
+  33.44 entry 0x4084bbaa
+  33.44 I (22) boot: ESP-IDF v6.0.2 2nd stage bootloader
+  33.44 I (23) boot: compile time Sep 24 2026 13:07:41
+  33.44 I (24) boot: chip revision: v1.0
+  33.44 I (24) boot: efuse block revision: v0.2
+  33.44 I (24) qio_mode: Enabling default flash chip QIO
+  33.44 I (25) boot.esp32c5: SPI Speed      : 80MHz
+  33.44 I (25) boot.esp32c5: SPI Mode       : QIO
+  33.44 I (25) boot.esp32c5: SPI Flash Size : 4MB
+  33.44 I (26) boot: Enabling RNG early entropy source...
+  33.44 I (26) boot: Partition Table:
+  33.44 I (27) boot: ## Label            Usage          Type ST Offset   Length
+  33.44 I (27) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+  33.44 I (28) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+  33.44 I (28) boot:  2 factory          factory app      00 00 00010000 00200000
+  33.44 I (29) boot: End of partition table
+  33.44 I (30) esp_image: segment 0: paddr=00010020 vaddr=420c0020 size=2311ch (143644) map
+  33.44 I (60) esp_image: segment 1: paddr=00033144 vaddr=40800000 size=0ced4h ( 52948) load
+  33.44 I (74) esp_image: segment 2: paddr=00040020 vaddr=42000020 size=b3668h (734824) map
+  33.64 I (222) esp_image: segment 3: paddr=000f3690 vaddr=4080ced4 size=07a80h ( 31360) load
+  33.64 I (230) esp_image: segment 4: paddr=000fb118 vaddr=40814980 size=04218h ( 16920) load
+  33.64 I (243) boot: Loaded app from partition at offset 0x10000
+  33.64 I (243) boot: Disabling RNG early entropy source...
+  33.64 I (246) MSPI Timing: Enter flash timing tuning
+  33.64 I (247) cpu_start: Unicore app
+  33.64 I (255) cpu_start: Pro cpu start user code
+  33.64 I (256) cpu_start: cpu freq: 240000000 Hz
+  33.64 I (256) app_init: Application information:
+  33.64 I (256) app_init: Project name:     step10_recognise_count_vitals
+  33.64 I (256) app_init: App version:      8c60baf-dirty
+  33.64 I (256) app_init: Compile time:     Sep 25 2026 20:08:16
+  33.64 I (257) app_init: ELF file SHA256:  8bcc0f492...
+  33.64 I (257) app_init: ESP-IDF:          v6.0.2
+  33.64 I (257) efuse_init: Min chip rev:     v1.0
+  33.64 I (257) efuse_init: Max chip rev:     v1.99 
+  33.64 I (257) efuse_init: Chip rev:         v1.0
+  33.64 I (258) heap_init: Initializing. RAM available for dynamic allocation:
+  33.64 I (258) heap_init: At 4082EA90 len 0002DB10 (182 KiB): RAM
+  33.64 I (258) heap_init: At 4085C5A0 len 00002F58 (11 KiB): RAM
+  33.64 I (258) heap_init: At 50000000 len 00003FE8 (15 KiB): RTCRAM
+  33.64 I (259) spi_flash: detected chip: generic
+  33.64 I (259) spi_flash: flash io: qio
+  33.64 W (259) spi_flash: Detected size(8192k) larger than the size in the binary image header(4096k). Using the size in the binary image header.
+  33.64 I (260) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+  33.64 I (260) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+  33.64 W (261) spi_flash: CPU frequency is set to 240MHz. esp_flash_write_encrypted() will automatically limit CPU frequency to 80MHz during execution.
+  33.64 I (262) main_task: Started on CPU0
+  33.64 I (262) main_task: Calling app_main()
+  33.64 I (272) csi-human: =========================================
+  33.64 I (272) csi-human:  ESP32-C5 Wi-Fi CSI human detector
+  33.64 I (272) csi-human:  Step 10: + recognise / count / vitals (EXPERIMENTAL)
+  33.64 I (273) csi-human: =========================================
+  33.64 I (273) csi-human:  last reset: SW (3)
+  33.64 I (276) csi-human: baseline found: 106 bytes CSI, 26/26 subcarriers, ch 6, 50.2 Hz
+  33.64 I (277) csi-human: motion gate: moving at hf >= 4.00, 624 bytes static
+  33.64 I (277) csi-human: vitals: breathing + EXPERIMENTAL heart rate, 30984 bytes static
+  33.64 I (277) csi-human: no recognition model yet - enrol people with 'enroll <slot> <name>'
+  33.64 I (278) csi-human: no vitals log yet - it fills as recognised people sit still
+  33.64 I (278) csi-human: no count model yet - 'count-train 1', then 'count-train 2'
+  33.64 I (279) pp: pp rom version: 78a72e9d5
+  33.64 I (280) net80211: net80211 rom version: 78a72e9d5
+  33.64 I (281) wifi:wifi driver task: 408396ec, prio:23, stack:6656, core=0
+  33.64 I (286) wifi:wifi firmware version: 00ad238
+  33.64 I (286) wifi:wifi certification version: v7.0
+  33.64 I (287) wifi:config NVS flash: enabled
+  33.64 I (287) wifi:config nano formatting: disabled
+  33.64 I (287) wifi:mac_version:HAL_MAC_ESP32AX_752MP_ECO2,ut_version:N, band mode:0x1
+  33.64 I (288) wifi:Init data frame dynamic rx buffer num: 32
+  33.64 I (288) wifi:Init static rx mgmt buffer num: 5
+  33.64 I (288) wifi:Init management short buffer num: 32
+  33.64 I (288) wifi:Init dynamic tx buffer num: 32
+  33.64 I (289) wifi:Init static tx FG buffer num: 2
+  33.64 I (289) wifi:Init static rx buffer size: 2212 (rxctrl:64, csi:512)
+  33.64 I (289) wifi:Init static rx buffer num: 16
+  33.64 I (289) wifi:Init dynamic rx buffer num: 32
+  33.64 I (290) wifi_init: rx ba win: 6
+  33.64 I (290) wifi_init: accept mbox: 6
+  33.64 I (290) wifi_init: tcpip mbox: 32
+  33.64 I (291) wifi_init: udp mbox: 6
+  33.64 I (291) wifi_init: tcp mbox: 6
+  33.64 I (291) wifi_init: tcp tx win: 5760
+  33.64 I (291) wifi_init: tcp rx win: 5760
+  33.64 I (291) wifi_init: tcp mss: 1440
+  33.64 I (291) wifi_init: WiFi IRAM OP enabled
+  33.64 I (291) wifi_init: WiFi RX IRAM OP enabled
+  33.64 I (292) wifi_init: WiFi SLP IRAM OP enabled
+  33.64 W (292) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+  33.64 I (293) phy_init: phy_version 109,edb400d6,Mar 10 2026,10:22:11
+  34.25 I (881) wifi:11ax coex: WDEVAX_PTI0(0x55777555), WDEVAX_PTI1(0x00003377).
+  34.25 
+  34.25 I (882) wifi:mode : sta (30:ed:a0:e4:50:b8)
+  34.25 I (882) wifi:enable tsf
+  34.25 I (885) wifi:Set ps type: 0, coexist: 0
+  34.25 
+  36.72 W (3297) csi-human: disconnected (reason 201), retry 1/10
+  40.02 W (6710) csi-human: disconnected (reason 201), retry 2/10
+  43.51 W (10123) csi-human: disconnected (reason 201), retry 3/10
+  46.99 W (13537) csi-human: disconnected (reason 201), retry 4/10
+  50.28 W (16950) csi-human: disconnected (reason 201), retry 5/10
+  53.76 W (20363) csi-human: disconnected (reason 201), retry 6/10
+  57.05 W (23776) csi-human: disconnected (reason 201), retry 7/10

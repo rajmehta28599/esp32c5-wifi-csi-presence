@@ -174,7 +174,10 @@ if ($Doctor) {
     }
 
     Write-Host "[4] Built steps"
-    Get-ChildItem $ROOT -Directory -Filter 'step0*' | ForEach-Object {
+    # 'step0*' used to be the filter, which silently hid step10 onwards.
+    # Match the naming pattern instead: stepNN_ with exactly two digits.
+    Get-ChildItem $ROOT -Directory -Filter 'step*' |
+            Where-Object { $_.Name -match '^step\d\d_' } | ForEach-Object {
         $bin = Join-Path $_.FullName "build\$($_.Name).bin"
         if (Test-Path $bin) { Write-Host "    OK       $($_.Name)" -ForegroundColor Green }
         else                { Write-Host "    unbuilt  $($_.Name)" -ForegroundColor DarkGray }

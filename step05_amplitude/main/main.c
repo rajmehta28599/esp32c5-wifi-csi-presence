@@ -95,6 +95,10 @@ static EventGroupHandle_t s_wifi_events;
 static int                s_retry_count = 0;
 static esp_ip4_addr_t     s_gateway;
 static volatile uint32_t  s_dropped = 0;
+static esp_timer_handle_t s_reconnect_timer;
+static bool               s_connected_once = false;
+static esp_ping_handle_t  s_ping = NULL;
+static esp_ip4_addr_t     s_ping_target;
 
 /* ------------------------------------------------------------------ */
 /*  CSI callback. Copy and get out - no maths in the WiFi task.        */
@@ -117,6 +121,50 @@ static void csi_rx_callback(void *ctx, wifi_csi_info_t *info)
     if (xQueueSend(s_raw_q, &r, 0) != pdTRUE) {
         s_dropped++;
     }
+}
+
+/* ------------------------------------------------------------------ */
+/*  How the CSI bytes are packed                                       */
+/*                                                                     */
+/*  Default mode captures only HT-LTF / HE-LTF (11n / 11ax ping        */
+/*  replies): int8 (imag, real) pairs, 2 bytes per subcarrier.         */
+/*  'Capture L-LTF only' forces the L-LTF, which the C5 delivers as    */
+/*  12-bit samples in little-endian 16-bit words: 4 bytes per          */
+/*  subcarrier, 26 subcarriers in the 104 valid bytes of a 106-byte    */
+/*  frame. Read as int8 pairs, those bytes give numbers of plausible   */
+/*  size that mean nothing - Step 04 shows both readings side by side. */
+/*  esp-radar decodes C5 L-LTF exactly this way. lltf_bit_mode is left */
+/*  at its 12-bit default on purpose: it only exists in newer IDF      */
+/*  headers, and the one public report of setting it saw no change.   */
+/* ------------------------------------------------------------------ */
+#if CONFIG_CSI_LLTF_ONLY
+#define CSI_BYTES_PER_SUBC 4
+#else
+#define CSI_BYTES_PER_SUBC 2
+#endif
+
+/* Subcarriers in a buffer of this length. off = 4 bytes skipped when
+ * first_word_invalid is set (one 12-bit subcarrier, two int8 ones). */
+static int csi_nsub(uint16_t len, uint8_t fwi)
+{
+    int off   = fwi ? 4 : 0;
+    int valid = (CSI_BYTES_PER_SUBC == 4) ? (len & ~3) : len;
+    int n     = (valid - off) / CSI_BYTES_PER_SUBC;
+    return n > 0 ? n : 0;
+}
+
+/* Amplitude of subcarrier k, starting off bytes into the buffer. */
+static inline float csi_amp(const int8_t *buf, int off, int k)
+{
+#if CONFIG_CSI_LLTF_ONLY
+    const uint8_t *u = (const uint8_t *)buf + off + 4 * k;
+    float im = (float)((int16_t)((uint16_t)(u[0] | (u[1] << 8)) << 4) >> 4);
+    float re = (float)((int16_t)((uint16_t)(u[2] | (u[3] << 8)) << 4) >> 4);
+#else
+    float im = (float)buf[off + 2 * k];
+    float re = (float)buf[off + 2 * k + 1];
+#endif
+    return sqrtf(im * im + re * re);
 }
 
 /* ------------------------------------------------------------------ */
@@ -185,7 +233,7 @@ static void shape_lock(uint8_t fwi)
 
     s_locked_len  = s_shape_len[best];
     s_locked_fwi  = fwi;
-    s_locked_nsub = (s_locked_len - (fwi ? 4 : 0)) / 2;
+    s_locked_nsub = csi_nsub(s_locked_len, fwi);
     s_locked      = true;
 
     float share = total ? (100.0f * s_shape_cnt[best] / total) : 0.0f;
@@ -244,18 +292,17 @@ static void amplitude_task(void *arg)
         accepted++;
 
         /* ---- amplitude per subcarrier ----
-         * Layout is pairs of int8: [imag, real] per subcarrier.
-         * Skip the first 4 bytes when first_word_invalid is set.      */
+         * int8 [imag, real] pairs, or 12-bit words in L-LTF-only mode -
+         * see csi_amp(). Skip the first 4 bytes when first_word_invalid
+         * is set.                                                      */
         int off  = r.fwi ? 4 : 0;
-        int nsub = (r.len - off) / 2;
+        int nsub = csi_nsub(r.len, r.fwi);
         if (nsub > MAX_SUBC) {
             nsub = MAX_SUBC;
         }
 
         for (int k = 0; k < nsub; k++) {
-            float im = (float)r.buf[off + 2 * k];
-            float re = (float)r.buf[off + 2 * k + 1];
-            s_amp[k] = sqrtf(im * im + re * re);
+            s_amp[k] = csi_amp(r.buf, off, k);
         }
 
         /* ---- normalise away the AGC ---- */
@@ -313,7 +360,9 @@ static void csi_start(void)
 {
 #if CONFIG_CSI_LLTF_ONLY
     /* One shape for every packet: only the legacy long training field,
-     * which every 802.11 preamble carries regardless of PHY.          */
+     * which every 802.11 preamble carries regardless of PHY. ACKs are
+     * L-LTF too, so they add frames without adding a second shape.
+     * On the C5 this arrives 12-bit packed - csi_amp() decodes it.    */
     wifi_csi_config_t csi_cfg = {
         .enable                   = 1,
         .acquire_csi_legacy       = 1,
@@ -330,11 +379,18 @@ static void csi_start(void)
         .dump_ack_en              = 1,
         .reserved                 = 0,
     };
-    ESP_LOGW(TAG, "CSI mode: L-LTF ONLY (fixed shape)");
+    ESP_LOGW(TAG, "CSI mode: L-LTF ONLY (fixed shape, 12-bit samples)");
 #else
+    /* HT-LTF / HE-LTF only, both plain int8. Legacy (11g) frames and ACKs
+     * are left out because on the C5 their L-LTF is 12-bit packed: mixing
+     * them in gave a ~50/50 two-shape stream in which the lock often
+     * picked the 106-byte ACK shape and then decoded it wrongly.
+     * Trade-off: a router that answers pings with 11g frames now yields
+     * no CSI at all - Step 03's rate shows that at once, and 'Capture
+     * L-LTF only' is the fallback.                                     */
     wifi_csi_config_t csi_cfg = {
         .enable                   = 1,
-        .acquire_csi_legacy       = 1,
+        .acquire_csi_legacy       = 0,
         .acquire_csi_force_lltf   = 0,
         .acquire_csi_ht20         = 1,
         .acquire_csi_ht40         = 0,
@@ -345,10 +401,10 @@ static void csi_start(void)
         .acquire_csi_beamformed   = 0,
         .acquire_csi_he_stbc_mode = 2,
         .val_scale_cfg            = 0,
-        .dump_ack_en              = 1,
+        .dump_ack_en              = 0,
         .reserved                 = 0,
     };
-    ESP_LOGW(TAG, "CSI mode: all LTFs, auto-locking to the dominant shape");
+    ESP_LOGW(TAG, "CSI mode: HT/HE-LTF, auto-locking to the dominant shape");
 #endif
 
     ESP_ERROR_CHECK(esp_wifi_set_csi_config(&csi_cfg));
@@ -361,8 +417,21 @@ static void csi_start(void)
 /* ------------------------------------------------------------------ */
 static void ping_noop(esp_ping_handle_t hdl, void *args) { }
 
+/* Called on every GOT_IP (see Step 03): resume, or re-aim if the gateway
+ * changed. */
 static void ping_start(esp_ip4_addr_t target)
 {
+    if (s_ping) {
+        if (s_ping_target.addr == target.addr) {
+            esp_ping_start(s_ping);
+            ESP_LOGI(TAG, "ping resumed");
+            return;
+        }
+        esp_ping_stop(s_ping);
+        esp_ping_delete_session(s_ping);
+        s_ping = NULL;
+    }
+
     ip_addr_t target_addr = { 0 };
     target_addr.type = IPADDR_TYPE_V4;
     target_addr.u_addr.ip4.addr = target.addr;
@@ -382,11 +451,29 @@ static void ping_start(esp_ip4_addr_t target)
         .cb_args         = NULL,
     };
 
-    esp_ping_handle_t ping;
-    ESP_ERROR_CHECK(esp_ping_new_session(&cfg, &cbs, &ping));
-    ESP_ERROR_CHECK(esp_ping_start(ping));
+    esp_err_t err = esp_ping_new_session(&cfg, &cbs, &s_ping);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "ping session failed: %s", esp_err_to_name(err));
+        s_ping = NULL;
+        return;
+    }
+    s_ping_target = target;
+    esp_ping_start(s_ping);
     ESP_LOGI(TAG, "ping -> " IPSTR " every %d ms",
              IP2STR(&target), CONFIG_CSI_PING_INTERVAL_MS);
+}
+
+/* Reconnection policy as in Step 03: bounded retries for the first join,
+ * forever (1, 2, 4 ... 30 s, timer-driven) after it. */
+static void reconnect_cb(void *arg)
+{
+    esp_wifi_connect();
+}
+
+static void schedule_reconnect(uint32_t delay_ms)
+{
+    esp_timer_stop(s_reconnect_timer);          /* harmless if idle */
+    esp_timer_start_once(s_reconnect_timer, (uint64_t)delay_ms * 1000);
 }
 
 static void event_handler(void *arg, esp_event_base_t base,
@@ -396,12 +483,21 @@ static void event_handler(void *arg, esp_event_base_t base,
         esp_wifi_connect();
     } else if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
         wifi_event_sta_disconnected_t *d = (wifi_event_sta_disconnected_t *)data;
-        if (s_retry_count < CONFIG_CSI_WIFI_MAX_RETRY) {
+        if (s_ping) {
+            esp_ping_stop(s_ping);
+        }
+        if (s_connected_once) {
+            uint32_t delay_s = 1u << (s_retry_count < 5 ? s_retry_count : 5);
+            if (delay_s > 30) delay_s = 30;
+            s_retry_count++;
+            ESP_LOGW(TAG, "link lost (reason %d), reconnect attempt %d in %" PRIu32 " s",
+                     d->reason, s_retry_count, delay_s);
+            schedule_reconnect(delay_s * 1000);
+        } else if (s_retry_count < CONFIG_CSI_WIFI_MAX_RETRY) {
             s_retry_count++;
             ESP_LOGW(TAG, "disconnected (reason %d), retry %d/%d",
                      d->reason, s_retry_count, CONFIG_CSI_WIFI_MAX_RETRY);
-            vTaskDelay(pdMS_TO_TICKS(1000));
-            esp_wifi_connect();
+            schedule_reconnect(1000);
         } else {
             xEventGroupSetBits(s_wifi_events, WIFI_FAIL_BIT);
         }
@@ -411,6 +507,8 @@ static void event_handler(void *arg, esp_event_base_t base,
         ESP_LOGI(TAG, "got IP " IPSTR ", gateway " IPSTR,
                  IP2STR(&e->ip_info.ip), IP2STR(&e->ip_info.gw));
         s_retry_count = 0;
+        s_connected_once = true;
+        ping_start(s_gateway);
         xEventGroupSetBits(s_wifi_events, WIFI_CONNECTED_BIT);
     }
 }
@@ -418,6 +516,11 @@ static void event_handler(void *arg, esp_event_base_t base,
 static void wifi_init_sta(void)
 {
     s_wifi_events = xEventGroupCreate();
+
+    const esp_timer_create_args_t rt = {
+        .callback = reconnect_cb, .name = "wifi_reconnect",
+    };
+    ESP_ERROR_CHECK(esp_timer_create(&rt, &s_reconnect_timer));
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -476,7 +579,7 @@ void app_main(void)
     }
 
     csi_start();
-    ping_start(s_gateway);
+    /* The ping was already started by the GOT_IP handler. */
 
     /* Big stack: the worker does floating point and snprintf. */
     xTaskCreate(amplitude_task, "amp", 8192, NULL, 4, NULL);

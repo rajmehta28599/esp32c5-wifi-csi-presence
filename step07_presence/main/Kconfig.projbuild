@@ -76,6 +76,31 @@ menu "ESP32-C5 CSI Project Configuration"
                 A person who pauses between steps would otherwise flicker
                 the output. This holds the PRESENT state open.
 
+        config CSI_SLOW_FREEZE_MAX_S
+            int "Freeze the empty-room reference for at most this long (s)"
+            default 600
+            range 0 7200
+            help
+                While PRESENT, the slow reference that the static branch
+                compares against stops adapting - otherwise it absorbs the
+                person within about a minute, then reports them again as a
+                "change" for a minute or two after they leave. The freeze
+                is capped so that a real change made while someone is in
+                the room (furniture moved, a door left open) cannot hold
+                PRESENT forever: after this many seconds of continuous
+                presence the reference adapts again. 0 = no cap (not
+                recommended).
+
+        config CSI_NO_CSI_TIMEOUT_MS
+            int "Report 'no CSI' after this long without a usable packet (ms)"
+            default 5000
+            range 1000 60000
+            help
+                If the link drops or the CSI shape changes, the detector
+                would otherwise freeze on its last decision - possibly
+                PRESENT with the LED on. After this timeout it clears
+                PRESENT and says so, until packets flow again.
+
     endmenu
 
     config CSI_LED_GPIO

@@ -34,6 +34,13 @@ managed_components/
 compile_commands.json
 
 # ---------------------------------------------------------------------------
+#  Step 10 host unit tests (MSVC output of test/run_tests.ps1)
+#  .exe / .obj rebuilt on every run -- the test sources are tracked, the
+#  binaries are not.
+# ---------------------------------------------------------------------------
+step10_recognise_count_vitals/test/bin/
+
+# ---------------------------------------------------------------------------
 #  Python (tools/)
 # ---------------------------------------------------------------------------
 __pycache__/
@@ -62,3 +69,10 @@ GEMINI.local.md
 .antigravity/
 .aider*
 .mcp.json
+
+# ---------------------------------------------------------------------------
+#  Office-suite lock files and third-party documents kept only locally
+#  (not ours to redistribute; 2026-11-16)
+# ---------------------------------------------------------------------------
+.~lock.*#
+mmwave_iwr_in_building_automation_1.pdf
